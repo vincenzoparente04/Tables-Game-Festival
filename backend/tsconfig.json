@@ -1,0 +1,35 @@
+{
+
+  "compilerOptions": {
+    "rootDir": "./src", 
+    "outDir": "./dist", 
+    
+    /* === Module System === */
+    "target": "es2022", 
+    "lib": ["es2022"], 
+    "module": "nodenext", 
+    "moduleResolution": "nodenext", 
+    "verbatimModuleSyntax": true, 
+    
+    /* === Compatibilité Node ESM === */
+    "types": ["node"], 
+    "esModuleInterop": true, 
+    "allowSyntheticDefaultImports": true,
+
+    /* === Compilation === */
+    "noEmit": false, 
+    "sourceMap": true, 
+    "skipLibCheck": true, 
+
+    /* === Sécurité et style === */
+    "strict": true,
+    "noUncheckedIndexedAccess": true, 
+    "exactOptionalPropertyTypes": true, 
+    "isolatedModules": true, 
+    "moduleDetection": "force", 
+    "noImplicitOverride": true, 
+    "noUncheckedSideEffectImports": true,
+    "noImplicitAny": true,
+  },
+  "include": ["src/**/*"], 
+}
