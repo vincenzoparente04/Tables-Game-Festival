@@ -1,0 +1,13 @@
+
+<h2>Liste des utilisateurs</h2>
+
+<ul>
+    @for (user of users(); track user.id) {
+        <li>{{ user.login }} ({{ user.role }})</li>
+
+    }
+</ul>
+
+@if(users().length === 0) {
+  <p>Aucun utilisateur trouvé.</p>
+}

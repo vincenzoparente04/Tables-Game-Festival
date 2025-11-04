@@ -1,0 +1,18 @@
+
+  
+ 
+  <nav>
+    <a routerLink="home" routerLinkActive="active">Home</a> ||
+    @if(!isLoggedIn()){
+        <a routerLink="login" routerLinkActive="active">Login</a> ||
+    }
+  
+    @if(isLoggedIn() && isAdmin()) {
+        <a routerLink="admin" routerLinkActive="active">admin</a> 
+    }
+ 
+  </nav>
+
+
+
+<router-outlet/>

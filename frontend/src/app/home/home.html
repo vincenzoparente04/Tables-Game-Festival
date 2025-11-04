@@ -1,0 +1,16 @@
+
+
+@if (isLoggedIn()){
+    <div>Bienvenue, {{currentUser()?.login}}</div>
+    <div class="button">
+        <button (click)="logoutHome()" >se deconnecter</button>
+    </div>
+
+}
+@if (!isLoggedIn()) {
+    <div>Vous n'êtes pas connecté.</div>
+    <div class="button">
+        <a routerLink="/login" routerLinkActive="active">Aller à la page de connexion</a>
+    </div>
+}
+
