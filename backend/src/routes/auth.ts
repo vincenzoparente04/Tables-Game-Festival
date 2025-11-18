@@ -35,16 +35,16 @@ router.post('/logout', (_req, res) => { // --- LOGOUT ---
 })
 
 router.post('/register', async (req, res) => {
-    const { login, password } = req.body
-    if (!login || !password)
+    const { nom , prenom , email , login, password } = req.body
+    if (!login || !password || !email)
         return res.status(400).json({ error: 'Champs manquants' })
     const hashed = await bcrypt.hash(password, 10)
     try {
         const { rows } = await pool.query(
-            `INSERT INTO users (login, password_hash, role)
-            VALUES ($1, $2, 'user')
+            `INSERT INTO users (nom, prenom, email, login, password_hash, role)
+            VALUES ($1, $2, $3, $4, $5, 'user')
             RETURNING id, login, role`,
-            [login, hashed]
+            [nom, prenom, email, login, hashed]
         )
         res.status(201).json({ message: 'Utilisateur créé', user: rows[0] })
     } catch (err: any) {

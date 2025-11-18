@@ -50,6 +50,37 @@ export class AuthService {
     ).subscribe()
   }
 
+  register(nom : string , prenom : string , email : string , login: string, password: string) {
+    this._isLoading.set(true)
+    this._error.set(null)
+    this.http.post<{ user: UserDto }>(
+      `${environment.apiUrl}/auth/register`,
+      { nom, prenom, email, login, password },
+      { withCredentials: true }
+    ).pipe(
+      tap(res => {
+        if (res?.user) {
+          this._currentUser.set(res.user)
+        } else {
+          this._error.set('Inscription impossible')
+          this._currentUser.set(null)
+        }
+      }),
+      catchError((err) => {
+        if (err.status === 409) {
+          this._error.set('Login déjà utilisé')
+        } else if (err.status === 0) {
+          this._error.set('Serveur injoignable (vérifiez HTTPS ou CORS)')
+        } else {
+          this._error.set(`Erreur serveur (${err.status})`)
+        }
+        this._currentUser.set(null)
+        return of(null)
+      }),
+      finalize(() => this._isLoading.set(false))
+    ).subscribe()
+  }
+
   logout() {
     this._isLoading.set(true) ; this._error.set(null)
     this.http.post(`${environment.apiUrl}/auth/logout`, {}, { withCredentials: true })
