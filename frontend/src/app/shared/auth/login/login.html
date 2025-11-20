@@ -26,7 +26,7 @@
 
 @else if (showRegister){
 <div>
-  <app-register></app-register>
-  <button (click)="displayLogin()">Retour</button>
+    <app-register (registered)="displayLogin()"></app-register>
+    <!--<button (click)="displayLogin()">Retour</button>-->
 </div>
 }

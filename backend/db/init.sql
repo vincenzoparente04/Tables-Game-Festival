@@ -4,10 +4,10 @@ CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     nom VARCHAR(50) ,
     prenom VARCHAR(50),
-    email VARCHAR(100) UNIQUE ,
+    email TEXT UNIQUE NOT NULL,
     login TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    role TEXT DEFAULT 'user',
+    role TEXT DEFAULT 'user' CHECK (role IN ('admin', 'organisateur', 'benevole', 'visiteur', 'user')),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -239,18 +239,6 @@ CREATE TABLE IF NOT EXISTS lignes_facture (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Paiements reçus
-/*
-CREATE TABLE paiements (
-    id SERIAL PRIMARY KEY,
-    facture_id INTEGER NOT NULL REFERENCES factures(id) ON DELETE CASCADE,
-    montant DECIMAL(10,2) NOT NULL CHECK (montant > 0),
-    date_paiement DATE NOT NULL DEFAULT CURRENT_DATE,
-    mode_paiement VARCHAR(50),
-    reference VARCHAR(100),
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-);
-**/
 -- =============================================
 -- INDEX POUR LES PERFORMANCES
 -- =============================================

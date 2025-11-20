@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, output } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth-service';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators} from '@angular/forms';
@@ -12,6 +12,7 @@ import { ReactiveFormsModule, FormGroup, FormControl, Validators} from '@angular
 export class Register {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  registered = output<void>();
 
   RegisterForm = new FormGroup({
     nom : new FormControl('', {nonNullable: true}),
@@ -30,6 +31,7 @@ export class Register {
       this.RegisterForm.value.login!,
       this.RegisterForm.value.password!
     );
+    this.registered.emit();
   }
   
   get loading() { return this.auth.isLoading(); }

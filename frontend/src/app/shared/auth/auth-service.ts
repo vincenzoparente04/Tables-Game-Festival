@@ -60,7 +60,8 @@ export class AuthService {
     ).pipe(
       tap(res => {
         if (res?.user) {
-          this._currentUser.set(res.user)
+          // Inscription réussie, on ne connecte pas automatiquement l'utilisateur
+          console.log(`👍 Utilisateur inscrit : ${JSON.stringify(res.user)}`) // DEBUG
         } else {
           this._error.set('Inscription impossible')
           this._currentUser.set(null)
@@ -94,7 +95,7 @@ export class AuthService {
   }
 
 
-// --- Vérifie la session actuelle (cookie httpOnly) ---
+  // --- Vérifie la session actuelle (cookie httpOnly) ---
   whoami() {
     this._isLoading.set(true) ; this._error.set(null)
     this.http.get<{ user: UserDto }>(`${environment.apiUrl}/auth/whoami`, { withCredentials: true })
