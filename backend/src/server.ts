@@ -11,6 +11,8 @@ import 'dotenv/config'
 import authRouter from './routes/auth.js'
 import { verifyToken } from './middleware/token-management.js'
 import { requireAdmin } from './middleware/auth-admin.js'
+import festivalsRouter from './routes/festivals.js'
+
 
 
 // Création de l’application Express
@@ -40,7 +42,7 @@ app.use(cookieParser())
 app.use(cors({
     origin: process.env.FRONTEND_URL || 'https://localhost:8080',
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }))
 
@@ -50,6 +52,7 @@ app.use('/api/users', usersRouter) // on voit la liste des utilisateurs meme son
 app.use('/api/public', publicRouter)
 
 app.use('/api/auth', authRouter);
+app.use('/api/festivals', verifyToken, festivalsRouter);
 app.use('/api/users', verifyToken, usersRouter); // protégé
 app.use('/api/admin', verifyToken, requireAdmin, (req, res) => {
 res.json({ message: 'Bienvenue admin' });

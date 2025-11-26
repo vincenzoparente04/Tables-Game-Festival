@@ -1,5 +1,3 @@
-
-
 CREATE TABLE IF NOT EXISTS users (
     id SERIAL PRIMARY KEY,
     nom VARCHAR(50) ,
@@ -7,7 +5,7 @@ CREATE TABLE IF NOT EXISTS users (
     email TEXT UNIQUE NOT NULL,
     login TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL,
-    role TEXT DEFAULT 'user' CHECK (role IN ('admin', 'organisateur', 'benevole', 'visiteur', 'user')),
+    role TEXT DEFAULT 'user' CHECK (role IN ('admin', 'super organisateur', 'organisateur', 'benevole', 'visiteur', 'user')),
     created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
@@ -388,6 +386,13 @@ SELECT
     f.espace_tables_total,
     f.date_debut,
     f.date_fin,
+    f.created_at,
+    f.stock_tables_standard,
+    f.stock_tables_grandes,
+    f.stock_tables_mairie,
+    f.stock_chaises_standard,
+    f.stock_chaises_mairie,
+    f.prix_prise_electrique,
     COUNT(DISTINCT zt.id) as nb_zones_tarifaires,
     COUNT(DISTINCT zp.id) as nb_zones_plan,
     COALESCE(SUM(zt.nombre_tables_total), 0) as tables_totales_tarifaires,
@@ -502,7 +507,7 @@ SELECT DISTINCT
     j.taille_table,
     e.id as editeur_id,
     e.nom as editeur_nom,
-    STRING_AGG(DISTINCT a.nom || COALESCE(' ' || a.prenom, ''), ', ' ORDER BY a.nom) as auteurs,
+    STRING_AGG(DISTINCT a.nom || COALESCE(' ' || a.prenom, ''), ', ' ORDER BY a.nom || COALESCE(' ' || a.prenom, '')) as auteurs,
     f.id as festival_id,
     f.nom as festival_nom,
     zp.id as zone_plan_id,
@@ -673,7 +678,7 @@ $$ LANGUAGE plpgsql;
 
 -- Fonction : Créer ou mettre à jour une facture automatiquement
 CREATE OR REPLACE FUNCTION upsert_facture(p_reservation_id INTEGER)
-RETURNS INTEGER AS $
+RETURNS INTEGER AS $$
 DECLARE
     v_facture_id INTEGER;
     v_numero_facture VARCHAR(100);
@@ -723,7 +728,7 @@ BEGIN
     
     RETURN v_facture_id;
 END;
-$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 -- =============================================
 -- TRIGGERS
@@ -851,7 +856,7 @@ BEGIN
     
     RETURN NEW;
 END;
-$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trigger_check_tables_allouees
 BEFORE INSERT OR UPDATE ON jeux_festival
@@ -860,7 +865,7 @@ EXECUTE FUNCTION trigger_check_tables_allouees();
 
 -- Trigger : Vérifier que la zone du plan appartient au bon festival
 CREATE OR REPLACE FUNCTION trigger_check_zone_plan_festival()
-RETURNS TRIGGER AS $
+RETURNS TRIGGER AS $$
 DECLARE
     v_festival_id_reservation INTEGER;
     v_festival_id_zone_plan INTEGER;
@@ -884,7 +889,7 @@ BEGIN
     
     RETURN NEW;
 END;
-$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trigger_check_zone_plan_festival
 BEFORE INSERT OR UPDATE ON jeux_festival
@@ -893,7 +898,7 @@ EXECUTE FUNCTION trigger_check_zone_plan_festival();
 
 -- Trigger : Empêcher la suppression d'un éditeur qui a déjà présenté des jeux
 CREATE OR REPLACE FUNCTION trigger_prevent_editeur_deletion()
-RETURNS TRIGGER AS $
+RETURNS TRIGGER AS $$
 DECLARE
     v_count INTEGER;
 BEGIN
@@ -909,7 +914,7 @@ BEGIN
     
     RETURN OLD;
 END;
-$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trigger_prevent_editeur_deletion
 BEFORE DELETE ON editeurs
@@ -918,7 +923,7 @@ EXECUTE FUNCTION trigger_prevent_editeur_deletion();
 
 -- Trigger : Empêcher la suppression d'une zone tarifaire avec des réservations
 CREATE OR REPLACE FUNCTION trigger_prevent_zone_tarifaire_deletion()
-RETURNS TRIGGER AS $
+RETURNS TRIGGER AS $$
 DECLARE
     v_count INTEGER;
 BEGIN
@@ -931,7 +936,7 @@ BEGIN
     
     RETURN OLD;
 END;
-$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trigger_prevent_zone_tarifaire_deletion
 BEFORE DELETE ON zones_tarifaires
@@ -940,7 +945,7 @@ EXECUTE FUNCTION trigger_prevent_zone_tarifaire_deletion();
 
 -- Trigger : Mettre à jour la date de dernier contact automatiquement
 CREATE OR REPLACE FUNCTION trigger_update_dernier_contact()
-RETURNS TRIGGER AS $
+RETURNS TRIGGER AS $$
 BEGIN
     UPDATE reservations 
     SET date_dernier_contact = NEW.date_contact,
@@ -949,7 +954,7 @@ BEGIN
     
     RETURN NEW;
 END;
-$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql;
 
 CREATE TRIGGER trigger_update_dernier_contact
 AFTER INSERT ON contacts_reservations

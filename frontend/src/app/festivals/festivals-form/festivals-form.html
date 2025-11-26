@@ -1,0 +1,77 @@
+<h2 class="title">{{ submitLabel() }} un festival</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()" class="form">
+
+  <mat-form-field appearance="outline">
+    <mat-label>Nom du festival</mat-label>
+    <input matInput formControlName="nom" required>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Espace total (tables)</mat-label>
+    <input type="number" matInput formControlName="espace_tables_total">
+  </mat-form-field>
+
+  <div class="dates-row">
+    <mat-form-field appearance="outline">
+      <mat-label>Date début</mat-label>
+      <input matInput type="date" formControlName="date_debut">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Date fin</mat-label>
+      <input matInput type="date" formControlName="date_fin">
+    </mat-form-field>
+  </div>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Description</mat-label>
+    <textarea matInput rows="3" formControlName="description"></textarea>
+  </mat-form-field>
+
+  <h3 class="section-title">Stocks</h3>
+
+  <div class="grid">
+    <mat-form-field appearance="outline">
+      <mat-label>Tables standard</mat-label>
+      <input type="number" matInput formControlName="stock_tables_standard">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Tables grandes</mat-label>
+      <input type="number" matInput formControlName="stock_tables_grandes">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Tables mairie</mat-label>
+      <input type="number" matInput formControlName="stock_tables_mairie">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Chaises standard</mat-label>
+      <input type="number" matInput formControlName="stock_chaises_standard">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Chaises mairie</mat-label>
+      <input type="number" matInput formControlName="stock_chaises_mairie">
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Prix prise électrique (€)</mat-label>
+      <input type="number" matInput formControlName="prix_prise_electrique">
+    </mat-form-field>
+  </div>
+
+  <!--<div class="switches">
+    <mat-checkbox formControlName="est_actif">Actif</mat-checkbox>
+  </div>-->
+
+  <div class="actions">
+    <button mat-stroked-button type="button" (click)="dialogRef?.close()">Annuler</button>
+    <button mat-raised-button color="primary" [disabled]="form.invalid">
+      {{ submitLabel() }}
+    </button>
+  </div>
+
+</form>

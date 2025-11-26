@@ -1,0 +1,51 @@
+<div class="container">
+  <div class="header">
+    <div>
+      <h1>Festivals</h1>
+      <p class="subtitle">Gestion des festivals de jeux de société</p>
+    </div>
+    @if(canCreate()) {
+        <button mat-raised-button color="primary" (click)="createFestival()">
+            <mat-icon>add</mat-icon>
+            Nouveau Festival
+        </button>
+    }
+  </div>
+
+  @if(loading()){
+    <div class="loading">
+        <mat-spinner></mat-spinner>
+        <p>Chargement des festivals...</p>
+    </div>
+  }
+
+  @if (!loading() && festivals().length === 0) {
+    <div class="empty-state">
+        <mat-icon>event_busy</mat-icon>
+        <h2>Aucun festival</h2>
+        <p>Commencez par créer votre premier festival</p>
+        @if(canCreate()) {
+            <button mat-raised-button color="primary" (click)="createFestival()">
+                <mat-icon>add</mat-icon>
+                Créer un festival
+            </button>
+        }
+    </div>
+  }
+
+  @if(!loading() && festivals().length > 0) {
+    <div class="festivals-grid">
+        @for(festival of festivals() ; track festival.id) {
+            <app-festival-card
+                [festival]="festival"
+                [canModify]="canModify()"
+                [canDelete]="canDelete()"
+                [showStocks]="isAdminOrSuperOrga()"
+                (setCourant)="onSetCourant(festival.id)"
+                (edit)="onEdit(festival)"
+                (delete)="onDelete(festival.id)">
+            </app-festival-card>
+        }
+    </div>
+  }
+</div>

@@ -1,0 +1,115 @@
+<mat-card [class.courant]="festival()?.est_courant">
+
+  <mat-card-header>
+    <mat-card-title>
+      {{ festival()?.nom }}
+
+      @if (festival()?.est_courant) {
+        <mat-chip class="chip-courant">
+          <mat-icon>star</mat-icon> COURANT
+        </mat-chip>
+      }
+    </mat-card-title>
+
+    <mat-card-subtitle>
+      @if (festival()?.date_debut || festival()?.date_fin) {
+        <div>
+          <mat-icon inline>event</mat-icon>
+          @if (festival()?.date_debut) {
+            <span>{{ festival()?.date_debut | date:'dd/MM/yyyy' }}</span>
+          }
+          @if (festival()?.date_debut && festival()?.date_fin) {
+            <span> - </span>
+          }
+          @if (festival()?.date_fin) {
+            <span>{{ festival()?.date_fin | date:'dd/MM/yyyy' }}</span>
+          }
+        </div>
+      }
+    </mat-card-subtitle>
+  </mat-card-header>
+  
+  <mat-card-content>
+
+    @if (festival()?.description) {
+      <p class="description">{{ festival()?.description }}</p>
+    }
+
+    <div class="stats-grid">
+      <div class="stat-item">
+        <mat-icon>table_restaurant</mat-icon>
+        <div>
+          <div class="stat-label">Tables (espace)</div>
+          <div class="stat-value">{{ festival()?.espace_tables_total ?? 0 }}</div>
+        </div>
+      </div>
+      
+      <div class="stat-item">
+        <mat-icon>grid_on</mat-icon>
+        <div>
+          <div class="stat-label">Zones tarifaires</div>
+          <div class="stat-value">{{ festival()?.nb_zones_tarifaires ?? 0 }}</div>
+        </div>
+      </div>
+
+      <div class="stat-item">
+        <mat-icon>assignment</mat-icon>
+        <div>
+          <div class="stat-label">Réservations</div>
+          <div class="stat-value">
+            {{ festival()?.nb_reservations_confirmees ?? 0 }} / 
+            {{ festival()?.nb_reservations_totales ?? 0 }}
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-item">
+        <mat-icon>euro</mat-icon>
+        <div>
+          <div class="stat-label">Facturé</div>
+          <div class="stat-value">
+            {{ (festival()?.montant_total_factures ?? 0) | currency:'EUR' }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    @if (showStocks()) {
+      <div class="stocks">
+        <div class="stocks-title">Stocks physiques :</div>
+        <div class="stocks-grid">
+          <span>Tables std: {{ festival()?.stock_tables_standard ?? 0 }}</span>
+          <span>Tables gdes: {{ festival()?.stock_tables_grandes ?? 0 }}</span>
+          <span>Tables mairie: {{ festival()?.stock_tables_mairie ?? 0 }}</span>
+          <span>Chaises std: {{ festival()?.stock_chaises_standard ?? 0 }}</span>
+          <span>Chaises mairie: {{ festival()?.stock_chaises_mairie ?? 0 }}</span>
+        </div>
+      </div>
+    }
+  </mat-card-content>
+
+  <mat-card-actions align="end">
+
+    @if (!festival()?.est_courant) {
+      <button mat-button color="primary" (click)="setCourant.emit(festival()!.id)">
+        
+        Sélectionner
+      </button>
+    }
+
+    @if (canModify()) {
+      <button mat-button (click)="edit.emit(festival()!)">
+        <mat-icon>edit</mat-icon>
+        Modifier
+      </button>
+    }
+
+    @if (canDelete()) {
+      <button mat-button color="warn" (click)="delete.emit(festival()!.id)">
+        <mat-icon>delete</mat-icon>
+        Supprimer
+      </button>
+    }
+
+  </mat-card-actions>
+</mat-card>

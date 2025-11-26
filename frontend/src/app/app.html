@@ -8,8 +8,13 @@
     }
   
     @if(isLoggedIn() && isAdmin()) {
-        <a routerLink="admin" routerLinkActive="active">admin</a> 
+        <a routerLink="admin" routerLinkActive="active">admin</a> || 
+        <a routerLink="festivals" routerLinkActive="active">Festivals</a> ||
     }
+    @if(isLoggedIn() && !isAdmin()) {
+        <a routerLink="festivals" routerLinkActive="active">Festivals</a> ||
+    }
+
  
   </nav>
 
