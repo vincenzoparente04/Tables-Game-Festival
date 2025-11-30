@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import pool from '../db/database.js';
-import { requireRole } from '../middleware/roles.js';
+import { requireRole, requireActivatedAccount, requirePermission } from '../middleware/roles.js';
 const router = Router();
 // -----------------------------
 // Liste des festivals (dashboard)
 // -----------------------------
-router.get('/', requireRole(['admin', 'super organisateur', 'organisateur']), async (req, res) => {
+router.get('/', requireActivatedAccount(), requirePermission('festivals', 'viewAll'), async (req, res) => {
     try {
         const result = await pool.query(`
           SELECT * FROM vue_festivals_dashboard 
@@ -18,7 +18,7 @@ router.get('/', requireRole(['admin', 'super organisateur', 'organisateur']), as
         res.status(500).json({ error: 'Erreur serveur' });
     }
 });
-router.get('/courant', requireRole(['admin', 'super organisateur', 'organisateur']), async (req, res) => {
+router.get('/courant', requireActivatedAccount(), requirePermission('festivals', 'viewCurrent'), async (req, res) => {
     try {
         const result = await pool.query('SELECT * FROM vue_festivals_dashboard WHERE est_courant = true LIMIT 1');
         if (result.rows.length === 0) {
@@ -34,7 +34,7 @@ router.get('/courant', requireRole(['admin', 'super organisateur', 'organisateur
 // -----------------------------
 // Détail d’un festival
 // -----------------------------
-router.get('/:id', requireRole(['admin', 'super organisateur', 'organisateur']), async (req, res) => {
+router.get('/:id', requireActivatedAccount(), requirePermission('festivals', 'viewAll'), async (req, res) => {
     const festivalId = req.params.id;
     try {
         const result = await pool.query(`
@@ -51,7 +51,7 @@ router.get('/:id', requireRole(['admin', 'super organisateur', 'organisateur']),
 // -----------------------------
 // POST : Créer un festival
 // -----------------------------
-router.post('/', requireRole(['admin', 'super organisateur']), async (req, res) => {
+router.post('/', requireActivatedAccount(), requirePermission('festivals', 'create'), async (req, res) => {
     const { nom, espace_tables_total, date_debut, date_fin, description, stock_tables_standard, stock_tables_grandes, stock_tables_mairie, stock_chaises_standard, stock_chaises_mairie, prix_prise_electrique, est_actif, est_courant } = req.body;
     if (!nom || !espace_tables_total) {
         return res.status(400).json({
@@ -73,7 +73,7 @@ router.post('/', requireRole(['admin', 'super organisateur']), async (req, res) 
              RETURNING *`, [nom, espace_tables_total, date_debut, date_fin, description || null,
             stock_tables_standard || 0, stock_tables_grandes || 0, stock_tables_mairie || 0,
             stock_chaises_standard || 0, stock_chaises_mairie || 0, prix_prise_electrique || 0,
-            est_actif ?? true, est_courant ?? false]);
+            est_actif ?? true, est_courant ?? true]);
         res.status(201).json(result.rows[0]);
     }
     catch (error) {
@@ -87,7 +87,7 @@ router.post('/', requireRole(['admin', 'super organisateur']), async (req, res) 
 // -----------------------------
 // PATCH : Modifier un festival
 // -----------------------------
-router.patch('/:id', requireRole(['admin', 'super organisateur']), async (req, res) => {
+router.patch('/:id', requireActivatedAccount(), requirePermission('festivals', 'update'), async (req, res) => {
     const { id } = req.params;
     const updates = req.body;
     // Ne pas permettre de modifier directement est_courant via cette route
@@ -130,7 +130,7 @@ router.patch('/:id', requireRole(['admin', 'super organisateur']), async (req, r
 // -------------------------------
 //  Définir comme festival courant
 // -------------------------------
-router.patch('/:id/set-courant', requireRole(['admin', 'super organisateur', 'organisateur']), async (req, res) => {
+router.patch('/:id/set-courant', requireActivatedAccount(), requirePermission('festivals', 'setCourant'), async (req, res) => {
     const { id } = req.params;
     try {
         // Le trigger ensure_single_festival_courant gère l'unicité automatiquement
@@ -148,7 +148,7 @@ router.patch('/:id/set-courant', requireRole(['admin', 'super organisateur', 'or
 // -----------------------------
 // DELETE : Supprimer un festival
 // -----------------------------
-router.delete('/:id', requireRole(['admin', 'super organisateur']), async (req, res) => {
+router.delete('/:id', requireActivatedAccount(), requirePermission('festivals', 'delete'), async (req, res) => {
     const festivalId = req.params.id;
     try {
         const result = await pool.query(`DELETE FROM festivals WHERE id = $1 RETURNING *`, [festivalId]);

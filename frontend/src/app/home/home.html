@@ -1,16 +1,70 @@
+@if (isLoggedIn()) {
+  <div class="home-container">
+    <mat-card class="welcome-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>waving_hand</mat-icon>
+          Bienvenue !
+        </mat-card-title>
+        <mat-card-subtitle>
+          Rôle : <strong>{{userRole()}}</strong>
+        </mat-card-subtitle>
+      </mat-card-header>
 
+      <mat-card-content>
+        @if (isPendingUser()) {
+          <div class="alert-box warning">
+            <mat-icon>hourglass_empty</mat-icon>
+            <div>
+              <h3>Compte en attente de validation</h3>
+              <p>Votre compte doit être validé par un administrateur avant de pouvoir accéder à toutes les fonctionnalités.</p>
+            </div>
+          </div>
+        } @else {
+          <div class="alert-box success">
+            <mat-icon>check_circle</mat-icon>
+            <p>Votre compte est actif. Vous pouvez accéder aux fonctionnalités de l'application.</p>
+          </div>
 
-@if (isLoggedIn()){
-    <div>Bienvenue, {{currentUser()?.login}}</div>
-    <div class="button">
-        <button (click)="logoutHome()" >se deconnecter</button>
-    </div>
+          
+          <div class="quick-links">
+            @if (canViewFestivals()) {
+              <a mat-raised-button color="primary" routerLink="/festivals">
+                <mat-icon>event</mat-icon>
+                Voir les Festivals
+              </a>
+            }
+            
+            @if (isAdmin()) {
+              <a mat-raised-button color="accent" routerLink="/admin">
+                <mat-icon>admin_panel_settings</mat-icon>
+                Administration
+              </a>
+            }
+          </div>
+        }
+      </mat-card-content>
 
+    
+    </mat-card>
+  </div>
 }
+
 @if (!isLoggedIn()) {
-    <div>Vous n'êtes pas connecté.</div>
-    <div class="button">
-        <a routerLink="/login" routerLinkActive="active">Aller à la page de connexion</a>
-    </div>
-}
+  <div class="home-container">
+    <mat-card class="welcome-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>login</mat-icon>
+          Bienvenue sur l'application Festival
+        </mat-card-title>
+      </mat-card-header>
 
+      <mat-card-content>
+        <p>Vous n'êtes pas connecté.</p>
+        <p>Connectez-vous pour accéder à l'application de gestion des festivals de jeux de société.</p>
+      </mat-card-content>
+
+    </mat-card>
+  </div>
+}

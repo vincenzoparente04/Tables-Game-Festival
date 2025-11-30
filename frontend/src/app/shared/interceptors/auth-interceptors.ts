@@ -8,7 +8,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const excluded = ['/auth/login', '/auth/logout', '/auth/refresh'];
   if (excluded.some(path => req.url.includes(path))) return next(req);
 
-  // Clone la requête pour ajouter withCredentials: true (cookie httpOnly)
+  // ajouter withCredentials: true (cookie httpOnly)
   const reqWithCreds = req.clone({ withCredentials: true });
 
   return next(reqWithCreds).pipe(

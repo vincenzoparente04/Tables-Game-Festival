@@ -1,0 +1,103 @@
+<h2 mat-dialog-title>
+      <mat-icon>person_add</mat-icon>
+      Créer un nouvel utilisateur
+    </h2>
+
+    <mat-dialog-content>
+      <form [formGroup]="form" class="user-form">
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Login *</mat-label>
+            <input matInput formControlName="login" required>
+            <mat-icon matPrefix>account_circle</mat-icon>
+            @if(form.get('login')?.hasError('required') && form.get('login')?.touched) {
+              <mat-error>Login requis</mat-error>
+            }
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Email *</mat-label>
+            <input matInput type="email" formControlName="email" required>
+            <mat-icon matPrefix>email</mat-icon>
+            @if(form.get('email')?.hasError('required') && form.get('email')?.touched) {
+              <mat-error>Email requis</mat-error>
+            }
+            @if(form.get('email')?.hasError('email') && form.get('email')?.touched) {
+              <mat-error>Email invalide</mat-error>
+            }
+          </mat-form-field>
+        </div>
+
+        <div class="form-row">
+          <mat-form-field appearance="outline">
+            <mat-label>Nom</mat-label>
+            <input matInput formControlName="nom">
+            <mat-icon matPrefix>badge</mat-icon>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Prénom</mat-label>
+            <input matInput formControlName="prenom">
+            <mat-icon matPrefix>badge</mat-icon>
+          </mat-form-field>
+        </div>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Mot de passe *</mat-label>
+          <input 
+            matInput 
+            [type]="hidePassword ? 'password' : 'text'" 
+            formControlName="password" 
+            required>
+          <mat-icon matPrefix>lock</mat-icon>
+          <button 
+            mat-icon-button 
+            matSuffix 
+            type="button"
+            (click)="hidePassword = !hidePassword">
+            <mat-icon>{{ hidePassword ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          @if(form.get('password')?.hasError('required') && form.get('password')?.touched) {
+            <mat-error>Mot de passe requis</mat-error>
+          }
+          @if(form.get('password')?.hasError('minlength') && form.get('password')?.touched) {
+            <mat-error>Minimum 6 caractères</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Rôle *</mat-label>
+          <mat-select formControlName="role" required>
+            @for(role of availableRoles; track role) {
+              <mat-option [value]="role">
+                <mat-icon>{{ getRoleIcon(role) }}</mat-icon>
+                {{ role }}
+              </mat-option>
+            }
+          </mat-select>
+          <mat-icon matPrefix>admin_panel_settings</mat-icon>
+          @if(form.get('role')?.hasError('required') && form.get('role')?.touched) {
+            <mat-error>Rôle requis</mat-error>
+          }
+        </mat-form-field>
+
+        @if(form.get('role')?.value) {
+          <div class="role-description">
+            <mat-icon>info</mat-icon>
+            <span>{{ getRoleDescription(form.get('role')?.value) }}</span>
+          </div>
+        }
+      </form>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      <button mat-button mat-dialog-close>Annuler</button>
+      <button 
+        mat-raised-button 
+        color="primary" 
+        [disabled]="form.invalid"
+        (click)="onSubmit()">
+        <mat-icon>save</mat-icon>
+        Créer l'utilisateur
+      </button>
+    </mat-dialog-actions>

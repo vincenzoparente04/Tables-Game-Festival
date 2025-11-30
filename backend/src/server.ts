@@ -47,10 +47,7 @@ app.use(cors({
 }))
 
 // Routes publiques
-app.use('/api/users', usersRouter) // on voit la liste des utilisateurs meme sont etre connecté , si on veut pas , on peut l'enlever et garder juste la route protégée en bas 
-
 app.use('/api/public', publicRouter)
-
 app.use('/api/auth', authRouter);
 app.use('/api/festivals', verifyToken, festivalsRouter);
 app.use('/api/users', verifyToken, usersRouter); // protégé

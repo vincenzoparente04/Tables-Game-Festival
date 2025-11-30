@@ -37,7 +37,7 @@ app.use(cookieParser());
 app.use(cors({
     origin: process.env.FRONTEND_URL || 'https://localhost:8080',
     credentials: true,
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 // Routes publiques

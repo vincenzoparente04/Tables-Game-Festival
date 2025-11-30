@@ -3,7 +3,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { FestivalCard } from '../festival-card/festival-card';
 import { FestivalsForm } from '../festivals-form/festivals-form';
 import { CommonModule } from '@angular/common';
-import { RouterModule, Router } from '@angular/router';
+import { RouterModule } from '@angular/router';
 
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -14,7 +14,7 @@ import { MatInputModule } from '@angular/material/input';
 
 import { FestivalsDto } from '../../types/festivals-dto';
 import { FestivalsService } from '../../shared/festivals-service';
-import { AuthService } from '../../shared/auth/auth-service';
+import { PermissionsService } from '../../services/permissions-service'
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 @Component({
@@ -27,27 +27,30 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 })
 export class FestivalsList {
   private readonly festivalsService = inject(FestivalsService);
-  private readonly router = inject(Router);
-  private readonly authService = inject(AuthService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly permissions = inject(PermissionsService);
   private readonly dialog = inject(MatDialog);
 
   readonly festivals = signal<FestivalsDto[]>([]);
   loading = signal(false);
   error = signal<string | null>(null);
-
-  // it will be updated with computed whenever the current user changes
-  readonly isAdminOrSuperOrga = computed(() => {
-    const user = this.authService.currentUser();
-    const role = user?.role ?? '';
-    return role === 'admin' || role === 'super organisateur';
-  });
-  readonly canCreate = computed(() => this.isAdminOrSuperOrga());
-  readonly canModify = computed(() => this.isAdminOrSuperOrga());
-  readonly canDelete = computed(() => this.isAdminOrSuperOrga());
+ 
+  readonly canCreate = this.permissions.can('festivals', 'create');
+  readonly canModify = this.permissions.can('festivals', 'update');
+  readonly canDelete = this.permissions.can('festivals', 'delete');
+  readonly canViewStocks = this.permissions.can('festivals', 'viewStocks');
+  readonly canSetCourant = this.permissions.can('festivals', 'setCourant');
+  readonly canViewAll = this.permissions.can('festivals','viewAll');
+  readonly canViewCurrent = this.permissions.can('festivals','viewCurrent');
 
   constructor() {
-    this.loadFestivals();
+    if(this.canViewAll()){
+      this.loadFestivals();
+    }
+    else if (this.canViewCurrent()) {
+      this.loadCurrentFestival();
+    }
+    
   }
 
   loadFestivals() {
@@ -68,11 +71,35 @@ export class FestivalsList {
     });
   }
 
+  loadCurrentFestival() {
+    this.loading.set(true);
+    this.error.set(null);
+    this.festivalsService.getCurrent().subscribe({
+      next: (festival: FestivalsDto) => {
+        this.festivals.set([festival]);
+        this.loading.set(false);
+      },
+      error: (err : any) => {
+        console.error(err);
+        this.error.set('Erreur lors du chargement des festivals');
+        this.festivals.set([]);
+        this.snackBar.open('Erreur lors du chargement des festivals', 'Fermer', { duration: 3000 });
+        this.loading.set(false);
+      }
+
+    });
+  }
+
   trackById(_: number, item: FestivalsDto) {
     return item.id;
   }
 
   onSetCourant(id: number) {
+    if (!this.canSetCourant()) {
+      this.snackBar.open('Vous n\'avez pas la permission de définir le festival courant', 'Fermer', { duration: 3000 });
+      return;
+    }
+
     this.festivalsService.setCourant(id).subscribe({
       next: () => {
         this.snackBar.open('Festival défini comme courant', 'OK', { duration: 2000 });
@@ -87,6 +114,11 @@ export class FestivalsList {
 
   // Ouvre le formulaire festival dans une modale (création ou édition)
   createFestival() {
+    if (!this.canCreate()) {
+      this.snackBar.open('Vous n\'avez pas la permission de créer un festival', 'Fermer', { duration: 3000 });
+      return;
+    }
+
     const dialogRef = this.dialog.open(FestivalsForm, {
       width: '500px',
       disableClose: true
@@ -99,6 +131,11 @@ export class FestivalsList {
   }
 
   onEdit(festival: FestivalsDto) {
+    if (!this.canModify()) {
+      this.snackBar.open('Vous n\'avez pas la permission de modifier un festival', 'Fermer', { duration: 3000 });
+      return;
+    }
+
     const dialogRef = this.dialog.open(FestivalsForm, {
       width: '500px',
       disableClose: true,
@@ -112,6 +149,11 @@ export class FestivalsList {
   }
 
   onDelete(id: number) {
+    if (!this.canDelete()) {
+      this.snackBar.open('Vous n\'avez pas la permission de supprimer un festival', 'Fermer', { duration: 3000 });
+      return;
+    }
+
     if (confirm('Êtes-vous sûr de vouloir supprimer ce festival ? Cette action est irréversible.')) {
       this.festivalsService.deleteFestival(id).subscribe({
         next: () => {

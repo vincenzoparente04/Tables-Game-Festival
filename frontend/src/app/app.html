@@ -1,23 +1,28 @@
-
-  
- 
-  <nav>
-    <a routerLink="home" routerLinkActive="active">Home</a> ||
-    @if(!isLoggedIn()){
-        <a routerLink="login" routerLinkActive="active">Login</a> ||
+<mat-toolbar color="primary" class="main-toolbar">
+  <span class="logo">🎲 Festival Manager</span>
+  <span class="spacer"></span>
+  @if(isLoggedIn()) {
+    <button mat-button routerLink="home"><mat-icon>home</mat-icon> Accueil</button>
+    @if(!isPendingUser()){
+      
+      @if(canViewFestivals()){
+        <button mat-button routerLink="festivals"><mat-icon>event</mat-icon> Festivals</button>
+      }
+      @else if (canViewCurrent()) {
+        <button mat-button routerLink="festivals/courant"><mat-icon>visibility</mat-icon> Festivals </button>
+      }
+      
     }
-  
-    @if(isLoggedIn() && isAdmin()) {
-        <a routerLink="admin" routerLinkActive="active">admin</a> || 
-        <a routerLink="festivals" routerLinkActive="active">Festivals</a> ||
+    
+    @if(isAdmin()) {
+      <button mat-button routerLink="admin"><mat-icon>admin_panel_settings</mat-icon> Admin</button>
     }
-    @if(isLoggedIn() && !isAdmin()) {
-        <a routerLink="festivals" routerLinkActive="active">Festivals</a> ||
-    }
-
- 
-  </nav>
-
-
+    <button mat-button (click)="logoutApp()"><mat-icon>logout</mat-icon> Déconnexion</button>
+  } @else {
+    <button mat-button routerLink="home"><mat-icon>home</mat-icon> Accueil</button>
+    <button mat-button routerLink="login"><mat-icon>login</mat-icon> Connexion</button>
+    <button mat-button routerLink="register"><mat-icon>person_add</mat-icon> Inscription</button>
+  }
+</mat-toolbar>
 
 <router-outlet/>

@@ -1,13 +1,245 @@
+<div class="admin-container">
+  <div class="header">
+    <div>
+      <h1>
+        <mat-icon>admin_panel_settings</mat-icon>
+        Administration
+      </h1>
+      <p class="subtitle">Gestion des utilisateurs et des permissions</p>
+    </div>
+    <button 
+      mat-raised-button 
+      color="primary"
+      (click)="openCreateUserDialog()">
+      <mat-icon>person_add</mat-icon>
+      Créer un utilisateur
+    </button>
+  </div>
 
-<h2>Liste des utilisateurs</h2>
+  <!-- Statistiques -->
+  <div class="stats-cards">
+    <mat-card>
+      <mat-card-content>
+        <div class="stat">
+          <mat-icon color="primary">check_circle</mat-icon>
+          <div>
+            <div class="stat-value">{{ getActiveCount() }}</div>
+            <div class="stat-label">Comptes actifs</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
 
-<ul>
-    @for (user of users(); track user.id) {
-        <li>{{ user.login }} ({{ user.role }})</li>
+    <mat-card>
+      <mat-card-content>
+        <div class="stat">
+          <mat-icon color="warn">hourglass_empty</mat-icon>
+          <div>
+            <div class="stat-value">{{ getPendingCount() }}</div>
+            <div class="stat-label">En attente</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
 
-    }
-</ul>
+  @if(loading()) {
+    <div class="loading">
+      <mat-spinner></mat-spinner>
+      <p>Chargement des utilisateurs...</p>
+    </div>
+  }
 
-@if(users().length === 0) {
-  <p>Aucun utilisateur trouvé.</p>
-}
+  @if(!loading()) {
+    <mat-tab-group>
+      <!-- Onglet: Comptes en attente -->
+      <mat-tab [label]="'Comptes en attente (' + getPendingCount() + ')'">
+        <div class="tab-content">
+          @if(pendingUsers().length === 0) {
+            <div class="empty-state">
+              <mat-icon>check_circle</mat-icon>
+              <h3>Aucun compte en attente</h3>
+              <p>Tous les comptes ont été validés !</p>
+            </div>
+          } @else {
+            <table mat-table [dataSource]="pendingUsers()" class="users-table">
+              <!-- Login -->
+              <ng-container matColumnDef="login">
+                <th mat-header-cell *matHeaderCellDef>Login</th>
+                <td mat-cell *matCellDef="let user">
+                  <strong>{{ user.login }}</strong>
+                </td>
+              </ng-container>
+
+              <!-- Nom -->
+              <ng-container matColumnDef="nom">
+                <th mat-header-cell *matHeaderCellDef>Nom</th>
+                <td mat-cell *matCellDef="let user">{{ user.nom }}</td>
+              </ng-container>
+
+              <!-- Prénom -->
+              <ng-container matColumnDef="prenom">
+                <th mat-header-cell *matHeaderCellDef>Prénom</th>
+                <td mat-cell *matCellDef="let user">{{ user.prenom }}</td>
+              </ng-container>
+
+              <!-- Email -->
+              <ng-container matColumnDef="email">
+                <th mat-header-cell *matHeaderCellDef>Email</th>
+                <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+              </ng-container>
+
+              <!-- Date de création -->
+              <ng-container matColumnDef="created_at">
+                <th mat-header-cell *matHeaderCellDef>Inscrit le</th>
+                <td mat-cell *matCellDef="let user">
+                  {{ user.created_at | date:'dd/MM/yyyy HH:mm' }}
+                </td>
+              </ng-container>
+
+              <!-- Actions -->
+              <ng-container matColumnDef="actions">
+                <th mat-header-cell *matHeaderCellDef>Actions</th>
+                <td mat-cell *matCellDef="let user">
+                  <div class="action-buttons">
+                    <mat-form-field appearance="outline" class="role-select">
+                      <mat-label>Attribuer un rôle</mat-label>
+                      <mat-select #roleSelect>
+                        @for(role of availableRoles(); track role) {
+                          <mat-option [value]="role">
+                            <mat-icon>{{ getRoleIcon(role) }}</mat-icon>
+                            {{ role }}
+                          </mat-option>
+                        }
+                      </mat-select>
+                    </mat-form-field>
+                    <button 
+                      mat-raised-button 
+                      color="primary"
+                      (click)="validateUser(user, roleSelect.value)">
+                      <mat-icon>check</mat-icon>
+                      Valider
+                    </button>
+                    <button 
+                      mat-icon-button 
+                      color="warn"
+                      (click)="deleteUser(user)"
+                      matTooltip="Supprimer">
+                      <mat-icon>delete</mat-icon>
+                    </button>
+                  </div>
+                </td>
+              </ng-container>
+
+              <tr mat-header-row *matHeaderRowDef="pendingColumns"></tr>
+              <tr mat-row *matRowDef="let row; columns: pendingColumns;"></tr>
+            </table>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- Onglet: Tous les utilisateurs -->
+      <mat-tab label="Tous les utilisateurs">
+        <div class="tab-content">
+          <table mat-table [dataSource]="allUsers()" class="users-table">
+            <!-- Login -->
+            <ng-container matColumnDef="login">
+              <th mat-header-cell *matHeaderCellDef>Login</th>
+              <td mat-cell *matCellDef="let user">
+                <strong>{{ user.login }}</strong>
+              </td>
+            </ng-container>
+
+            <!-- Nom -->
+            <ng-container matColumnDef="nom">
+              <th mat-header-cell *matHeaderCellDef>Nom</th>
+              <td mat-cell *matCellDef="let user">{{ user.nom }}</td>
+            </ng-container>
+
+            <!-- Prénom -->
+            <ng-container matColumnDef="prenom">
+              <th mat-header-cell *matHeaderCellDef>Prénom</th>
+              <td mat-cell *matCellDef="let user">{{ user.prenom }}</td>
+            </ng-container>
+
+            <!-- Email -->
+            <ng-container matColumnDef="email">
+              <th mat-header-cell *matHeaderCellDef>Email</th>
+              <td mat-cell *matCellDef="let user">{{ user.email }}</td>
+            </ng-container>
+
+            <!-- Rôle -->
+            <ng-container matColumnDef="role">
+              <th mat-header-cell *matHeaderCellDef>Rôle</th>
+              <td mat-cell *matCellDef="let user">
+                <mat-chip [color]="getRoleColor(user.role)" highlighted>
+                  <mat-icon>{{ getRoleIcon(user.role) }}</mat-icon>
+                  {{ user.role }}
+                </mat-chip>
+              </td>
+            </ng-container>
+
+            <!-- Date de création -->
+            <ng-container matColumnDef="created_at">
+              <th mat-header-cell *matHeaderCellDef>Créé le</th>
+              <td mat-cell *matCellDef="let user">
+                {{ user.created_at | date:'dd/MM/yyyy' }}
+              </td>
+            </ng-container>
+
+            <!-- Actions -->
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef>Actions</th>
+              <td mat-cell *matCellDef="let user">
+                <div class="action-buttons">
+                                      <mat-form-field appearance="outline" class="role-select">
+                    <mat-label>Changer le rôle</mat-label>
+                    <mat-select 
+                      [value]="user.role"
+                      (selectionChange)="changeRole(user, $event.value)">
+                      @for(role of availableRoles(); track role) {
+                        <mat-option [value]="role">
+                          <mat-icon>{{ getRoleIcon(role) }}</mat-icon>
+                          {{ role }}
+                        </mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                  <button 
+                    mat-icon-button 
+                    color="warn"
+                    (click)="deleteUser(user)"
+                    matTooltip="Supprimer cet utilisateur">
+                    <mat-icon>delete</mat-icon>
+                  </button>
+                </div>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+          </table>
+        </div>
+      </mat-tab>
+
+      <!-- Onglet: Informations sur les rôles -->
+      <mat-tab label="Rôles disponibles">
+        <div class="tab-content">
+          <div class="roles-info">
+            @for(role of availableRoles(); track role) {
+              <mat-card class="role-card">
+                <mat-card-header>
+                  <mat-icon [color]="getRoleColor(role)">{{ getRoleIcon(role) }}</mat-icon>
+                  <mat-card-title>{{ role }}</mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <p>{{ getRoleDescription(role) }}</p>
+                </mat-card-content>
+              </mat-card>
+            }
+          </div>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  }
+</div>

@@ -5,3 +5,22 @@ a.active {
   padding: 0.2em 0.6em;
   text-decoration: none;
 }
+
+.main-toolbar {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  font-weight: bold;
+  font-size: 1.3em;
+  margin-right: 2em;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+mat-toolbar button {
+  margin-left: 1em;
+}

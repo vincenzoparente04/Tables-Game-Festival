@@ -40,7 +40,7 @@
                 [festival]="festival"
                 [canModify]="canModify()"
                 [canDelete]="canDelete()"
-                [showStocks]="isAdminOrSuperOrga()"
+                [showStocks]="canViewStocks()"
                 (setCourant)="onSetCourant(festival.id)"
                 (edit)="onEdit(festival)"
                 (delete)="onDelete(festival.id)">

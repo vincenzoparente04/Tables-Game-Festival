@@ -4,6 +4,9 @@ export interface UserDto {
   prenom?: string;
   email: string;
   login: string;
-  role: 'user' | 'admin' | 'super organisateur' | 'organisateur' | 'benevole' | 'visiteur';
-
+  role: UserRole,
+  created_at?: string;
+  updated_at?: string;
 }
+
+export type UserRole = 'admin' | 'super organisateur' | 'organisateur' | 'benevole' | 'visiteur' | 'user';
