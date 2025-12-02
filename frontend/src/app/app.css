@@ -12,9 +12,19 @@ a.active {
 }
 
 .logo {
-  font-weight: bold;
-  font-size: 1.3em;
-  margin-right: 2em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px; /* Add padding around the logo */
+  margin-top: 20px; /* Move it down from the top */
+  width: fit-content;
+}
+
+.logo img {
+  width: 100px; /* Adjust width as needed */
+  height: auto; /* Maintain aspect ratio */
+  object-fit: contain; /* Fit the entire image without cropping */
+  display: block;
 }
 
 .spacer {
