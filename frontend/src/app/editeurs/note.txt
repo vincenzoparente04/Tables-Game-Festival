@@ -1,0 +1,19 @@
+A FAIRE
+quelque chose pour voir détail des jeux (dans quel fichier ??)
+
+CSS card, list (utiliser celui du festival)
+
+form
+
+list TS (utiliser festival)
+(fct voirJeux à bien réaliser)
+
+composants back pour relier
+
+service (se baser sur festival service)
+
+A VERIFIER
+card HTML et TS
+list HTML
+
+

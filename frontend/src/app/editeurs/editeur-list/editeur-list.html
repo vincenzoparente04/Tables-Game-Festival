@@ -1,0 +1,56 @@
+div class="container">
+  <div class="header">
+    <div>
+      <h1>Jeux & Editeurs</h1>
+      @if (canModify()) {
+        <p class="subtitle">Gérer les jeux et éditeurs</p>
+      }
+      @else {
+        <p class="subtitle">Voir les jeux et éditeurs présents</p>
+      }
+    </div>
+    @if(canCreate()) {
+        <button mat-raised-button color="primary" (click)="createFestival()">
+            <mat-icon>add</mat-icon>
+            Nouvel éditeur
+        </button>
+    }
+  </div>
+
+  @if(loading()){
+    <div class="loading">
+        <mat-spinner></mat-spinner>
+        <p>Chargement des éditeurs...</p>
+    </div>
+  }
+
+  @if (!loading() && editeurs().length === 0) {
+    <div class="empty-state">
+        <mat-icon>event_busy</mat-icon>
+        <h2>Aucun éditeur</h2>
+        <p>Commencez par créer votre premier éditeur</p>
+        @if(canCreate()) {
+            <button mat-raised-button color="primary" (click)="createFestival()">
+                <mat-icon>add</mat-icon>
+                Créer un éditeur
+            </button>
+        }
+    </div>
+  }
+
+  @if(!loading() && editeurs().length > 0) {
+    <div class="festivals-grid">
+        @for(editeur of editeurs() ; track editeur.id) {
+            <app-festival-card
+                [editeur]="editeur"
+                [canModify]="canModify()"
+                [canDelete]="canDelete()"
+                (voirJeux)="onVoirJeux(editeur.id)"
+                (edit)="onEdit(editeur)"
+                (delete)="onDelete(editeur.id)">
+            </app-festival-card>
+        }
+    </div>
+  }
+</div>
+

@@ -1,0 +1,63 @@
+<mat-card>
+
+  <mat-card-header>
+    <mat-card-title>
+      {{ editeur()?.nom }}
+    </mat-card-title>
+
+    <mat-card-subtitle>
+      @if (editeur()?.presence_confirmee) {
+        <mat-chip class="chip-present">
+          <mat-icon>check</mat-icon> Présent
+        </mat-chip>
+      }
+    </mat-card-subtitle>
+  </mat-card-header>
+  
+  <mat-card-content>
+
+    <div class="stats-grid">
+      <div class="stat-item">
+        <mat-icon>casino</mat-icon>
+        <div>
+          <div class="stat-label">Jeux sur le festival</div>
+          <div class="stat-value">{{ editeur()?.nb_jeux_presentes ?? 0 }}</div>
+        </div>
+      </div>
+
+      <div class="stat-item">
+        <mat-icon>assignment</mat-icon>
+        <div>
+          <div class="stat-label">Organismes réservants</div>
+          <div class="stat-value">
+            {{ editeur()?.nb_reservants ?? 0 }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </mat-card-content>
+
+  <mat-card-actions align="end">
+      <button mat-button color="primary" routerLink="editeurs/{{editeur()?.id}}/jeux">
+        <!--I don't know if I put the correct route name, maybe change that ??
+        Must give access to the games of this editor-->
+        <mat-icon>casino</mat-icon>
+        Voir les jeux
+      </button>
+
+    @if (canModify()) {
+      <button mat-button (click)="edit.emit(festival()!)">
+        <mat-icon>edit</mat-icon>
+        Modifier
+      </button>
+    }
+
+    @if (canDelete()) {
+      <button mat-button color="warn" (click)="delete.emit(festival()!.id)">
+        <mat-icon>delete</mat-icon>
+        Supprimer
+      </button>
+    }
+
+  </mat-card-actions>
+</mat-card>

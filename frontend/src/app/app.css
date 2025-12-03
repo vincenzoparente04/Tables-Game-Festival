@@ -9,21 +9,22 @@ a.active {
 .main-toolbar {
   display: flex;
   align-items: center;
+  height: auto; /*auto size*/
+  min-height: 64px;
 }
 
 .logo {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 10px; /* Add padding around the logo */
-  margin-top: 20px; /* Move it down from the top */
+  padding: 5px;
   width: fit-content;
 }
 
 .logo img {
-  width: 100px; /* Adjust width as needed */
-  height: auto; /* Maintain aspect ratio */
-  object-fit: contain; /* Fit the entire image without cropping */
+  width: 100px;
+  height: auto; /*for ratio*/
+  object-fit: contain; /*fit the whole image*/
   display: block;
 }
 
