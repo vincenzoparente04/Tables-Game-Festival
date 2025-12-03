@@ -1,16 +1,16 @@
-div class="container">
+<div class="container">
   <div class="header">
     <div>
-      <h1>Jeux & Editeurs</h1>
+      <h1>Editeurs</h1>
       @if (canModify()) {
-        <p class="subtitle">Gérer les jeux et éditeurs</p>
+        <p class="subtitle">Gérer les éditeurs</p>
       }
       @else {
-        <p class="subtitle">Voir les jeux et éditeurs présents</p>
+        <p class="subtitle">Voir les éditeurs présents</p>
       }
     </div>
     @if(canCreate()) {
-        <button mat-raised-button color="primary" (click)="createFestival()">
+        <button mat-raised-button color="primary" (click)="createEditeur()">
             <mat-icon>add</mat-icon>
             Nouvel éditeur
         </button>
@@ -30,7 +30,7 @@ div class="container">
         <h2>Aucun éditeur</h2>
         <p>Commencez par créer votre premier éditeur</p>
         @if(canCreate()) {
-            <button mat-raised-button color="primary" (click)="createFestival()">
+            <button mat-raised-button color="primary" (click)="createEditeur()">
                 <mat-icon>add</mat-icon>
                 Créer un éditeur
             </button>
@@ -39,16 +39,16 @@ div class="container">
   }
 
   @if(!loading() && editeurs().length > 0) {
-    <div class="festivals-grid">
+    <div class="editeurs-grid">
         @for(editeur of editeurs() ; track editeur.id) {
-            <app-festival-card
+            <app-editeur-card
                 [editeur]="editeur"
                 [canModify]="canModify()"
                 [canDelete]="canDelete()"
                 (voirJeux)="onVoirJeux(editeur.id)"
                 (edit)="onEdit(editeur)"
                 (delete)="onDelete(editeur.id)">
-            </app-festival-card>
+            </app-editeur-card>
         }
     </div>
   }

@@ -1,7 +1,7 @@
 A FAIRE
 quelque chose pour voir détail des jeux (dans quel fichier ??)
 
-CSS card, list (utiliser celui du festival)
+CSS list (utiliser celui du festival)
 
 form
 
@@ -10,10 +10,13 @@ list TS (utiliser festival)
 
 composants back pour relier
 
-service (se baser sur festival service)
+route pour tous les éditeurs
+route pour les éditeurs du festival courant
+route pour les jeux d'un éditeur
+route pour les jeux d'un éditeur qui sont sur ce festival
+
+
 
 A VERIFIER
-card HTML et TS
+card HTML, TS, CSS
 list HTML
-
-
