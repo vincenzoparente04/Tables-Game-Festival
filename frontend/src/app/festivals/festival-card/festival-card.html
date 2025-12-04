@@ -74,6 +74,15 @@
       </div>
     </div>
 
+    @if (showZonesTarifaires() && festival()) {
+      <app-zones-tarifaires-list
+        [festivalId]="festival()!.id"
+        [canManage]="canManageZones()"
+        (zonesChanged)="zonesChanged.emit()">
+      </app-zones-tarifaires-list>
+    }
+
+
     @if (showStocks()) {
       <div class="stocks">
         <div class="stocks-title">Stocks physiques :</div>

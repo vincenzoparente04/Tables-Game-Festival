@@ -41,9 +41,11 @@
                 [canModify]="canModify()"
                 [canDelete]="canDelete()"
                 [showStocks]="canViewStocks()"
-                (setCourant)="onSetCourant(festival.id)"
+                [showZonesTarifaires]="canViewZonesTarifaires()"
+                [canManageZones]="canManageZones()"
                 (edit)="onEdit(festival)"
-                (delete)="onDelete(festival.id)">
+                (delete)="onDelete(festival.id)"
+                (zonesChanged)="onZonesChanged()">
             </app-festival-card>
         }
     </div>

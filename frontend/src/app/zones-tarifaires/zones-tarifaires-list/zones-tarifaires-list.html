@@ -1,0 +1,85 @@
+<div class="zones-container">
+  <div class="zones-header">
+    <div class="zones-title">
+      <mat-icon>category</mat-icon>
+      <strong>Zones tarifaires</strong>
+    </div>
+    
+    @if (canManage()) {
+      <button 
+        mat-mini-fab 
+        color="primary" 
+        (click)="createZone()">
+        <mat-icon>add</mat-icon>
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="zones-loading">
+      <mat-spinner diameter="24"></mat-spinner>
+      <span>Chargement...</span>
+    </div>
+  }
+
+  @if (!loading() && zones().length === 0) {
+    <div class="zones-empty">
+      <mat-icon>info</mat-icon>
+      <p>Aucune zone tarifaire définie</p>
+      @if (canManage()) {
+        <button mat-stroked-button color="primary" (click)="createZone()">
+          <mat-icon>add</mat-icon>
+          Créer la première zone
+        </button>
+      }
+    </div>
+  }
+
+  @if (!loading() && zones().length > 0) {
+    <div class="zones-list">
+      @for (zone of zones(); track zone.id) {
+        <div class="zone-item">
+          <div class="zone-header">
+            <strong>{{ zone.nom }}</strong>
+            <span class="zone-price">{{ zone.prix_table }}€/table</span>
+          </div>
+          <div class="zone-details">
+            <div class="zone-info">
+              <mat-icon>table_chart</mat-icon>
+              <span class="tables-totales">{{ zone.nombre_tables_total }}</span>
+              <span class="tables-label">tables</span>
+            </div>
+            <div class="zone-info">
+              <mat-icon>straighten</mat-icon>
+              <span>{{ zone.prix_m2 | number:'1.2-2' }}€/m²</span>
+            </div>
+            <div class="zone-info">
+                <mat-icon>event_available</mat-icon>
+                <span>{{ zone.tables_disponibles ?? '—' }} dispo</span>
+            </div>
+            <div class="zone-info">
+                <mat-icon>event_busy</mat-icon>
+                <span>{{ zone.tables_reservees ?? '—' }} booked</span>
+            </div>
+          </div>
+          
+          @if (canManage()) {
+            <div class="zone-actions">
+              <button 
+                mat-icon-button 
+                (click)="editZone(zone)">
+                <mat-icon>edit</mat-icon>
+              </button>
+              <button 
+                mat-icon-button 
+                color="warn"
+                (click)="deleteZone(zone.id, zone.nom)">
+                <mat-icon>delete</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

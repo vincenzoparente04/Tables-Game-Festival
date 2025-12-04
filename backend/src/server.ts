@@ -12,6 +12,7 @@ import authRouter from './routes/auth.js'
 import { verifyToken } from './middleware/token-management.js'
 import { requireAdmin } from './middleware/auth-admin.js'
 import festivalsRouter from './routes/festivals.js'
+import zonesTarifairesRouter from './routes/zones-tarifaires.js'
 
 
 
@@ -50,7 +51,8 @@ app.use(cors({
 app.use('/api/public', publicRouter)
 app.use('/api/auth', authRouter);
 app.use('/api/festivals', verifyToken, festivalsRouter);
-app.use('/api/users', verifyToken, usersRouter); // protégé
+app.use('/api/zones-tarifaires', verifyToken, zonesTarifairesRouter);
+app.use('/api/users', verifyToken, usersRouter); 
 app.use('/api/admin', verifyToken, requireAdmin, (req, res) => {
 res.json({ message: 'Bienvenue admin' });
 })

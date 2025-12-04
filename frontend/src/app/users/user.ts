@@ -1,8 +1,9 @@
-import { Injectable, inject, signal } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { UserDto , UserRole} from '../types/user-dto';
 import { environment } from '../../environments/environment';
-import { catchError, of, tap, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
+
 @Injectable({
   providedIn: 'root'
 })
@@ -41,7 +42,7 @@ export class User {
     return this.http.delete(`${this.API}/${userId}`);
   }
 
-  // Obtenir les rôles disponibles avec descriptions ( à voir si on la supprime ) *******
+  // Obtenir les rôles disponibles avec descriptions 
   getAvailableRoles(): Observable<{ roles: UserRole[]; descriptions: Record<UserRole, string>;}> {
     return this.http.get<any>(`${this.API}/roles/available`);
   }

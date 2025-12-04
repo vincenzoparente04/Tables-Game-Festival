@@ -49,7 +49,6 @@ export class FestivalsForm {
     stock_chaises_standard: new FormControl(0, { nonNullable: true }),
     stock_chaises_mairie: new FormControl(0, { nonNullable: true }),
     prix_prise_electrique: new FormControl(0, { nonNullable: true }),
-    //est_actif: new FormControl(true, { nonNullable: true }),
   });
 
   constructor() {

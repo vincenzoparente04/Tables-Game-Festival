@@ -43,6 +43,9 @@ export class FestivalsList {
   readonly canViewAll = this.permissions.can('festivals','viewAll');
   readonly canViewCurrent = this.permissions.can('festivals','viewCurrent');
 
+  readonly canViewZonesTarifaires = this.permissions.can('zonesTarifaires', 'view');
+  readonly canManageZones = this.permissions.can('zonesTarifaires', 'create');
+  
   constructor() {
     if(this.canViewAll()){
       this.loadFestivals();
@@ -166,6 +169,14 @@ export class FestivalsList {
           console.error(err as Error);
         }
       });
+    }
+  }
+
+  onZonesChanged() {
+    if (this.canViewAll()) {
+      this.loadFestivals();
+    } else if (this.canViewCurrent()) {
+      this.loadCurrentFestival();
     }
   }
 

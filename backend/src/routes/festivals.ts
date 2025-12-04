@@ -1,6 +1,6 @@
 import { Router } from 'express'
 import pool from '../db/database.js';
-import { requireRole, requireActivatedAccount, requirePermission } from '../middleware/roles.js';
+import { requireActivatedAccount, requirePermission } from '../middleware/roles.js';
 
 const router = Router()
 
