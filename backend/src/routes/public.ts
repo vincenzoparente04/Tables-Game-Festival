@@ -32,5 +32,25 @@ router.get('/jeux/festival-courant', requireActivatedAccount(),requirePermission
   }
 });
 
+router.get('/editeurs/festival-courant', requireActivatedAccount(), requirePermission('jeux', 'viewPublic'), async (_req, res) => {
+    try {
+      const query = `
+        SELECT *
+        FROM vue_editeurs_festival v
+        WHERE v.festival_id = (
+          SELECT id FROM festivals WHERE est_courant = true LIMIT 1
+        )
+        ORDER BY v.editeur_nom;
+      `;
+
+      const result = await pool.query(query);
+      res.json(result.rows);
+    } catch (error) {
+      console.error('Erreur éditeurs festival courant (public):', error);
+      res.status(500).json({ error: 'Erreur serveur' });
+    }
+  }
+);
+
 export default router
 

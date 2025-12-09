@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
+// interface for games
 export interface JeuPublicFestival {
   jeu_id: number;
   jeu_nom: string;
@@ -24,6 +25,17 @@ export interface JeuPublicFestival {
   nombre_exemplaires: number;
 }
 
+// interface for editors
+export interface EditeurFestivalPublic {
+  festival_id: number;
+  festival_nom: string;
+  editeur_id: number;
+  editeur_nom: string;
+  nb_jeux_presentes: number;
+  nb_reservants_pour_editeur: number;
+  jeux_noms: string[]; 
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -36,5 +48,8 @@ export class VuesPubliquesService {
     return this.http.get<JeuPublicFestival[]>(`${this.baseUrl}/jeux/festival-courant`);
   }
 
+  getEditeursFestivalCourant(): Observable<EditeurFestivalPublic[]> {
+    return this.http.get<EditeurFestivalPublic[]>(`${this.baseUrl}/editeurs/festival-courant`);
+  }
   
 }

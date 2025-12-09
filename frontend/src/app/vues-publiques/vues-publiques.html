@@ -1,62 +1,132 @@
 <div class="vues-publiques-container">
-  <h1>Jeux du festival courant</h1>
+  <h1>Vues publiques du festival courant</h1>
 
-  @if (loadingFestival) {
-    <p>Chargement des jeux du festival...</p>
-  } @else {
-    @if (errorFestival) {
-      <p class="error">{{ errorFestival }}</p>
+  <div class="subnav">
+    <button
+      class="subnav-btn"
+      [class.active]="viewMode === 'jeux'"
+      (click)="setViewMode('jeux')"
+    >
+      Jeux
+    </button>
+
+    <button
+      class="subnav-btn"
+      [class.active]="viewMode === 'editeurs'"
+      (click)="setViewMode('editeurs')"
+    >
+      Éditeurs
+    </button>
+  </div>
+
+  @if (viewMode === 'jeux') {
+    @if (loadingJeux) {
+      <p>Chargement des jeux du festival...</p>
     } @else {
-      @if (jeuxFestival.length === 0) {
-        <p>
-          Aucun jeu enregistré pour le festival courant
-          (ou aucun jeu placé pour l’instant).
-        </p>
+      @if (errorJeux) {
+        <p class="error">{{ errorJeux }}</p>
       } @else {
-        <div class="cards-container">
-          @for (jeu of jeuxFestival; track jeu.jeu_id) {
-            <div class="game-card">
-              <h3>{{ jeu.jeu_nom }}</h3>
+        @if (jeuxFestival.length === 0) {
+          <p>
+            Aucun jeu enregistré pour le festival courant
+            (ou aucun jeu placé pour l’instant).
+          </p>
+        } @else {
+          <div class="cards-container">
+            @for (jeu of jeuxFestival; track jeu.jeu_id) {
+              <div class="game-card">
+                <h3>{{ jeu.jeu_nom }}</h3>
 
-              @if (jeu.type_jeu) {
-                <p>Type : {{ jeu.type_jeu }}</p>
-              }
+                @if (jeu.type_jeu) {
+                  <p>Type : {{ jeu.type_jeu }}</p>
+                }
 
-              @if (jeu.age_mini !== null || jeu.age_maxi !== null) {
+                @if (jeu.age_mini !== null || jeu.age_maxi !== null) {
+                  <p>
+                    Âge : {{ jeu.age_mini ?? '?' }} - {{ jeu.age_maxi ?? '?' }} ans
+                  </p>
+                }
+
+                @if (jeu.joueurs_mini !== null || jeu.joueurs_maxi !== null) {
+                  <p>
+                    Joueurs :
+                    {{ jeu.joueurs_mini ?? '?' }} - {{ jeu.joueurs_maxi ?? '?' }}
+                  </p>
+                }
+
+                @if (jeu.duree_moyenne !== null) {
+                  <p>Durée : {{ jeu.duree_moyenne }} min</p>
+                }
+
+                <p>Éditeur : {{ jeu.editeur_nom }}</p>
+
+                @if (jeu.auteurs) {
+                  <p>Auteur(s) : {{ jeu.auteurs }}</p>
+                }
+
+                @if (jeu.zone_plan_nom) {
+                  <p>Zone : {{ jeu.zone_plan_nom }}</p>
+                }
+
+                <p>Présenté par : {{ jeu.presente_par }}</p>
+
+                <p>Exemplaires : {{ jeu.nombre_exemplaires }}</p>
+              </div>
+            }
+          </div>
+        }
+      }
+    }
+  }
+
+  @if (viewMode === 'editeurs') {
+    @if (loadingEditeurs) {
+      <p>Chargement des éditeurs du festival...</p>
+    } @else {
+      @if (errorEditeurs) {
+        <p class="error">{{ errorEditeurs }}</p>
+      } @else {
+        @if (editeursFestival.length === 0) {
+          <p>Aucun éditeur enregistré pour le festival courant.</p>
+        } @else {
+          <div class="cards-container">
+            @for (editeur of editeursFestival; track editeur.editeur_id) {
+              <div class="editeur-card">
+                <h3>{{ editeur.editeur_nom }}</h3>
+                <p>Festival : {{ editeur.festival_nom }}</p>
+                <p>Jeux présentés : {{ editeur.nb_jeux_presentes }}</p>
                 <p>
-                  Âge : {{ jeu.age_mini ?? '?' }} - {{ jeu.age_maxi ?? '?' }} ans
+                  Nombre de stands / réservants :
+                  {{ editeur.nb_reservants_pour_editeur }}
                 </p>
-              }
 
-              @if (jeu.joueurs_mini !== null || jeu.joueurs_maxi !== null) {
-                <p>
-                  Joueurs :
-                  {{ jeu.joueurs_mini ?? '?' }} - {{ jeu.joueurs_maxi ?? '?' }}
-                </p>
-              }
+                <div class="jeux-apercu">
+                  @if (getJeuxCount(editeur) > 0) {
+                    <p>Quelques jeux :</p>
+                    <ul>
+                      @for (nomJeu of getJeuxPreview(editeur); track $index) {
+                        <li>{{ nomJeu }}</li>
+                      }
+                    </ul>
 
-              @if (jeu.duree_moyenne !== null) {
-                <p>Durée : {{ jeu.duree_moyenne }} min</p>
-              }
-
-              <p>Éditeur : {{ jeu.editeur_nom }}</p>
-
-              @if (jeu.auteurs) {
-                <p>Auteur(s) : {{ jeu.auteurs }}</p>
-              }
-
-              @if (jeu.zone_plan_nom) {
-                <p>Zone : {{ jeu.zone_plan_nom }}</p>
-              }
-
-              <p>Présenté par : {{ jeu.presente_par }}</p>
-
-              <p>Exemplaires : {{ jeu.nombre_exemplaires }}</p>
-            </div>
-          }
-        </div>
+                    @if (hasMoreJeux(editeur)) {
+                      <button
+                        class="see-more-btn"
+                        type="button"
+                        (click)="toggleJeux(editeur)"
+                      >
+                        {{ isExpanded(editeur) ? 'Voir moins' : 'Voir tous les jeux' }}
+                      </button>
+                    }
+                  } @else {
+                    <p>Aucun jeu listé pour cet éditeur.</p>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
       }
     }
   }
 </div>
-
