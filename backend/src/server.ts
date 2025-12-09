@@ -14,7 +14,6 @@ import { requireAdmin } from './middleware/auth-admin.js'
 import festivalsRouter from './routes/festivals.js'
 
 
-
 // Création de l’application Express
 const app = express()
 // Ajout manuel des principaux en-têtes HTTP de sécurité
@@ -47,7 +46,7 @@ app.use(cors({
 }))
 
 // Routes publiques
-app.use('/api/public', publicRouter)
+app.use('/api/public', verifyToken, publicRouter)
 app.use('/api/auth', authRouter);
 app.use('/api/festivals', verifyToken, festivalsRouter);
 app.use('/api/users', verifyToken, usersRouter); // protégé
