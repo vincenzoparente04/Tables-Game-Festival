@@ -12,6 +12,7 @@ import authRouter from './routes/auth.js'
 import { verifyToken } from './middleware/token-management.js'
 import { requireAdmin } from './middleware/auth-admin.js'
 import festivalsRouter from './routes/festivals.js'
+import editeursRouter from './routes/editeurs.js'
 
 
 // Création de l’application Express
@@ -53,6 +54,7 @@ app.use('/api/users', verifyToken, usersRouter); // protégé
 app.use('/api/admin', verifyToken, requireAdmin, (req, res) => {
 res.json({ message: 'Bienvenue admin' });
 })
+app.use('/api/editeurs', verifyToken, editeursRouter);
 
 // Chargement du certificat et clé générés par mkcert (étape 0)
 const key = fs.readFileSync('./certs/localhost-key.pem')

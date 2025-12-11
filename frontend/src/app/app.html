@@ -3,8 +3,7 @@
   <span class="spacer"></span>
   @if(isLoggedIn()) {
     <button mat-button routerLink="home"><mat-icon>home</mat-icon> Accueil</button>
-
-      <button mat-button routerLink="vues-publiques"><mat-icon>visibility</mat-icon> Vues publiques</button>
+    <button mat-button routerLink="vues-publiques"><mat-icon>visibility</mat-icon> Vues publiques</button>
     @if(!isPendingUser()){
       
       @if(canViewFestivals()){
@@ -18,6 +17,7 @@
     
     @if(isAdmin()) {
       <button mat-button routerLink="admin"><mat-icon>admin_panel_settings</mat-icon> Admin</button>
+      <button mat-button routerLink="editeurs-list"><mat-icon>people</mat-icon> Éditeurs</button>
     }
     <button mat-button (click)="logoutApp()"><mat-icon>logout</mat-icon> Déconnexion</button>
   } @else {

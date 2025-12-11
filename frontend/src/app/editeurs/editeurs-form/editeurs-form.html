@@ -1,0 +1,74 @@
+<div class="editeurs-form">
+  <h2>Ajouter un éditeur</h2>
+
+  @if (error) {
+    <p class="error">{{ error }}</p>
+  }
+
+  <form (ngSubmit)="submit()">
+    <div class="form-row">
+      <label for="nom">Nom de l'éditeur</label>
+      <input
+        id="nom"
+        type="text"
+        [(ngModel)]="nom"
+        name="nom"
+        required
+        placeholder="Nom de la maison d'édition"
+      />
+    </div>
+
+    <h3>Contact principal (optionnel)</h3>
+
+    <div class="form-row">
+      <label for="contactNom">Nom</label>
+      <input
+        id="contactNom"
+        type="text"
+        [(ngModel)]="contactNom"
+        name="contactNom"
+        placeholder="Nom du contact"
+      />
+    </div>
+
+    <div class="form-row">
+      <label for="contactEmail">Email</label>
+      <input
+        id="contactEmail"
+        type="email"
+        [(ngModel)]="contactEmail"
+        name="contactEmail"
+        placeholder="ex: contact@editeur.com"
+      />
+    </div>
+
+    <div class="form-row">
+      <label for="contactTel">Téléphone</label>
+      <input
+        id="contactTel"
+        type="text"
+        [(ngModel)]="contactTelephone"
+        name="contactTel"
+        placeholder="ex: 06..."
+      />
+    </div>
+
+    <div class="form-row">
+      <label for="contactRole">Rôle / fonction</label>
+      <input
+        id="contactRole"
+        type="text"
+        [(ngModel)]="contactRole"
+        name="contactRole"
+        placeholder="ex: Responsable commercial"
+      />
+    </div>
+
+    <button type="submit" [disabled]="loading">
+      @if (loading) { Sauvegarde... } @else { Créer l'éditeur }
+    </button>
+  </form>
+</div>
+
+
+

@@ -1,0 +1,36 @@
+.editeurs-gestion-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.list-section {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  background: #fff;
+}
+
+.error {
+  color: #d32f2f;
+}
+
+.layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 1rem;
+}
+
+.editeurs-list {
+  border-right: 1px solid #eee;
+  padding-right: 1rem;
+}
+
+.editeur-detail {
+  padding-left: 0.5rem;
+}
+
+.detail-block {
+  margin-top: 1rem;
+}

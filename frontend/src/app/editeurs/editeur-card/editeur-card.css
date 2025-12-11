@@ -1,0 +1,13 @@
+.editeur-card {
+  padding: 0.6rem 0.8rem;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  background: #fafafa;
+}
+
+.editeur-card.selected {
+  border-color: #1976d2;
+  background: #e3f2fd;
+}
