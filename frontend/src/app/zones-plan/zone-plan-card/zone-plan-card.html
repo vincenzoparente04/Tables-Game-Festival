@@ -1,0 +1,105 @@
+<mat-card class="zone-card">
+      <mat-card-header>
+        <mat-card-title>
+          <mat-icon>map</mat-icon>
+          {{ zone().nom }}
+        </mat-card-title>
+        <mat-card-subtitle>
+          <div class="occupation-info">
+            <mat-icon>table_chart</mat-icon>
+            <span>{{ zone().tables_utilisees || 0 }} / {{ zone().nombre_tables_total }} tables</span>
+            <mat-chip class="occupation-chip" [class.high]="getOccupationRate() > 80">
+              {{ getOccupationRate() }}% occupé
+            </mat-chip>
+          </div>
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        @if (loadingJeux()) {
+          <div class="loading">
+            <mat-spinner diameter="24"></mat-spinner>
+            <span>Chargement des jeux...</span>
+          </div>
+        }
+
+        @if (!loadingJeux() && jeux().length === 0) {
+          <div class="empty-state">
+            <mat-icon>info</mat-icon>
+            <p>Aucun jeu placé dans cette zone</p>
+            @if (canPlace()) {
+              <button mat-stroked-button color="primary" (click)="placerJeu.emit(zone()!)">
+                <mat-icon>add</mat-icon>
+                Placer un jeu
+              </button>
+            }
+          </div>
+        }
+
+        @if (!loadingJeux() && jeux().length > 0) {
+          <div class="jeux-list">
+            <h4 class="jeux-title">
+              <mat-icon>videogame_asset</mat-icon>
+              Jeux placés ({{ jeux().length }})
+            </h4>
+            @for (jeu of jeux(); track jeu.id) {
+              <div class="jeu-item">
+                <div class="jeu-info">
+                  <div class="jeu-icon">
+                    <mat-icon>extension</mat-icon>
+                  </div>
+                  <div class="jeu-details">
+                    <strong>{{ jeu.jeu_nom }}</strong>
+                    <span class="jeu-editeur">{{ jeu.editeur_nom }}</span>
+                  </div>
+                </div>
+                <div class="jeu-stats">
+                  <span class="stat">{{ jeu.nombre_exemplaires }} ex.</span>
+                  <span class="stat">{{ jeu.tables_allouees }} table(s)</span>
+                  <div class="tables-types">
+                    @if (jeu.nb_tables_std > 0) {
+                      <mat-chip class="table-chip std">{{ jeu.nb_tables_std }} Std</mat-chip>
+                    }
+                    @if (jeu.nb_tables_gde > 0) {
+                      <mat-chip class="table-chip gde">{{ jeu.nb_tables_gde }} Gde</mat-chip>
+                    }
+                    @if (jeu.nb_tables_mairie > 0) {
+                      <mat-chip class="table-chip mairie">{{ jeu.nb_tables_mairie }} Mai</mat-chip>
+                    }
+                  </div>
+                </div>
+                @if (canPlace()) {
+                  <button 
+                    mat-icon-button 
+                    color="warn"
+                    (click)="retirerJeu.emit(jeu.id)">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                }
+              </div>
+            }
+          </div>
+        }
+      </mat-card-content>
+
+      <mat-card-actions align="end">
+        @if (canPlace()) {
+          <button mat-button (click)="placerJeu.emit(zone()!)">
+            <mat-icon>add</mat-icon>
+            Placer un jeu
+          </button>
+        }
+        @if (canModify()) {
+          <button mat-button (click)="edit.emit(zone()!)">
+            <mat-icon>edit</mat-icon>
+            Modifier
+          </button>
+        }
+        @if (canDelete()) {
+          <button mat-button color="warn" (click)="delete.emit(zone()!.id)">
+            <mat-icon>delete</mat-icon>
+            Supprimer
+          </button>
+        }
+      </mat-card-actions>
+    </mat-card>

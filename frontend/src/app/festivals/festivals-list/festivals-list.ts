@@ -46,6 +46,8 @@ export class FestivalsList {
   readonly canViewZonesTarifaires = this.permissions.can('zonesTarifaires', 'view');
   readonly canManageZones = this.permissions.can('zonesTarifaires', 'create');
   
+  readonly canViewZonesPlan = this.permissions.can('zonesPlan', 'view');
+
   constructor() {
     if(this.canViewAll()){
       this.loadFestivals();

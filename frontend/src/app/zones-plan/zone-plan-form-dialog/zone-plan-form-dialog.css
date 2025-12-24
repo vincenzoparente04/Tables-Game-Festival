@@ -1,0 +1,19 @@
+    h2 {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 0;
+      color: #1976d2;
+    }
+    mat-dialog-content {
+      min-width: 450px;
+      padding: 24px;
+    }
+    .zone-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    mat-form-field {
+      width: 100%;
+    }

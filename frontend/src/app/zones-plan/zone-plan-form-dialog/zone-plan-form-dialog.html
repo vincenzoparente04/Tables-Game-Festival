@@ -1,0 +1,42 @@
+<h2 mat-dialog-title>
+      <mat-icon>{{ isEdit() ? 'edit' : 'add' }}</mat-icon>
+      {{ submitLabel() }} une zone du plan
+    </h2>
+
+    <mat-dialog-content>
+      <form [formGroup]="form" class="zone-form">
+        <mat-form-field appearance="outline">
+          <mat-label>Nom de la zone</mat-label>
+          <input matInput formControlName="nom" placeholder="Ex: Allée A, Espace Jeunesse" required>
+          <mat-icon matPrefix>map</mat-icon>
+          @if(form.get('nom')?.hasError('required') && form.get('nom')?.touched) {
+            <mat-error>Le nom est requis</mat-error>
+          }
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Nombre de tables disponibles</mat-label>
+          <input matInput type="number" formControlName="nombre_tables_total" required>
+          <mat-icon matPrefix>table_chart</mat-icon>
+          @if(form.get('nombre_tables_total')?.hasError('required') && form.get('nombre_tables_total')?.touched) {
+            <mat-error>Le nombre de tables est requis</mat-error>
+          }
+          @if(form.get('nombre_tables_total')?.hasError('min') && form.get('nombre_tables_total')?.touched) {
+            <mat-error>Le nombre doit être supérieur à 0</mat-error>
+          }
+          <mat-hint>Espace physique disponible dans cette zone</mat-hint>
+        </mat-form-field>
+      </form>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="onCancel()">Annuler</button>
+      <button 
+        mat-raised-button 
+        color="primary" 
+        [disabled]="form.invalid"
+        (click)="onSubmit()">
+        <mat-icon>{{ isEdit() ? 'save' : 'add' }}</mat-icon>
+        {{ submitLabel() }}
+      </button>
+    </mat-dialog-actions>

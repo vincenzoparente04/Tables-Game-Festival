@@ -43,6 +43,7 @@
                 [showStocks]="canViewStocks()"
                 [showZonesTarifaires]="canViewZonesTarifaires()"
                 [canManageZones]="canManageZones()"
+                [canViewZonesPlan]="canViewZonesPlan()"
                 (edit)="onEdit(festival)"
                 (delete)="onDelete(festival.id)"
                 (zonesChanged)="onZonesChanged()">

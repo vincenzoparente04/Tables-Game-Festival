@@ -332,7 +332,7 @@ SELECT
     zp.id,
     zp.festival_id,
     zp.nom,
-    zp.nombre_tables_total as tables_totales,
+    zp.nombre_tables_total,
     zp.nombre_tables_total - COALESCE(SUM(jf.tables_allouees), 0) as tables_disponibles,
     COALESCE(SUM(jf.tables_allouees), 0) as tables_utilisees,
     COUNT(DISTINCT jf.jeu_id) as nb_jeux_places

@@ -201,3 +201,6 @@ router.delete('/:id', requireActivatedAccount(), requirePermission('zonesTarifai
 );
 
 export default router;
+
+
+

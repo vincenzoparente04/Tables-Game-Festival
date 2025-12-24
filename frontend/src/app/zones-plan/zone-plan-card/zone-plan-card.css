@@ -1,0 +1,110 @@
+    .zone-card {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .zone-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    }
+    .occupation-info {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .occupation-chip {
+      background: #4caf50;
+      color: white;
+    }
+    .occupation-chip.high {
+      background: #ff9800;
+    }
+    .loading, .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 24px;
+      text-align: center;
+    }
+    .jeux-list {
+      margin-top: 16px;
+    }
+    .jeux-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+      color: #1976d2;
+    }
+    .jeu-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    .jeu-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+    .jeu-icon {
+      width: 40px;
+      height: 40px;
+      background: #e3f2fd;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .jeu-icon mat-icon {
+      color: #1976d2;
+    }
+    .jeu-details {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .jeu-editeur {
+      font-size: 12px;
+      color: #666;
+    }
+    .jeu-stats {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .stat {
+      font-size: 13px;
+      color: #666;
+    }
+    .tables-types {
+      display: flex;
+      gap: 4px;
+    }
+    .table-chip {
+      font-size: 11px;
+      padding: 4px 8px;
+      height: 24px;
+    }
+    .table-chip.std {
+      background: #c8e6c9;
+      color: #2e7d32;
+    }
+    .table-chip.gde {
+      background: #bbdefb;
+      color: #1565c0;
+    }
+    .table-chip.mairie {
+      background: #fff9c4;
+      color: #f57f17;
+    }
+    mat-card-content {
+      flex: 1;
+    }

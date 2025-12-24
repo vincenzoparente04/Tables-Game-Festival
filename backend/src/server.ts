@@ -13,6 +13,7 @@ import { verifyToken } from './middleware/token-management.js'
 import { requireAdmin } from './middleware/auth-admin.js'
 import festivalsRouter from './routes/festivals.js'
 import zonesTarifairesRouter from './routes/zones-tarifaires.js'
+import zonesPlanRouter from './routes/zones-plan.js'
 
 
 
@@ -52,6 +53,7 @@ app.use('/api/public', publicRouter)
 app.use('/api/auth', authRouter);
 app.use('/api/festivals', verifyToken, festivalsRouter);
 app.use('/api/zones-tarifaires', verifyToken, zonesTarifairesRouter);
+app.use('/api/zones-plan', verifyToken, zonesPlanRouter);
 app.use('/api/users', verifyToken, usersRouter); 
 app.use('/api/admin', verifyToken, requireAdmin, (req, res) => {
 res.json({ message: 'Bienvenue admin' });

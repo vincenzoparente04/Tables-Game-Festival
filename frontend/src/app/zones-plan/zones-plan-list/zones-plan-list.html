@@ -1,0 +1,272 @@
+<div class="container">
+  <!-- Header -->
+  <div class="header">
+    <div class="header-info">
+      <div class="breadcrumb">
+        <a routerLink="/festivals">Festivals</a>
+        <mat-icon>chevron_right</mat-icon>
+        <span>{{ festival()?.nom }}</span>
+        <mat-icon>chevron_right</mat-icon>
+        <span class="current">Zones du Plan</span>
+      </div>
+      <h1>
+        <mat-icon>map</mat-icon>
+        Zones du Plan & Placement des Jeux
+      </h1>
+      <p class="subtitle">Organisez les jeux sur les différentes zones du festival</p>
+    </div>
+    @if (canCreate()) {
+      <button mat-raised-button color="primary" (click)="createZone()">
+        <mat-icon>add</mat-icon>
+        Nouvelle Zone Plan
+      </button>
+    }
+  </div>
+
+  <!-- Statistiques globales -->
+  <div class="stats-cards">
+    <mat-card class="stat-card zones">
+      <mat-card-content>
+        <div class="stat-icon">
+          <mat-icon>map</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Zones</div>
+          <div class="stat-value">{{ zones().length }}</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card tables">
+      <mat-card-content>
+        <div class="stat-icon">
+          <mat-icon>table_chart</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Tables utilisées</div>
+          <div class="stat-value">{{ totalTablesUtilisees() }} / {{ totalTablesDisponibles() }}</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card jeux">
+      <mat-card-content>
+        <div class="stat-icon">
+          <mat-icon>videogame_asset</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Jeux placés</div>
+          <div class="stat-value">{{ totalJeuxPlaces() }}</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card occupation">
+      <mat-card-content>
+        <div class="stat-icon">
+          <mat-icon>analytics</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Taux occupation</div>
+          <div class="stat-value">{{ tauxOccupation() }}%</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card libres">
+      <mat-card-content>
+        <div class="stat-icon">
+          <mat-icon>event_available</mat-icon>
+        </div>
+        <div class="stat-content">
+          <div class="stat-label">Tables libres</div>
+          <div class="stat-value">{{ tablesLibres() }}</div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">
+      <mat-spinner></mat-spinner>
+      <p>Chargement des zones...</p>
+    </div>
+  }
+
+  @if (!loading()) {
+    <mat-tab-group>
+      <!-- Onglet: Vue d'ensemble -->
+      <mat-tab label="Vue d'ensemble">
+        <div class="tab-content">
+          @if (zones().length === 0) {
+            <div class="empty-state">
+              <mat-icon>map</mat-icon>
+              <h2>Aucune zone du plan</h2>
+              <p>Commencez par créer des zones pour organiser le placement des jeux</p>
+              @if (canCreate()) {
+                <button mat-raised-button color="primary" (click)="createZone()">
+                  <mat-icon>add</mat-icon>
+                  Créer la première zone
+                </button>
+              }
+            </div>
+          } @else {
+            <div class="zones-grid">
+              @for (zone of zones(); track zone.id) {
+                <app-zone-plan-card
+                  [zone]="zone"
+                  [canModify]="canModify()"
+                  [canDelete]="canDelete()"
+                  [canPlace]="canPlace()"
+                  (edit)="onEdit($event)"
+                  (delete)="onDelete($event)"
+                  (placerJeu)="onPlacerJeu($event)"
+                  (retirerJeu)="onRetirerJeu($event)">
+                </app-zone-plan-card>
+              }
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- Onglet: Stocks de matériel -->
+      <mat-tab label="Stocks de matériel">
+        <div class="tab-content">
+          @if (festival()) {
+            <div class="stocks-section">
+              <!-- Tables -->
+              <mat-card class="stock-card tables-stock">
+                <mat-card-header>
+                  <mat-card-title>
+                    <mat-icon>table_chart</mat-icon>
+                    Tables
+                  </mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <div class="stock-items">
+                    <div class="stock-item">
+                      <div class="stock-label">
+                        <mat-icon>crop_square</mat-icon>
+                        Tables standard
+                      </div>
+                      <div class="stock-bar">
+                        <div class="bar-container">
+                          <div class="bar-fill green" [style.width.%]="0"></div>
+                        </div>
+                        <span class="stock-value">0 / {{ festival()!.stock_tables_standard }}</span>
+                      </div>
+                    </div>
+
+                    <div class="stock-item">
+                      <div class="stock-label">
+                        <mat-icon>crop_landscape</mat-icon>
+                        Tables grandes
+                      </div>
+                      <div class="stock-bar">
+                        <div class="bar-container">
+                          <div class="bar-fill blue" [style.width.%]="0"></div>
+                        </div>
+                        <span class="stock-value">0 / {{ festival()!.stock_tables_grandes }}</span>
+                      </div>
+                    </div>
+
+                    <div class="stock-item">
+                      <div class="stock-label">
+                        <mat-icon>table_restaurant</mat-icon>
+                        Tables mairie
+                      </div>
+                      <div class="stock-bar">
+                        <div class="bar-container">
+                          <div class="bar-fill yellow" [style.width.%]="0"></div>
+                        </div>
+                        <span class="stock-value">0 / {{ festival()!.stock_tables_mairie }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+
+              <!-- Chaises -->
+              <mat-card class="stock-card chaises-stock">
+                <mat-card-header>
+                  <mat-card-title>
+                    <mat-icon>event_seat</mat-icon>
+                    Chaises
+                  </mat-card-title>
+                </mat-card-header>
+                <mat-card-content>
+                  <div class="stock-items">
+                    <div class="stock-item">
+                      <div class="stock-label">
+                        <mat-icon>chair</mat-icon>
+                        Chaises standard
+                      </div>
+                      <div class="stock-bar">
+                        <div class="bar-container">
+                          <div class="bar-fill green" [style.width.%]="0"></div>
+                        </div>
+                        <span class="stock-value">0 / {{ festival()!.stock_chaises_standard }}</span>
+                      </div>
+                    </div>
+
+                    <div class="stock-item">
+                      <div class="stock-label">
+                        <mat-icon>chair_alt</mat-icon>
+                        Chaises mairie
+                      </div>
+                      <div class="stock-bar">
+                        <div class="bar-container">
+                          <div class="bar-fill yellow" [style.width.%]="0"></div>
+                        </div>
+                        <span class="stock-value">0 / {{ festival()!.stock_chaises_mairie }}</span>
+                      </div>
+                    </div>
+                  </div>
+                </mat-card-content>
+              </mat-card>
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+      <!-- Onglet: Jeux non placés (si permission placement) -->
+      @if (canPlace()) {
+        <mat-tab [label]="'Jeux non placés (' + jeuxNonPlaces().length + ')'">
+          <div class="tab-content">
+            @if (jeuxNonPlaces().length === 0) {
+              <div class="empty-state">
+                <mat-icon>check_circle</mat-icon>
+                <h2>Tous les jeux sont placés</h2>
+                <p>Aucun jeu en attente de placement</p>
+              </div>
+            } @else {
+              <div class="jeux-non-places-list">
+                @for (jeu of jeuxNonPlaces(); track jeu.id) {
+                  <mat-card class="jeu-non-place-card">
+                    <mat-card-content>
+                      <div class="jeu-info">
+                        <mat-icon>extension</mat-icon>
+                        <div>
+                          <strong>{{ jeu.jeu_nom }}</strong>
+                          <span class="editeur">{{ jeu.editeur_nom }}</span>
+                        </div>
+                      </div>
+                      <div class="jeu-details">
+                        <span>{{ jeu.nombre_exemplaires }} exemplaire(s)</span>
+                        <span>{{ jeu.tables_allouees }} table(s)</span>
+                      </div>
+                      <button mat-raised-button color="primary">
+                        <mat-icon>add_location</mat-icon>
+                        Placer
+                      </button>
+                    </mat-card-content>
+                  </mat-card>
+                }
+              </div>
+            }
+          </div>
+        </mat-tab>
+      }
+    </mat-tab-group>
+  }
+</div>

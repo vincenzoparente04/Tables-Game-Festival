@@ -51,15 +51,18 @@
             </div>
             <div class="zone-info">
               <mat-icon>straighten</mat-icon>
-              <span>{{ zone.prix_m2 | number:'1.2-2' }}€/m²</span>
+              <span>{{ zone.prix_m2 | number:'1.2-2' }}</span>
+              <span class="tables-label">€/m²</span>
             </div>
             <div class="zone-info">
                 <mat-icon>event_available</mat-icon>
-                <span>{{ zone.tables_disponibles ?? '—' }} dispo</span>
+                <span>{{ zone.tables_disponibles ?? '—' }}</span>
+                <span class="tables-label">dispo</span>
             </div>
             <div class="zone-info">
                 <mat-icon>event_busy</mat-icon>
-                <span>{{ zone.tables_reservees ?? '—' }} booked</span>
+                <span>{{ zone.tables_reservees ?? '—' }}</span>
+                <span class="tables-label">booked</span>
             </div>
           </div>
           

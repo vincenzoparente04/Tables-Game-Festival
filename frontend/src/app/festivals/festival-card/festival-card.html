@@ -99,6 +99,16 @@
 
   <mat-card-actions align="end">
 
+    @if (canViewZonesPlan()) {
+      <button 
+        mat-button 
+        color="accent" 
+        [routerLink]="['/festivals', festival()!.id, 'zones-plan']">
+        <mat-icon>map</mat-icon>
+        Plan & Placement
+      </button>
+    }
+
     @if (!festival()?.est_courant) {
       <button mat-button color="primary" (click)="setCourant.emit(festival()!.id)">
         
