@@ -1,5 +1,5 @@
 import { Component, inject, signal, computed } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
@@ -15,6 +15,7 @@ import { ZonePlanFormDialog } from '../zone-plan-form-dialog/zone-plan-form-dial
 import { PermissionsService } from '../../services/permissions-service';
 import { FestivalsService } from '../../shared/festivals-service';
 import { FestivalsDto } from '../../types/festivals-dto';
+import { PlacementJeuDialog } from '../placement-jeu-dialog/placement-jeu-dialog';
 
 @Component({
   selector: 'app-zones-plan-list',
@@ -28,7 +29,9 @@ import { FestivalsDto } from '../../types/festivals-dto';
     MatDialogModule,
     MatTabsModule,
     MatCardModule,
-    ZonePlanCard
+    ZonePlanCard,
+    PlacementJeuDialog,
+    RouterLink
   ],
   templateUrl: './zones-plan-list.html',
   styleUrl: './zones-plan-list.css',
@@ -180,9 +183,76 @@ export class ZonesPlanList {
     }
   }
 
+  // placer depuis zone 
   onPlacerJeu(zone: ZonePlanDto) {
-    // TODO: Ouvrir dialog pour sélectionner un jeu et le placer
-    this.snackBar.open('Fonctionnalité placement à implémenter', 'OK', { duration: 2000 });
+    const dialogRef = this.dialog.open(PlacementJeuDialog, {
+      width: '600px',
+      disableClose: true,
+      data: {
+        zone: zone,
+        jeuxDisponibles: this.jeuxNonPlaces()
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.zonesPlanService.placerJeu(
+          result.jeu_festival_id,
+          result.zone_plan_id,
+          {
+            nb_tables_std: result.nb_tables_std,
+            nb_tables_gde: result.nb_tables_gde,
+            nb_tables_mairie: result.nb_tables_mairie
+          }
+        ).subscribe({
+          next: () => {
+            this.snackBar.open('Jeu placé avec succès !', 'OK', { duration: 2000 });
+            this.loadZones();
+            this.loadJeuxNonPlaces();
+          },
+          error: (err) => {
+            const errorMsg = err.error?.error || 'Erreur lors du placement';
+            this.snackBar.open(errorMsg, 'Fermer', { duration: 3000 });
+          }
+        });
+      }
+    });
+  }
+
+  // placer depuis l'onglet "Jeux non placés"
+  onPlacerJeuDepuisListe(jeu: JeuFestivalDto) {
+    const dialogRef = this.dialog.open(PlacementJeuDialog, {
+      width: '600px',
+      disableClose: true,
+      data: {
+        jeu: jeu,
+        zonesDisponibles: this.zones()
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        this.zonesPlanService.placerJeu(
+          result.jeu_festival_id,
+          result.zone_plan_id,
+          {
+            nb_tables_std: result.nb_tables_std,
+            nb_tables_gde: result.nb_tables_gde,
+            nb_tables_mairie: result.nb_tables_mairie
+          }
+        ).subscribe({
+          next: () => {
+            this.snackBar.open('Jeu placé avec succès !', 'OK', { duration: 2000 });
+            this.loadZones();
+            this.loadJeuxNonPlaces();
+          },
+          error: (err) => {
+            const errorMsg = err.error?.error || 'Erreur lors du placement';
+            this.snackBar.open(errorMsg, 'Fermer', { duration: 3000 });
+          } 
+        });
+      }
+    });
   }
 
   onRetirerJeu(jeuFestivalId: number) {

@@ -44,6 +44,7 @@
                 [showZonesTarifaires]="canViewZonesTarifaires()"
                 [canManageZones]="canManageZones()"
                 [canViewZonesPlan]="canViewZonesPlan()"
+                (setCourant)="onSetCourant(festival.id)"
                 (edit)="onEdit(festival)"
                 (delete)="onDelete(festival.id)"
                 (zonesChanged)="onZonesChanged()">

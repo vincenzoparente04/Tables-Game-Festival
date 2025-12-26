@@ -28,7 +28,7 @@ const PERMISSIONS = {
     delete: [Role.ADMIN, Role.SUPER_ORGANISATEUR]
   },
   zonesPlan: {
-    view: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR, Role.VISITEUR],
+    view: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR, Role.BENEVOLE, Role.VISITEUR],
     create: [Role.ADMIN, Role.SUPER_ORGANISATEUR],
     update: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR],
     delete: [Role.ADMIN, Role.SUPER_ORGANISATEUR]

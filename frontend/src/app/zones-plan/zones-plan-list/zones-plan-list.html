@@ -255,7 +255,7 @@
                         <span>{{ jeu.nombre_exemplaires }} exemplaire(s)</span>
                         <span>{{ jeu.tables_allouees }} table(s)</span>
                       </div>
-                      <button mat-raised-button color="primary">
+                      <button mat-raised-button color="primary" (click)="onPlacerJeuDepuisListe(jeu)">
                         <mat-icon>add_location</mat-icon>
                         Placer
                       </button>

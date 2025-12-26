@@ -1,0 +1,147 @@
+<h2 mat-dialog-title>
+      <mat-icon>add_location</mat-icon>
+      Placer un jeu
+    </h2>
+
+    <mat-dialog-content>
+      <form [formGroup]="form" class="placement-form">
+        
+        <!-- Sélection du jeu (si depuis zone) -->
+        @if (modeSelectionJeu()) {
+          <mat-form-field appearance="outline">
+            <mat-label>Jeu à placer</mat-label>
+            <mat-select formControlName="jeu_festival_id" required>
+              @for (jeu of jeuxDisponibles; track jeu.id) {
+                <mat-option [value]="jeu.id">
+                  <div class="jeu-option">
+                    <strong>{{ jeu.jeu_nom }}</strong>
+                    <span class="editeur">{{ jeu.editeur_nom }}</span>
+                    <span class="info">{{ jeu.nombre_exemplaires }} ex. • {{ jeu.tables_allouees }} tables</span>
+                  </div>
+                </mat-option>
+              }
+            </mat-select>
+            <mat-icon matPrefix>extension</mat-icon>
+          </mat-form-field>
+        }
+
+        <!-- Sélection de la zone (si depuis jeu) -->
+        @if (modeSelectionZone()) {
+          <mat-form-field appearance="outline">
+            <mat-label>Zone de placement</mat-label>
+            <mat-select formControlName="zone_plan_id" required>
+              @for (zone of zonesDisponibles; track zone.id) {
+                <mat-option [value]="zone.id">
+                  <div class="zone-option">
+                    <strong>{{ zone.nom }}</strong>
+                    <span class="info">
+                      {{ zone.tables_disponibles }} / {{ zone.nombre_tables_total }} tables dispo
+                    </span>
+                  </div>
+                </mat-option>
+              }
+            </mat-select>
+            <mat-icon matPrefix>map</mat-icon>
+          </mat-form-field>
+        }
+
+        <!-- Informations contextuelles -->
+        @if (selectedJeu()) {
+          <div class="info-box jeu-info">
+            <div class="info-header">
+              <mat-icon>extension</mat-icon>
+              <strong>{{ selectedJeu()!.jeu_nom }}</strong>
+            </div>
+            <div class="info-details">
+              <span>Éditeur : {{ selectedJeu()!.editeur_nom }}</span>
+              <span>Exemplaires : {{ selectedJeu()!.nombre_exemplaires }}</span>
+              <span>Espace estimé : {{ selectedJeu()!.tables_allouees }} tables</span>
+            </div>
+          </div>
+        }
+
+        @if (selectedZone()) {
+          <div class="info-box zone-info">
+            <div class="info-header">
+              <mat-icon>map</mat-icon>
+              <strong>{{ selectedZone()!.nom }}</strong>
+            </div>
+            <div class="info-details">
+              <span>Tables disponibles : {{ selectedZone()!.tables_disponibles }} / {{ selectedZone()!.nombre_tables_total }}</span>
+            </div>
+          </div>
+        }
+
+        <!-- Types de tables -->
+        <h3 class="section-title">
+          <mat-icon>table_chart</mat-icon>
+          Types de tables à utiliser
+        </h3>
+
+        <div class="tables-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>Tables standard</mat-label>
+            <input matInput type="number" min="0" formControlName="nb_tables_std">
+            <mat-icon matPrefix>crop_square</mat-icon>
+            <span matSuffix>tables</span>
+            <mat-hint>Petites tables (4 chaises)</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Tables grandes</mat-label>
+            <input matInput type="number" min="0" formControlName="nb_tables_gde">
+            <mat-icon matPrefix>crop_landscape</mat-icon>
+            <span matSuffix>tables</span>
+            <mat-hint>Grandes tables (6 chaises)</mat-hint>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Tables mairie</mat-label>
+            <input matInput type="number" min="0" formControlName="nb_tables_mairie">
+            <mat-icon matPrefix>table_restaurant</mat-icon>
+            <span matSuffix>tables</span>
+            <mat-hint>Tables mairie (6 chaises)</mat-hint>
+          </mat-form-field>
+        </div>
+
+        <!-- Total calculé -->
+        <div class="total-info">
+          <div class="total-label">
+            <mat-icon>calculate</mat-icon>
+            Total de tables :
+          </div>
+          <div class="total-value" [class.warning]="totalTables() === 0">
+            {{ totalTables() }}
+          </div>
+        </div>
+
+        @if (totalTables() === 0) {
+          <div class="warning-box">
+            <mat-icon>warning</mat-icon>
+            <span>Vous devez sélectionner au moins une table</span>
+          </div>
+        }
+
+        @if (totalTables() > (selectedZone()?.tables_disponibles ?? MAX_TABLES)) {
+          <div class="error-box">
+            <mat-icon>error</mat-icon>
+            <span>
+              Pas assez de tables disponibles dans cette zone 
+              ({{ totalTables() }} > {{ selectedZone()?.tables_disponibles }})
+            </span>
+          </div>
+        }
+      </form>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="onCancel()">Annuler</button>
+      <button 
+        mat-raised-button 
+        color="primary" 
+        [disabled]="form.invalid || totalTables() === 0 || hasError()"
+        (click)="onSubmit()">
+        <mat-icon>check</mat-icon>
+        Placer le jeu
+      </button>
+    </mat-dialog-actions>

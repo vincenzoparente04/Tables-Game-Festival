@@ -46,7 +46,7 @@ router.get('/courant',requireActivatedAccount(), requirePermission('festivals', 
 // -----------------------------
 // Détail d’un festival
 // -----------------------------
-router.get('/:id', requireActivatedAccount(), requirePermission('festivals', 'viewAll'), async (req, res) => {
+router.get('/:id', requireActivatedAccount(), requirePermission('festivals', 'viewCurrent'), async (req, res) => {
     const festivalId = req.params.id;
     try {
         const result = await pool.query(`
