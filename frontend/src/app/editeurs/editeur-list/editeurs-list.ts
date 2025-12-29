@@ -12,6 +12,7 @@ import { EditeurCard } from '../editeur-card/editeur-card';
   styleUrl: './editeurs-list.css',
 })
 export class EditeursList implements OnInit {
+  
   // List of editors
   editeurs: EditeurSummary[] = [];
   loadingList = false;
@@ -23,6 +24,10 @@ export class EditeursList implements OnInit {
   contactsSelected: ContactEditeur[] = [];
   loadingDetail = false;
   errorDetail: string | null = null;
+
+  // Edit mode
+  editeurToEdit: EditeurSummary | null = null;
+  contactsToEdit: ContactEditeur[] = [];
 
   constructor(private editeursService: EditeursService) {}
 
@@ -51,6 +56,13 @@ export class EditeursList implements OnInit {
   // Reset the list when a new editor is created 
   onEditeurCreated(): void {
     this.loadEditeurs();
+  }
+
+  // Reset the list when an editor is modified
+  onEditeurUpdated(): void {
+    this.editeurToEdit = null;
+    this.loadEditeurs();
+    this.selectedEditeur = null;
   }
 
   // Charge the details when a card is selected
@@ -83,8 +95,42 @@ export class EditeursList implements OnInit {
         this.errorDetail =
           this.errorDetail ||
           'Erreur lors du chargement des contacts de l’éditeur';
-        this.loadingDetail = false;
       },
     });
   }
+
+  // Edit mode
+  onEditEditeur(editeur: EditeurSummary): void {
+    this.editeurToEdit = editeur;
+    this.selectedEditeur = null;
+    
+    // Load contacts for edit
+    this.editeursService.getContactsEditeur(editeur.id).subscribe({
+      next: (contacts: ContactEditeur[]) => {
+        this.contactsToEdit = contacts;
+      },
+      error: (err) => {
+        console.error(err);
+        this.contactsToEdit = [];
+      },
+    });
+  }
+
+  // Delete editor
+  onDeleteEditeur(editeur: EditeurSummary): void {
+    if (confirm(`Êtes-vous sûr de vouloir supprimer l'éditeur "${editeur.nom}" ?`)) {
+      this.editeursService.deleteEditeur(editeur.id).subscribe({
+        next: () => {
+          this.editeurToEdit = null;
+          this.selectedEditeur = null;
+          this.loadEditeurs();
+        },
+        error: (err) => {
+          console.error(err);
+          this.errorList = err?.error?.error || 'Erreur lors de la suppression de l\'éditeur';
+        },
+      });
+    }
+  }
 }
+

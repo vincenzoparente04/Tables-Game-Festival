@@ -16,8 +16,20 @@ export class EditeurCard {
   @Input() selected = false;
 
   @Output() select = new EventEmitter<EditeurSummary>();
+  @Output() edit = new EventEmitter<EditeurSummary>();
+  @Output() delete = new EventEmitter<EditeurSummary>();
 
   onClick(): void {
     this.select.emit(this.editeur);
+  }
+
+  onEdit(event: Event): void {
+    event.stopPropagation();
+    this.edit.emit(this.editeur);
+  }
+
+  onDelete(event: Event): void {
+    event.stopPropagation();
+    this.delete.emit(this.editeur);
   }
 }

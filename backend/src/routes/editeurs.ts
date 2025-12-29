@@ -172,4 +172,134 @@ router.post('/', requireActivatedAccount(), requirePermission('festivals', 'view
   }
 });
 
+// PUT /api/editeurs/:id   Update editor
+router.put('/:id', requireActivatedAccount(), requirePermission('festivals', 'viewAll'), async (req, res) => {
+  const editeurId = req.params.id;
+  const { nom, contacts } = req.body as {
+    nom?: string;
+    contacts?: {
+      id?: number;
+      nom: string;
+      email?: string;
+      telephone?: string;
+      role_profession?: string;
+    }[];
+  };
+
+  if (!nom || nom.trim() === '') {
+    return res.status(400).json({ error: "Le nom de l'éditeur est requis" });
+  }
+
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    // Update editor name
+    const editeurResult = await client.query(
+      `UPDATE editeurs SET nom = $1 WHERE id = $2 RETURNING id, nom;`,
+      [nom.trim(), editeurId]
+    );
+
+    if (editeurResult.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: "Éditeur non trouvé" });
+    }
+
+    const editeur = editeurResult.rows[0];
+
+    // Get the reservant of this editor
+    const reservantResult = await client.query(
+      `SELECT id FROM reservants WHERE editeur_id = $1 AND type_reservant = 'editeur';`,
+      [editeurId]
+    );
+
+    if (reservantResult.rows.length > 0) {
+      const reservantId = reservantResult.rows[0].id;
+
+      // Delete old contacts
+      await client.query(
+        `DELETE FROM contacts_reservants WHERE reservant_id = $1;`,
+        [reservantId]
+      );
+
+      // Insert new contacts
+      if (Array.isArray(contacts)) {
+        for (const c of contacts) {
+          if (!c || !c.nom || c.nom.trim() === '') continue;
+
+          await client.query(
+            `INSERT INTO contacts_reservants
+              (reservant_id, nom, email, telephone, role_profession)
+            VALUES ($1, $2, $3, $4, $5);`,
+            [
+              reservantId,
+              c.nom.trim(),
+              c.email || null,
+              c.telephone || null,
+              c.role_profession || null,
+            ]
+          );
+        }
+      }
+    }
+
+    await client.query('COMMIT');
+    res.json(editeur);
+  } catch (error: any) {
+    await client.query('ROLLBACK');
+    console.error('Erreur modification éditeur:', error);
+    if (error.code === '23505') {
+      return res.status(400).json({ error: 'Un éditeur avec ce nom existe déjà' });
+    }
+    res.status(500).json({ error: 'Erreur serveur' });
+  } finally {
+    client.release();
+  }
+});
+
+// DELETE /api/editeurs/:id   Delete editor
+router.delete('/:id', requireActivatedAccount(), requirePermission('festivals', 'viewAll'), async (req, res) => {
+  const editeurId = req.params.id;
+  const client = await pool.connect();
+
+  try {
+    await client.query('BEGIN');
+
+    // Delete all contacts linked to reservants of this editor
+    await client.query(
+      `DELETE FROM contacts_reservants WHERE reservant_id IN (
+        SELECT id FROM reservants WHERE editeur_id = $1
+      );`,
+      [editeurId]
+    );
+
+    // Delete all reservants linked to this editor
+    await client.query(
+      `DELETE FROM reservants WHERE editeur_id = $1;`,
+      [editeurId]
+    );
+
+    // Delete the editor
+    const result = await client.query(
+      `DELETE FROM editeurs WHERE id = $1 RETURNING id;`,
+      [editeurId]
+    );
+
+    if (result.rows.length === 0) {
+      await client.query('ROLLBACK');
+      return res.status(404).json({ error: "Éditeur non trouvé" });
+    }
+
+    await client.query('COMMIT');
+    res.status(200).json({ message: 'Éditeur supprimé avec succès' });
+  } catch (error: any) {
+    await client.query('ROLLBACK');
+    console.error('Erreur suppression éditeur:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  } finally {
+    client.release();
+  }
+});
+
 export default router;

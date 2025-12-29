@@ -77,4 +77,13 @@ export class EditeursService {
     return this.http.post(`${this.baseUrl}`, payload);
   }
 
+  // Update editor
+  updateEditeur(editeurId: number, payload: { nom: string; contacts?: Array<{ nom: string; email?: string; telephone?: string; role_profession?: string }> }) {
+    return this.http.put(`${this.baseUrl}/${editeurId}`, payload);
+  }
+
+  // Delete editor
+  deleteEditeur(editeurId: number) {
+    return this.http.delete(`${this.baseUrl}/${editeurId}`);
+  }
 }

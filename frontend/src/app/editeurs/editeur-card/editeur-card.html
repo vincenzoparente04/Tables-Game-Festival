@@ -1,5 +1,11 @@
 <div class="editeur-card" [class.selected]="selected" (click)="onClick()">
-  <h3>{{ editeur.nom }}</h3>
-  <p>Jeux : {{ editeur.nb_jeux }}</p>
-  <p>Contacts : {{ editeur.nb_contacts }}</p>
+  <div class="card-content">
+    <h3>{{ editeur.nom }}</h3>
+    <p>Jeux : {{ editeur.nb_jeux }}</p>
+    <p>Contacts : {{ editeur.nb_contacts }}</p>
+  </div>
+  <div class="card-actions">
+    <button class="btn-edit" (click)="onEdit($event)" title="Modifier">✏️</button>
+    <button class="btn-delete" (click)="onDelete($event)" title="Supprimer">🗑️</button>
+  </div>
 </div>

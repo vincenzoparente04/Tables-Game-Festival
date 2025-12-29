@@ -1,5 +1,5 @@
 <div class="editeurs-form">
-  <h2>Ajouter un éditeur</h2>
+  <h2>@if (editeurToEdit) { Modifier l'éditeur } @else { Ajouter un éditeur }</h2>
 
   @if (error) {
     <p class="error">{{ error }}</p>
@@ -18,55 +18,82 @@
       />
     </div>
 
-    <h3>Contact principal (optionnel)</h3>
+    <h3>Contacts</h3>
+    
+    @if (contacts.length === 0) {
+      <p class="info">Aucun contact pour le moment.</p>
+    } @else {
+      <div class="contacts-list">
+        @for (contact of contacts; track $index) {
+          <div class="contact-form">
+            <div class="form-row">
+              <label for="contactNom{{ $index }}">Nom *</label>
+              <input
+                [id]="'contactNom' + $index"
+                type="text"
+                [(ngModel)]="contact.nom"
+                [name]="'contactNom' + $index"
+                placeholder="Nom du contact"
+              />
+            </div>
 
-    <div class="form-row">
-      <label for="contactNom">Nom</label>
-      <input
-        id="contactNom"
-        type="text"
-        [(ngModel)]="contactNom"
-        name="contactNom"
-        placeholder="Nom du contact"
-      />
-    </div>
+            <div class="form-row">
+              <label [for]="'contactEmail' + $index">Email</label>
+              <input
+                [id]="'contactEmail' + $index"
+                type="email"
+                [(ngModel)]="contact.email"
+                [name]="'contactEmail' + $index"
+                placeholder="ex: contact@editeur.com"
+              />
+            </div>
 
-    <div class="form-row">
-      <label for="contactEmail">Email</label>
-      <input
-        id="contactEmail"
-        type="email"
-        [(ngModel)]="contactEmail"
-        name="contactEmail"
-        placeholder="ex: contact@editeur.com"
-      />
-    </div>
+            <div class="form-row">
+              <label [for]="'contactTel' + $index">Téléphone</label>
+              <input
+                [id]="'contactTel' + $index"
+                type="text"
+                [(ngModel)]="contact.telephone"
+                [name]="'contactTel' + $index"
+                placeholder="ex: 06..."
+              />
+            </div>
 
-    <div class="form-row">
-      <label for="contactTel">Téléphone</label>
-      <input
-        id="contactTel"
-        type="text"
-        [(ngModel)]="contactTelephone"
-        name="contactTel"
-        placeholder="ex: 06..."
-      />
-    </div>
+            <div class="form-row">
+              <label [for]="'contactRole' + $index">Rôle / fonction</label>
+              <input
+                [id]="'contactRole' + $index"
+                type="text"
+                [(ngModel)]="contact.role_profession"
+                [name]="'contactRole' + $index"
+                placeholder="ex: Responsable commercial"
+              />
+            </div>
 
-    <div class="form-row">
-      <label for="contactRole">Rôle / fonction</label>
-      <input
-        id="contactRole"
-        type="text"
-        [(ngModel)]="contactRole"
-        name="contactRole"
-        placeholder="ex: Responsable commercial"
-      />
-    </div>
+            <button type="button" (click)="removeContact($index)" class="btn-remove">
+              Supprimer ce contact
+            </button>
+          </div>
+        }
+      </div>
+    }
 
-    <button type="submit" [disabled]="loading">
-      @if (loading) { Sauvegarde... } @else { Créer l'éditeur }
+    <button type="button" (click)="addContact()" class="btn-add-contact">
+      Ajouter un contact
     </button>
+
+    <div class="form-actions">
+      <button type="submit" [disabled]="loading">
+        @if (loading) { 
+          Sauvegarde... 
+        } @else { 
+          @if (editeurToEdit) { Modifier } @else { Créer l'éditeur }
+        }
+      </button>
+      @if (editeurToEdit) {
+        <button type="button" (click)="cancel()" [disabled]="loading">Annuler</button>
+      }
+    </div>
   </form>
 </div>
 

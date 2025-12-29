@@ -1,7 +1,12 @@
 <div class="editeurs-gestion-container">
   <h1>Gestion des éditeurs</h1>
 
-  <app-editeurs-form (created)="onEditeurCreated()" />
+  <app-editeurs-form 
+    (created)="onEditeurCreated()" 
+    (updated)="onEditeurUpdated()"
+    [editeurToEdit]="editeurToEdit"
+    [contactsToEdit]="contactsToEdit"
+  />
 
   <section class="list-section">
     <h2>Liste des éditeurs</h2>
@@ -20,16 +25,20 @@
               @for (editeur of editeurs; track editeur.id) {
                 <app-editeur-card
                   [editeur]="editeur"
-                  [selected]="selectedEditeur?.id === editeur.id"
+                  [selected]="selectedEditeur?.id === editeur.id || editeurToEdit?.id === editeur.id"
                   (select)="selectEditeur($event)"
+                  (edit)="onEditEditeur($event)"
+                  (delete)="onDeleteEditeur($event)"
                 />
               }
             </div>
 
             <div class="editeur-detail">
-              @if (!selectedEditeur) {
+              @if (!selectedEditeur && !editeurToEdit) {
                 <p>Sélectionnez un éditeur pour voir les détails.</p>
-              } @else {
+              } @else if (editeurToEdit) {
+                <p>Mode modification - utilise le formulaire en haut</p>
+              } @else if (selectedEditeur) {
                 <h2>Détails : {{ selectedEditeur.nom }}</h2>
 
                 @if (loadingDetail) {
