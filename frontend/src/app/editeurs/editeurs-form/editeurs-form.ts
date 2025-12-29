@@ -57,7 +57,6 @@ export class EditeursForm {
     this.editeursService.createEditeur(payload).subscribe({
       next: () => {
         this.loading = false;
-        // If the contact has a name is saved
         this.nom = '';
         this.contactNom = '';
         this.contactEmail = '';
