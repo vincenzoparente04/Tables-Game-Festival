@@ -1,0 +1,140 @@
+.jeu-card {
+  background: white;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  margin-bottom: 10px;
+}
+
+.jeu-card:hover {
+  border-color: #007bff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.15);
+  transform: translateY(-2px);
+}
+
+.jeu-card.selected {
+  border-color: #007bff;
+  background-color: #f8f9ff;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.2);
+}
+
+.jeu-card.editing {
+  border-color: #ffc107;
+  background-color: #fffbf0;
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
+}
+
+.card-header {
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.card-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  word-break: break-word;
+}
+
+.card-body {
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.card-info {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  gap: 8px;
+  align-items: start;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #666;
+  white-space: nowrap;
+}
+
+.info-value {
+  color: #444;
+  word-break: break-word;
+}
+
+.card-actions {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-start;
+}
+
+.view-btn,
+.edit-btn,
+.delete-btn {
+  padding: 6px 10px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: bold;
+  transition: all 0.2s;
+  flex: 1;
+  text-align: center;
+}
+
+.view-btn {
+  background-color: #007bff;
+  color: white;
+}
+
+.view-btn:hover {
+  background-color: #0056b3;
+}
+
+.edit-btn {
+  background-color: #17a2b8;
+  color: white;
+}
+
+.edit-btn:hover {
+  background-color: #138496;
+}
+
+.delete-btn {
+  background-color: #dc3545;
+  color: white;
+}
+
+.delete-btn:hover {
+  background-color: #c82333;
+}
+
+@media (max-width: 768px) {
+  .jeu-card {
+    padding: 12px;
+  }
+
+  .card-title {
+    font-size: 15px;
+  }
+
+  .card-body {
+    font-size: 12px;
+  }
+
+  .card-actions {
+    flex-wrap: wrap;
+  }
+
+  .view-btn,
+  .edit-btn,
+  .delete-btn {
+    flex: 0 1 calc(33.333% - 4px);
+    padding: 5px 8px;
+    font-size: 11px;
+  }
+}

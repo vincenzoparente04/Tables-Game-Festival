@@ -18,6 +18,7 @@
     @if(isAdmin()) {
       <button mat-button routerLink="admin"><mat-icon>admin_panel_settings</mat-icon> Admin</button>
       <button mat-button routerLink="editeurs-list"><mat-icon>people</mat-icon> Éditeurs</button>
+      <button mat-button routerLink="jeux-list"><mat-icon>games</mat-icon> Jeux</button>
     }
     <button mat-button (click)="logoutApp()"><mat-icon>logout</mat-icon> Déconnexion</button>
   } @else {

@@ -1,0 +1,197 @@
+<form (ngSubmit)="onSubmit()" class="jeux-form">
+  <!-- Error message -->
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+  </div>
+
+  <!-- Nom field (mandatory) -->
+  <div class="form-group">
+    <label for="nom">Nom du jeu <span class="mandatory">*</span></label>
+    <input
+      type="text"
+      id="nom"
+      [(ngModel)]="nom"
+      name="nom"
+      class="form-control"
+      placeholder="Entrez le nom du jeu"
+      [disabled]="loading"
+    />
+  </div>
+
+  <!-- Éditeur field (mandatory) -->
+  <div class="form-group">
+    <label for="editeur">Éditeur <span class="mandatory">*</span></label>
+    <select
+      id="editeur"
+      [(ngModel)]="editeur_id"
+      name="editeur_id"
+      class="form-control"
+      [disabled]="loading"
+    >
+      <option [value]="null">-- Sélectionnez un éditeur --</option>
+      <option *ngFor="let editeur of editeurs" [value]="editeur.id">
+        {{ editeur.nom }}
+      </option>
+    </select>
+  </div>
+
+  <!-- Type de jeu field -->
+  <div class="form-group">
+    <label for="type_jeu">Type de jeu</label>
+    <input
+      type="text"
+      id="type_jeu"
+      [(ngModel)]="type_jeu"
+      name="type_jeu"
+      class="form-control"
+      placeholder="Ex: Stratégie, Coopératif, etc."
+      [disabled]="loading"
+    />
+  </div>
+
+  <!-- Age min/max -->
+  <div class="form-row">
+    <div class="form-group half">
+      <label for="age_mini">Âge minimum</label>
+      <input
+        type="number"
+        id="age_mini"
+        [(ngModel)]="age_mini"
+        name="age_mini"
+        class="form-control"
+        placeholder="8"
+        min="0"
+        [disabled]="loading"
+      />
+    </div>
+    <div class="form-group half">
+      <label for="age_maxi">Âge maximum</label>
+      <input
+        type="number"
+        id="age_maxi"
+        [(ngModel)]="age_maxi"
+        name="age_maxi"
+        class="form-control"
+        placeholder="99"
+        min="0"
+        [disabled]="loading"
+      />
+    </div>
+  </div>
+
+  <!-- Joueurs min/max -->
+  <div class="form-row">
+    <div class="form-group half">
+      <label for="joueurs_mini">Joueurs minimum</label>
+      <input
+        type="number"
+        id="joueurs_mini"
+        [(ngModel)]="joueurs_mini"
+        name="joueurs_mini"
+        class="form-control"
+        placeholder="1"
+        min="1"
+        [disabled]="loading"
+      />
+    </div>
+    <div class="form-group half">
+      <label for="joueurs_maxi">Joueurs maximum</label>
+      <input
+        type="number"
+        id="joueurs_maxi"
+        [(ngModel)]="joueurs_maxi"
+        name="joueurs_maxi"
+        class="form-control"
+        placeholder="6"
+        min="1"
+        [disabled]="loading"
+      />
+    </div>
+  </div>
+
+  <!-- Taille table -->
+  <div class="form-group">
+    <label for="taille_table">Taille de table</label>
+    <input
+      type="text"
+      id="taille_table"
+      [(ngModel)]="taille_table"
+      name="taille_table"
+      class="form-control"
+      placeholder="60x100 cm"
+      [disabled]="loading"
+    />
+  </div>
+
+  <!-- Durée moyenne -->
+  <div class="form-group">
+    <label for="duree_moyenne">Durée moyenne (minutes)</label>
+    <input
+      type="number"
+      id="duree_moyenne"
+      [(ngModel)]="duree_moyenne"
+      name="duree_moyenne"
+      class="form-control"
+      placeholder="45"
+      min="0"
+      [disabled]="loading"
+    />
+  </div>
+
+  <!-- Authors section (mandatory) -->
+  <div class="authors-section">
+    <div class="authors-header">
+      <label>Auteurs <span class="mandatory">*</span></label>
+      <button
+        type="button"
+        class="add-author-btn"
+        (click)="addAuteur()"
+        [disabled]="loading"
+      >
+        + Ajouter un auteur
+      </button>
+    </div>
+
+    <div *ngIf="auteurs.length === 0" class="no-authors">
+      Au moins un auteur est obligatoire
+    </div>
+
+    <div *ngFor="let auteur of auteurs; let i = index" class="author-item">
+      <input
+        type="text"
+        [(ngModel)]="auteur.nom"
+        [name]="'auteur_nom_' + i"
+        class="form-control"
+        placeholder="Nom"
+        [disabled]="loading"
+      />
+      <input
+        type="text"
+        [(ngModel)]="auteur.prenom"
+        [name]="'auteur_prenom_' + i"
+        class="form-control"
+        placeholder="Prénom"
+        [disabled]="loading"
+      />
+      <button
+        type="button"
+        class="remove-author-btn"
+        (click)="removeAuteur(i)"
+        [disabled]="loading"
+      >
+        ✕
+      </button>
+    </div>
+  </div>
+
+  <!-- Form actions -->
+  <div class="form-actions">
+    <button
+      type="submit"
+      class="submit-btn"
+      [disabled]="loading"
+    >
+      {{ loading ? 'Enregistrement...' : (isEditing ? 'Modifier le jeu' : 'Créer le jeu') }}
+    </button>
+  </div>
+</form>

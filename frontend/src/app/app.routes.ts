@@ -9,6 +9,7 @@ import { FestivalsList } from './festivals/festivals-list/festivals-list';
 import { notPendingUserGuard, hasPermission } from './guards/permission-guard';
 import { VuesPubliques } from './vues-publiques/vues-publiques';
 import { EditeursList } from './editeurs/editeur-list/editeurs-list';
+import { JeuxList } from './jeux/jeux-list/jeux-list';
 
 
 
@@ -20,6 +21,7 @@ export const routes: Routes = [
     { path: 'home', component: Home },
     { path: 'vues-publiques', component: VuesPubliques},
     { path: 'editeurs-list', component: EditeursList, canActivate: [authGuard, notPendingUserGuard, hasPermission('festivals', 'viewAll')]},
+    { path: 'jeux-list', component: JeuxList, canActivate: [authGuard, notPendingUserGuard, hasPermission('festivals', 'viewAll')]},
     { path: 'admin', component: Admin, canActivate: [authGuard, adminGuard] },
     { path: '', pathMatch: 'full', redirectTo: 'home' },
     { path: '**', redirectTo: 'home' },
