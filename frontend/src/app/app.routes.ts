@@ -8,6 +8,10 @@ import { Register } from './shared/auth/register/register';
 import { FestivalsList } from './festivals/festivals-list/festivals-list';
 import { notPendingUserGuard, hasPermission } from './guards/permission-guard';
 import { ZonesPlanList } from './zones-plan/zones-plan-list/zones-plan-list';
+import { VuesPubliques } from './vues-publiques/vues-publiques';
+import { EditeursList } from './editeurs/editeur-list/editeurs-list';
+import { JeuxList } from './jeux/jeux-list/jeux-list';
+
 
 
 
@@ -18,6 +22,9 @@ export const routes: Routes = [
     { path: 'festivals/courant', component: FestivalsList , canActivate: [authGuard, notPendingUserGuard, hasPermission('festivals', 'viewCurrent')] },
     { path: 'festivals/:id/zones-plan', component: ZonesPlanList, canActivate: [authGuard, notPendingUserGuard, hasPermission('zonesPlan', 'view')] },
     { path: 'home', component: Home },
+    { path: 'vues-publiques', component: VuesPubliques, canActivate: [authGuard, notPendingUserGuard] },
+    { path: 'editeurs', component: EditeursList, canActivate: [authGuard, notPendingUserGuard, hasPermission('festivals', 'viewAll')]},
+    { path: 'jeux', component: JeuxList, canActivate: [authGuard, notPendingUserGuard, hasPermission('festivals', 'viewAll')]},
     { path: 'admin', component: Admin, canActivate: [authGuard, adminGuard] },
     { path: '', pathMatch: 'full', redirectTo: 'home' },
     { path: '**', redirectTo: 'home' },

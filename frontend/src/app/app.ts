@@ -36,4 +36,6 @@ export class App {
   canAccessAdmin = this.permissions.isAdmin;
   isPendingUser = this.permissions.isPendingUser;
   isOrganisateur = this.permissions.isAdminOrSuperOrgaOrOrga;
+  canViewgames = this.permissions.can('jeux', 'viewAll');
+  canviewEditeurs = this.permissions.can('editeurs', 'viewAll');
 }

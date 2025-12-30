@@ -1,0 +1,102 @@
+<div class="editeurs-form">
+  <h2>@if (editeurToEdit()) { Modifier l'éditeur } @else { Ajouter un éditeur }</h2>
+
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
+  }
+
+  <form [formGroup]="form" (ngSubmit)="submit()">
+    <div class="form-row">
+      <label for="nom">Nom de l'éditeur *</label>
+      <input
+        id="nom"
+        type="text"
+        formControlName="nom"
+        placeholder="Nom de la maison d'édition"
+      />
+      @if (form.get('nom')?.hasError('required') && form.get('nom')?.touched) {
+        <span class="error-text">Le nom est requis</span>
+      }
+    </div>
+
+    <h3>Contacts</h3>
+    
+    @if (contacts.length === 0) {
+      <p class="info">Aucun contact pour le moment.</p>
+    } @else {
+      <div class="contacts-list">
+        @for (contact of contacts.controls; track $index; let i = $index) {
+          <div class="contact-form" [formGroup]="$any(contact)">
+            <div class="form-row">
+              <label [for]="'contactNom' + i">Nom *</label>
+              <input
+                [id]="'contactNom' + i"
+                type="text"
+                formControlName="nom"
+                placeholder="Nom du contact"
+              />
+              @if (contact.get('nom')?.hasError('required') && contact.get('nom')?.touched) {
+                <span class="error-text">Le nom du contact est requis</span>
+              }
+            </div>
+
+            <div class="form-row">
+              <label [for]="'contactEmail' + i">Email</label>
+              <input
+                [id]="'contactEmail' + i"
+                type="email"
+                formControlName="email"
+                placeholder="ex: contact@editeur.com"
+              />
+            </div>
+
+            <div class="form-row">
+              <label [for]="'contactTel' + i">Téléphone</label>
+              <input
+                [id]="'contactTel' + i"
+                type="text"
+                formControlName="telephone"
+                placeholder="ex: 06..."
+              />
+            </div>
+
+            <div class="form-row">
+              <label [for]="'contactRole' + i">Rôle / fonction</label>
+              <input
+                [id]="'contactRole' + i"
+                type="text"
+                formControlName="role_profession"
+                placeholder="ex: Responsable commercial"
+              />
+            </div>
+
+            <button type="button" (click)="removeContact(i)" class="btn-remove">
+              Supprimer ce contact
+            </button>
+          </div>
+        }
+      </div>
+    }
+
+    <button type="button" (click)="addContact()" class="btn-add-contact">
+      Ajouter un contact
+    </button>
+
+    <div class="form-actions">
+      <button type="submit" [disabled]="loading()">
+        @if (loading()) { 
+          <mat-spinner diameter="20"></mat-spinner>
+          Sauvegarde... 
+        } @else { 
+          {{ submitLabel() }}
+        }
+      </button>
+      @if (editeurToEdit()) {
+        <button type="button" (click)="cancel()" [disabled]="loading()">Annuler</button>
+      }
+    </div>
+  </form>
+</div>
+
+
+

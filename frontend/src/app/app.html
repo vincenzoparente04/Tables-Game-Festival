@@ -3,13 +3,22 @@
   <span class="spacer"></span>
   @if(isLoggedIn()) {
     <button mat-button routerLink="home"><mat-icon>home</mat-icon> Accueil</button>
+    
     @if(!isPendingUser()){
+      <button mat-button routerLink="vues-publiques"><mat-icon>visibility</mat-icon> Vues publiques</button>
       
       @if(canViewFestivals()){
         <button mat-button routerLink="festivals"><mat-icon>event</mat-icon> Festivals</button>
       }
       @else if (canViewCurrent()) {
         <button mat-button routerLink="festivals/courant"><mat-icon>visibility</mat-icon> Festivals </button>
+      }
+
+      @if ( canViewgames()) {
+        <button mat-button routerLink="jeux"><mat-icon>games</mat-icon> Jeux</button>
+      }
+      @if ( canviewEditeurs()) {
+        <button mat-button routerLink="editeurs"><mat-icon>people</mat-icon> Éditeurs</button>
       }
       
     }

@@ -1,0 +1,191 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="jeux-form">
+  <!-- Nom field (mandatory) -->
+  <div class="form-group">
+    <label for="nom">Nom du jeu <span class="mandatory">*</span></label>
+    <input
+      type="text"
+      id="nom"
+      formControlName="nom"
+      class="form-control"
+      placeholder="Entrez le nom du jeu"
+      [disabled]="loading()"
+    />
+    @if (form.get('nom')?.hasError('required') && form.get('nom')?.touched) {
+      <span class="error-text">Le nom est obligatoire</span>
+    }
+  </div>
+
+  <!-- Éditeur field (mandatory) -->
+  <div class="form-group">
+    <label for="editeur">Éditeur <span class="mandatory">*</span></label>
+    <select
+      id="editeur"
+      formControlName="editeur_id"
+      class="form-control"
+      [disabled]="loading()"
+    >
+      <option [value]="''">-- Sélectionnez un éditeur --</option>
+      @for (editeur of editeurs(); track editeur.id) {
+        <option [value]="editeur.id">{{ editeur.nom }}</option>
+      }
+    </select>
+    @if (form.get('editeur_id')?.hasError('required') && form.get('editeur_id')?.touched) {
+      <span class="error-text">Un éditeur doit être sélectionné</span>
+    }
+  </div>
+
+  <!-- Type de jeu field -->
+  <div class="form-group">
+    <label for="type_jeu">Type de jeu</label>
+    <input
+      type="text"
+      id="type_jeu"
+      formControlName="type_jeu"
+      class="form-control"
+      placeholder="Ex: Stratégie, Coopératif, etc."
+      [disabled]="loading()"
+    />
+  </div>
+
+  <!-- Age min/max -->
+  <div class="form-row">
+    <div class="form-group half">
+      <label for="age_mini">Âge minimum</label>
+      <input
+        type="number"
+        id="age_mini"
+        formControlName="age_mini"
+        class="form-control"
+        placeholder="8"
+        min="0"
+        [disabled]="loading()"
+      />
+    </div>
+    <div class="form-group half">
+      <label for="age_maxi">Âge maximum</label>
+      <input
+        type="number"
+        id="age_maxi"
+        formControlName="age_maxi"
+        class="form-control"
+        placeholder="99"
+        min="0"
+        [disabled]="loading()"
+      />
+    </div>
+  </div>
+
+  <!-- Joueurs min/max -->
+  <div class="form-row">
+    <div class="form-group half">
+      <label for="joueurs_mini">Joueurs minimum</label>
+      <input
+        type="number"
+        id="joueurs_mini"
+        formControlName="joueurs_mini"
+        class="form-control"
+        placeholder="1"
+        min="1"
+        [disabled]="loading()"
+      />
+    </div>
+    <div class="form-group half">
+      <label for="joueurs_maxi">Joueurs maximum</label>
+      <input
+        type="number"
+        id="joueurs_maxi"
+        formControlName="joueurs_maxi"
+        class="form-control"
+        placeholder="6"
+        min="1"
+        [disabled]="loading()"
+      />
+    </div>
+  </div>
+
+  <!-- Taille table -->
+  <div class="form-group">
+    <label for="taille_table">Taille de table</label>
+    <input
+      type="text"
+      id="taille_table"
+      formControlName="taille_table"
+      class="form-control"
+      placeholder="petite, grande"
+      [disabled]="loading()"
+    />
+  </div>
+
+  <!-- Durée moyenne -->
+  <div class="form-group">
+    <label for="duree_moyenne">Durée moyenne (minutes)</label>
+    <input
+      type="number"
+      id="duree_moyenne"
+      formControlName="duree_moyenne"
+      class="form-control"
+      placeholder="45"
+      min="0"
+      [disabled]="loading()"
+    />
+  </div>
+
+  <!-- Authors section (mandatory) -->
+  <div class="authors-section">
+    <div class="authors-header">
+      <label>Auteurs <span class="mandatory">*</span></label>
+      <button
+        type="button"
+        class="add-author-btn"
+        (click)="addAuteur()"
+        [disabled]="loading()"
+      >
+        + Ajouter un auteur
+      </button>
+    </div>
+
+    @if (auteurs.length === 0) {
+      <div class="no-authors">Au moins un auteur est obligatoire</div>
+    }
+
+    @for (auteur of auteursFG; track $index; let i = $index) {
+      <div class="author-item" [formGroup]="auteur">
+
+        <input
+          type="text"
+          formControlName="nom"
+          class="form-control"
+          placeholder="Nom"
+          [disabled]="loading()"
+        />
+        <input
+          type="text"
+          formControlName="prenom"
+          class="form-control"
+          placeholder="Prénom"
+          [disabled]="loading()"
+        />
+        <button
+          type="button"
+          class="remove-author-btn"
+          (click)="removeAuteur(i)"
+          [disabled]="loading() || auteurs.length === 1"
+        >
+          ✕
+        </button>
+
+      </div>
+    }
+  </div>
+
+  <!-- Form actions -->
+  <div class="form-actions">
+    <button
+      type="submit"
+      class="submit-btn"
+      [disabled]="form.invalid || loading()"
+    >
+      {{ loading() ? 'Enregistrement...' : submitLabel() }}
+    </button>
+  </div>
+</form>

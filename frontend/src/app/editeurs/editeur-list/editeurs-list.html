@@ -1,0 +1,118 @@
+<div class="editeurs-gestion-container">
+  @if(canCreate()) {
+    <h1>Gestion des éditeurs</h1>
+
+    <app-editeurs-form 
+      (created)="onEditeurCreated()" 
+      (updated)="onEditeurUpdated()"
+      [editeurToEdit]="editeurToEdit()"
+      [contactsToEdit]="contactsToEdit()"
+    />
+
+  }
+  
+
+  <section class="list-section">
+    <h2>Liste des éditeurs</h2>
+
+    @if (loadingList()) {
+      <p>Chargement des éditeurs...</p>
+    } @else {
+      @if (errorList()) {
+        <p class="error">{{ errorList() }}</p>
+      } @else {
+        @if (editeurs().length === 0) {
+          <p>Aucun éditeur enregistré.</p>
+        } @else {
+          <div class="layout">
+            <div class="editeurs-list">
+              @for (editeur of editeurs(); track editeur.id) {
+                <app-editeur-card
+                  [editeur]="editeur"
+                  [canModify]="canModify()"
+                  [canDelete]="canDelete()"
+                  [selected]="selectedEditeur()?.id === editeur.id || editeurToEdit()?.id === editeur.id"
+                  (onSelect)="selectEditeur($event)"
+                  (onEdit)="onEditEditeur($event)"
+                  (onDelete)="onDeleteEditeur($event)"
+                />
+              }
+            </div>
+
+            <div class="editeur-detail">
+              @if (!selectedEditeur() && !editeurToEdit()) {
+                <p>Sélectionnez un éditeur pour voir les détails.</p>
+              } @else if (editeurToEdit()) {
+                <p>Mode modification - utilise le formulaire en haut</p>
+              } @else if (selectedEditeur()) {
+                <h2>Détails : {{ selectedEditeur()!.nom }}</h2>
+
+                @if (loadingDetail()) {
+                  <p>Chargement des jeux et contacts...</p>
+                } @else {
+                  @if (errorDetail()) {
+                    <p class="error">{{ errorDetail() }}</p>
+                  }
+
+                  <div class="detail-block">
+                    <h3>Jeux de l'éditeur</h3>
+                    @if (jeuxSelected().length === 0) {
+                      <p>Aucun jeu enregistré pour cet éditeur.</p>
+                    } @else {
+                      <ul>
+                        @for (jeu of jeuxSelected(); track jeu.id) {
+                          <li>
+                            <strong>{{ jeu.nom }}</strong>
+                            @if (jeu.type_jeu) {
+                              – {{ jeu.type_jeu }}
+                            }
+                            <br />
+                            @if (jeu.age_mini !== null || jeu.age_maxi !== null) {
+                              Âge : {{ jeu.age_mini ?? '?' }} -
+                              {{ jeu.age_maxi ?? '?' }} ans
+                              <br />
+                            }
+                            @if (jeu.joueurs_mini !== null || jeu.joueurs_maxi !== null) {
+                              Joueurs :
+                              {{ jeu.joueurs_mini ?? '?' }} -
+                              {{ jeu.joueurs_maxi ?? '?' }}
+                            }
+                          </li>
+                        }
+                      </ul>
+                    }
+                  </div>
+
+                  <div class="detail-block">
+                    <h3>Contacts</h3>
+                    @if (contactsSelected().length === 0) {
+                      <p>Aucun contact enregistré pour cet éditeur.</p>
+                    } @else {
+                      <ul>
+                        @for (c of contactsSelected(); track c.id) {
+                          <li>
+                            <strong>{{ c.nom }}</strong>
+                            @if (c.role_profession) {
+                              – {{ c.role_profession }}
+                            }
+                            <br />
+                            @if (c.email) {
+                              Email : {{ c.email }}<br />
+                            }
+                            @if (c.telephone) {
+                              Téléphone : {{ c.telephone }}
+                            }
+                          </li>
+                        }
+                      </ul>
+                    }
+                  </div>
+                }
+              }
+            </div>
+          </div>
+        }
+      }
+    }
+  </section>
+</div>

@@ -1,0 +1,159 @@
+<div class="jeux-container">
+  <!-- Left column: List of games -->
+  <div class="jeux-list-column">
+    <div class="list-header">
+      <h2>Gestion des Jeux</h2>
+      @if (!jeuToEdit() && canCreate()) {
+        <button class="add-btn" (click)="startCreateJeu()">
+          + Ajouter un jeu
+        </button>
+      }
+    </div>
+
+    @if (errorList()) {
+      <div class="error-message">{{ errorList() }}</div>
+    }
+
+    @if (loadingList()) {
+      <div class="loading">Chargement des jeux...</div>
+    }
+
+    @if (!loadingList() && jeux().length > 0) {
+      <div class="jeux-cards">
+        @for (jeu of jeux(); track jeu.id) {
+          <app-jeux-card
+            [jeu]="jeu"
+            [isSelected]="selectedJeu()?.id === jeu.id"
+            [isEditing]="jeuToEdit()?.id === jeu.id"
+            [canModify]="canModify()"
+            [canDelete]="canDelete()"
+            (onSelect)="selectJeu($event)"
+            (onEdit)="onEditJeu($event)"
+            (onDelete)="onDeleteJeu($event)"
+          ></app-jeux-card>
+        }
+      </div>
+    }
+
+    @if (!loadingList() && jeux().length === 0) {
+      <div class="empty-state">Aucun jeu trouvé</div>
+    }
+  </div>
+
+  <!-- Right column: Details or Form -->
+  <div class="jeux-detail-column">
+    @if (jeuToEdit() !== null) {
+      <div class="form-section">
+        <h3>{{ jeuToEdit()?.id ? 'Modifier le jeu' : 'Ajouter un nouveau jeu' }}</h3>
+        <app-jeux-form
+          [jeu]="jeuToEdit()"
+          [editeurs]="editeurs()"
+          (jeuCreated)="onJeuCreated()"
+          (jeuUpdated)="onJeuUpdated()"
+        ></app-jeux-form>
+        <button class="cancel-btn" (click)="jeuToEdit.set(null)">Annuler</button>
+      </div>
+    }
+
+    @if (selectedJeu() && !jeuToEdit()) {
+      <div class="detail-section">
+        <div class="detail-header">
+          <h3>{{ selectedJeu()!.nom }}</h3>
+          <div class="detail-actions">
+            @if(canModify()) {
+              <button (click)="onEditJeu(selectedJeu()!)" class="edit-btn">Modifier</button>
+            }
+            @if(canDelete()) {
+              <button (click)="onDeleteJeu(selectedJeu()!)" class="delete-btn">Supprimer</button>
+            }
+          </div>
+        </div>
+
+        <div class="detail-content">
+          <div class="detail-group">
+            <label>Éditeur:</label>
+            <p>{{ selectedJeu()!.editeur_nom }}</p>
+          </div>
+
+          <div class="detail-group">
+            <label>Auteurs:</label>
+            @if (selectedJeu()!.auteurs && selectedJeu()!.auteurs.length > 0) {
+              <ul>
+                @for (auteur of selectedJeu()!.auteurs; track $index) {
+                  <li>
+                    @if (auteur.prenom) {
+                      {{ auteur.prenom }}
+                    }
+                    {{ auteur.nom }}
+                  </li>
+                }
+              </ul>
+            }
+            @if (!selectedJeu()!.auteurs || selectedJeu()!.auteurs.length === 0) {
+              <p>Aucun auteur</p>
+            }
+          </div>
+
+          @if (selectedJeu()!.type_jeu) {
+            <div class="detail-group">
+              <label>Type de jeu:</label>
+              <p>{{ selectedJeu()!.type_jeu }}</p>
+            </div>
+          }
+
+          @if (selectedJeu()!.age_mini || selectedJeu()!.age_maxi) {
+            <div class="detail-group">
+              <label>Âge recommandé:</label>
+              <p>
+                @if (selectedJeu()!.age_mini) {
+                  {{ selectedJeu()!.age_mini }}
+                }
+                @if (selectedJeu()!.age_mini && selectedJeu()!.age_maxi) {
+                  -
+                }
+                @if (selectedJeu()!.age_maxi) {
+                  {{ selectedJeu()!.age_maxi }} ans
+                }
+              </p>
+            </div>
+          }
+
+          @if (selectedJeu()!.joueurs_mini || selectedJeu()!.joueurs_maxi) {
+            <div class="detail-group">
+              <label>Nombre de joueurs:</label>
+              <p>
+                @if (selectedJeu()!.joueurs_mini) {
+                  {{ selectedJeu()!.joueurs_mini }}
+                }
+                @if (selectedJeu()!.joueurs_mini && selectedJeu()!.joueurs_maxi) {
+                  -
+                }
+                @if (selectedJeu()!.joueurs_maxi) {
+                  {{ selectedJeu()!.joueurs_maxi }}
+                }
+              </p>
+            </div>
+          }
+
+          @if (selectedJeu()!.taille_table) {
+            <div class="detail-group">
+              <label>Taille de table:</label>
+              <p>{{ selectedJeu()!.taille_table }}</p>
+            </div>
+          }
+
+          @if (selectedJeu()!.duree_moyenne) {
+            <div class="detail-group">
+              <label>Durée moyenne:</label>
+              <p>{{ selectedJeu()!.duree_moyenne }} minutes</p>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (!selectedJeu() && jeuToEdit() === null) {
+      <div class="empty-detail">Sélectionnez un jeu pour voir les détails</div>
+    }
+  </div>
+</div>

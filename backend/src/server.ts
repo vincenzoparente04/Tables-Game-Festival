@@ -14,6 +14,9 @@ import { requireAdmin } from './middleware/auth-admin.js'
 import festivalsRouter from './routes/festivals.js'
 import zonesTarifairesRouter from './routes/zones-tarifaires.js'
 import zonesPlanRouter from './routes/zones-plan.js'
+import editeursRouter from './routes/editeurs.js'
+import jeuxRouter from './routes/jeux.js'
+import viewPublicRouter from './routes/viewPublic.js'
 
 
 
@@ -54,10 +57,14 @@ app.use('/api/auth', authRouter);
 app.use('/api/festivals', verifyToken, festivalsRouter);
 app.use('/api/zones-tarifaires', verifyToken, zonesTarifairesRouter);
 app.use('/api/zones-plan', verifyToken, zonesPlanRouter);
+app.use('/api/editeurs', verifyToken, editeursRouter);
+app.use('/api/jeux', verifyToken, jeuxRouter);
+app.use('/api/view-public', verifyToken, viewPublicRouter);
 app.use('/api/users', verifyToken, usersRouter); 
 app.use('/api/admin', verifyToken, requireAdmin, (req, res) => {
 res.json({ message: 'Bienvenue admin' });
 })
+
 
 // Chargement du certificat et clé générés par mkcert (étape 0)
 const key = fs.readFileSync('./certs/localhost-key.pem')

@@ -1,0 +1,15 @@
+<div class="editeur-card" [class.selected]="selected()" (click)="selectEditeur()">
+  <div class="card-content">
+    <h3>{{ editeur().nom }}</h3>
+    <p>Jeux : {{ editeur().nb_jeux }}</p>
+    <p>Contacts : {{ editeur().nb_contacts }}</p>
+  </div>
+  <div class="card-actions">
+    @if(canModify()){
+      <button class="btn-edit" (click)="editEditeur($event)" title="Modifier">✏️</button>
+    }
+    @if(canDelete()){
+      <button class="btn-delete" (click)="deleteEditeur($event)" title="Supprimer">🗑️</button>
+    }
+  </div>
+</div>
