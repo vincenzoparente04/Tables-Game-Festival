@@ -25,6 +25,7 @@ export class FestivalCard {
   canModify = input<boolean>(false);
   canDelete = input<boolean>(false);
   showStocks = input<boolean>(false);
+  canSetCourant = input<boolean>(false);
   setCourant = output<number>();
   edit = output<FestivalsDto>();
   delete = output<number>();
