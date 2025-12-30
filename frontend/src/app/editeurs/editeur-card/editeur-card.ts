@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EditeurSummary } from '../../services/editeurs-service';
 
@@ -8,28 +8,27 @@ import { EditeurSummary } from '../../services/editeurs-service';
   imports: [CommonModule],
   templateUrl: './editeur-card.html',
   styleUrl: './editeur-card.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditeurCard {
-  @Input() editeur!: EditeurSummary;
+  editeur = input.required<EditeurSummary>();
+  selected = input(false);
 
-  // Highlight selected editor
-  @Input() selected = false;
+  onSelect = output<EditeurSummary>();
+  onEdit = output<EditeurSummary>();
+  onDelete = output<EditeurSummary>();
 
-  @Output() select = new EventEmitter<EditeurSummary>();
-  @Output() edit = new EventEmitter<EditeurSummary>();
-  @Output() delete = new EventEmitter<EditeurSummary>();
-
-  onClick(): void {
-    this.select.emit(this.editeur);
+  selectEditeur(): void {
+    this.onSelect.emit(this.editeur());
   }
 
-  onEdit(event: Event): void {
+  editEditeur(event: Event): void {
     event.stopPropagation();
-    this.edit.emit(this.editeur);
+    this.onEdit.emit(this.editeur());
   }
 
-  onDelete(event: Event): void {
+  deleteEditeur(event: Event): void {
     event.stopPropagation();
-    this.delete.emit(this.editeur);
+    this.onDelete.emit(this.editeur());
   }
 }

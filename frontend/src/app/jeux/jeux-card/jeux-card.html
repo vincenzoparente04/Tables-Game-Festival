@@ -1,19 +1,19 @@
-<div class="jeu-card" [class.selected]="isSelected" [class.editing]="isEditing">
+<div class="jeu-card" [class.selected]="isSelected()" [class.editing]="isEditing()">
   <div class="card-header">
-    <h4 class="card-title">{{ jeu.nom }}</h4>
+    <h4 class="card-title">{{ jeu().nom }}</h4>
   </div>
 
   <div class="card-body">
     <div class="card-info">
       <span class="info-label">Éditeur:</span>
-      <span class="info-value">{{ jeu.editeur_nom }}</span>
+      <span class="info-value">{{ jeu().editeur_nom }}</span>
     </div>
 
     <div class="card-info">
       <span class="info-label">Auteur(s):</span>
       <span class="info-value">
-        @if (jeu.auteurs && jeu.auteurs.length > 0) {
-          @for (auteur of jeu.auteurs; track $index) {
+        @if (jeu().auteurs && jeu().auteurs.length > 0) {
+          @for (auteur of jeu().auteurs; track $index) {
             @if ($index > 0) {
               ,
             }
@@ -23,33 +23,33 @@
             {{ auteur.nom }}
           }
         }
-        @if (!jeu.auteurs || jeu.auteurs.length === 0) {
+        @if (!jeu().auteurs || jeu().auteurs.length === 0) {
           Non disponible
         }
       </span>
     </div>
 
-    @if (jeu.type_jeu) {
+    @if (jeu().type_jeu) {
       <div class="card-info">
         <span class="info-label">Type:</span>
-        <span class="info-value">{{ jeu.type_jeu }}</span>
+        <span class="info-value">{{ jeu().type_jeu }}</span>
       </div>
     }
 
-    @if (jeu.age_mini) {
+    @if (jeu().age_mini) {
       <div class="card-info">
         <span class="info-label">Âge min:</span>
-        <span class="info-value">{{ jeu.age_mini }}</span>
+        <span class="info-value">{{ jeu().age_mini }}</span>
       </div>
     }
 
-    @if (jeu.joueurs_mini) {
+    @if (jeu().joueurs_mini) {
       <div class="card-info">
         <span class="info-label">Joueurs:</span>
         <span class="info-value">
-          {{ jeu.joueurs_mini }}
-          @if (jeu.joueurs_maxi) {
-            - {{ jeu.joueurs_maxi }}
+          {{ jeu().joueurs_mini }}
+          @if (jeu().joueurs_maxi) {
+            - {{ jeu().joueurs_maxi }}
           }
         </span>
       </div>

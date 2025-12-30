@@ -1,54 +1,53 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EditeursService, EditeurSummary, JeuEditeur, ContactEditeur} from '../../services/editeurs-service';
 import { EditeursForm } from '../editeurs-form/editeurs-form';
 import { EditeurCard } from '../editeur-card/editeur-card';
+import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-editeurs-list',
   standalone: true,
-  imports: [CommonModule, EditeursForm, EditeurCard],
+  imports: [CommonModule, EditeursForm, EditeurCard, MatSnackBarModule, MatProgressSpinnerModule],
   templateUrl: './editeurs-list.html',
   styleUrl: './editeurs-list.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class EditeursList implements OnInit {
-  
-  // List of editors
-  editeurs: EditeurSummary[] = [];
-  loadingList = false;
-  errorList: string | null = null;
+export class EditeursList {
+  private readonly editeursService = inject(EditeursService);
+  private readonly snackBar = inject(MatSnackBar);
 
-  // Selected editor with details
-  selectedEditeur: EditeurSummary | null = null;
-  jeuxSelected: JeuEditeur[] = [];
-  contactsSelected: ContactEditeur[] = [];
-  loadingDetail = false;
-  errorDetail: string | null = null;
+  editeurs = signal<EditeurSummary[]>([]);
+  loadingList = signal(false);
+  errorList = signal<string | null>(null);
+  selectedEditeur = signal<EditeurSummary | null>(null);
+  jeuxSelected = signal<JeuEditeur[]>([]);
+  contactsSelected = signal<ContactEditeur[]>([]);
+  loadingDetail = signal(false);
+  errorDetail = signal<string | null>(null);
+  editeurToEdit = signal<EditeurSummary | null>(null);
+  contactsToEdit = signal<ContactEditeur[]>([]);
 
-  // Edit mode
-  editeurToEdit: EditeurSummary | null = null;
-  contactsToEdit: ContactEditeur[] = [];
-
-  constructor(private editeursService: EditeursService) {}
-
-  ngOnInit(): void {
+  constructor() {
     this.loadEditeurs();
   }
 
   // Upload the list of editors
   private loadEditeurs(): void {
-    this.loadingList = true;
-    this.errorList = null;
+    this.loadingList.set(true);
+    this.errorList.set(null);
 
     this.editeursService.getEditeurs().subscribe({
       next: (data: EditeurSummary[]) => {
-        this.editeurs = data;
-        this.loadingList = false;
+        this.editeurs.set(data);
+        this.loadingList.set(false);
       },
       error: (err) => {
         console.error(err);
-        this.errorList = 'Erreur lors du chargement des éditeurs';
-        this.loadingList = false;
+        this.errorList.set('Erreur lors du chargement des éditeurs');
+        this.loadingList.set(false);
+        this.snackBar.open('Erreur lors du chargement des éditeurs', 'Fermer', { duration: 5000 });
       },
     });
   }
@@ -58,60 +57,61 @@ export class EditeursList implements OnInit {
     this.loadEditeurs();
   }
 
-  // Reset the list when an editor is modified
+  // Reset the list when a new editor is modified
   onEditeurUpdated(): void {
-    this.editeurToEdit = null;
+    this.editeurToEdit.set(null);
     this.loadEditeurs();
-    this.selectedEditeur = null;
+    this.selectedEditeur.set(null);
   }
 
   // Charge the details when a card is selected
   selectEditeur(editeur: EditeurSummary): void {
-    this.selectedEditeur = editeur;
-    this.jeuxSelected = [];
-    this.contactsSelected = [];
-    this.errorDetail = null;
-    this.loadingDetail = true;
+    this.selectedEditeur.set(editeur);
+    this.jeuxSelected.set([]);
+    this.contactsSelected.set([]);
+    this.errorDetail.set(null);
+    this.loadingDetail.set(true);
 
     // Charge the games
     this.editeursService.getJeuxEditeur(editeur.id).subscribe({
       next: (jeux: JeuEditeur[]) => {
-        this.jeuxSelected = jeux;
+        this.jeuxSelected.set(jeux);
       },
       error: (err) => {
         console.error(err);
-        this.errorDetail = "Erreur lors du chargement des jeux de l'éditeur";
+        this.errorDetail.set("Erreur lors du chargement des jeux de l'éditeur");
+        this.loadingDetail.set(false);
       },
     });
 
     // Charge contacts
     this.editeursService.getContactsEditeur(editeur.id).subscribe({
       next: (contacts: ContactEditeur[]) => {
-        this.contactsSelected = contacts;
-        this.loadingDetail = false;
+        this.contactsSelected.set(contacts);
+        this.loadingDetail.set(false);
       },
       error: (err) => {
         console.error(err);
-        this.errorDetail =
-          this.errorDetail ||
-          'Erreur lors du chargement des contacts de l’éditeur';
+        this.errorDetail.set('Erreur lors du chargement des contacts de l\'éditeur');
+        this.loadingDetail.set(false);
       },
     });
   }
 
   // Edit mode
   onEditEditeur(editeur: EditeurSummary): void {
-    this.editeurToEdit = editeur;
-    this.selectedEditeur = null;
+    this.editeurToEdit.set(editeur);
+    this.selectedEditeur.set(null);
     
     // Load contacts for edit
     this.editeursService.getContactsEditeur(editeur.id).subscribe({
       next: (contacts: ContactEditeur[]) => {
-        this.contactsToEdit = contacts;
+        this.contactsToEdit.set(contacts);
       },
       error: (err) => {
         console.error(err);
-        this.contactsToEdit = [];
+        this.contactsToEdit.set([]);
+        this.snackBar.open('Erreur lors du chargement des contacts', 'Fermer', { duration: 5000 });
       },
     });
   }
@@ -121,16 +121,18 @@ export class EditeursList implements OnInit {
     if (confirm(`Êtes-vous sûr de vouloir supprimer l'éditeur "${editeur.nom}" ?`)) {
       this.editeursService.deleteEditeur(editeur.id).subscribe({
         next: () => {
-          this.editeurToEdit = null;
-          this.selectedEditeur = null;
+          this.editeurToEdit.set(null);
+          this.selectedEditeur.set(null);
+          this.snackBar.open('Éditeur supprimé avec succès', 'Fermer', { duration: 3000 });
           this.loadEditeurs();
         },
         error: (err) => {
           console.error(err);
-          this.errorList = err?.error?.error || 'Erreur lors de la suppression de l\'éditeur';
+          const errorMsg = err?.error?.error || 'Erreur lors de la suppression de l\'éditeur';
+          this.errorList.set(errorMsg);
+          this.snackBar.open(errorMsg, 'Fermer', { duration: 5000 });
         },
       });
     }
   }
 }
-

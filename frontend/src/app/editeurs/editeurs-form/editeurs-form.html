@@ -1,21 +1,22 @@
 <div class="editeurs-form">
-  <h2>@if (editeurToEdit) { Modifier l'éditeur } @else { Ajouter un éditeur }</h2>
+  <h2>@if (editeurToEdit()) { Modifier l'éditeur } @else { Ajouter un éditeur }</h2>
 
-  @if (error) {
-    <p class="error">{{ error }}</p>
+  @if (error()) {
+    <p class="error">{{ error() }}</p>
   }
 
-  <form (ngSubmit)="submit()">
+  <form [formGroup]="form" (ngSubmit)="submit()">
     <div class="form-row">
-      <label for="nom">Nom de l'éditeur</label>
+      <label for="nom">Nom de l'éditeur *</label>
       <input
         id="nom"
         type="text"
-        [(ngModel)]="nom"
-        name="nom"
-        required
+        formControlName="nom"
         placeholder="Nom de la maison d'édition"
       />
+      @if (form.get('nom')?.hasError('required') && form.get('nom')?.touched) {
+        <span class="error-text">Le nom est requis</span>
+      }
     </div>
 
     <h3>Contacts</h3>
@@ -24,53 +25,52 @@
       <p class="info">Aucun contact pour le moment.</p>
     } @else {
       <div class="contacts-list">
-        @for (contact of contacts; track $index) {
-          <div class="contact-form">
+        @for (contact of contacts.controls; track $index; let i = $index) {
+          <div class="contact-form" [formGroup]="$any(contact)">
             <div class="form-row">
-              <label for="contactNom{{ $index }}">Nom *</label>
+              <label [for]="'contactNom' + i">Nom *</label>
               <input
-                [id]="'contactNom' + $index"
+                [id]="'contactNom' + i"
                 type="text"
-                [(ngModel)]="contact.nom"
-                [name]="'contactNom' + $index"
+                formControlName="nom"
                 placeholder="Nom du contact"
               />
+              @if (contact.get('nom')?.hasError('required') && contact.get('nom')?.touched) {
+                <span class="error-text">Le nom du contact est requis</span>
+              }
             </div>
 
             <div class="form-row">
-              <label [for]="'contactEmail' + $index">Email</label>
+              <label [for]="'contactEmail' + i">Email</label>
               <input
-                [id]="'contactEmail' + $index"
+                [id]="'contactEmail' + i"
                 type="email"
-                [(ngModel)]="contact.email"
-                [name]="'contactEmail' + $index"
+                formControlName="email"
                 placeholder="ex: contact@editeur.com"
               />
             </div>
 
             <div class="form-row">
-              <label [for]="'contactTel' + $index">Téléphone</label>
+              <label [for]="'contactTel' + i">Téléphone</label>
               <input
-                [id]="'contactTel' + $index"
+                [id]="'contactTel' + i"
                 type="text"
-                [(ngModel)]="contact.telephone"
-                [name]="'contactTel' + $index"
+                formControlName="telephone"
                 placeholder="ex: 06..."
               />
             </div>
 
             <div class="form-row">
-              <label [for]="'contactRole' + $index">Rôle / fonction</label>
+              <label [for]="'contactRole' + i">Rôle / fonction</label>
               <input
-                [id]="'contactRole' + $index"
+                [id]="'contactRole' + i"
                 type="text"
-                [(ngModel)]="contact.role_profession"
-                [name]="'contactRole' + $index"
+                formControlName="role_profession"
                 placeholder="ex: Responsable commercial"
               />
             </div>
 
-            <button type="button" (click)="removeContact($index)" class="btn-remove">
+            <button type="button" (click)="removeContact(i)" class="btn-remove">
               Supprimer ce contact
             </button>
           </div>
@@ -83,15 +83,16 @@
     </button>
 
     <div class="form-actions">
-      <button type="submit" [disabled]="loading">
-        @if (loading) { 
+      <button type="submit" [disabled]="loading()">
+        @if (loading()) { 
+          <mat-spinner diameter="20"></mat-spinner>
           Sauvegarde... 
         } @else { 
-          @if (editeurToEdit) { Modifier } @else { Créer l'éditeur }
+          {{ submitLabel() }}
         }
       </button>
-      @if (editeurToEdit) {
-        <button type="button" (click)="cancel()" [disabled]="loading">Annuler</button>
+      @if (editeurToEdit()) {
+        <button type="button" (click)="cancel()" [disabled]="loading()">Annuler</button>
       }
     </div>
   </form>

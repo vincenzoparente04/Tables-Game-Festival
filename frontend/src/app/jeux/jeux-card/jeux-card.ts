@@ -1,4 +1,4 @@
-import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { Component, input, output, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { JeuSummary } from '../../services/jeux-service';
 
@@ -8,24 +8,25 @@ import { JeuSummary } from '../../services/jeux-service';
   imports: [CommonModule],
   templateUrl: './jeux-card.html',
   styleUrl: './jeux-card.css',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JeuxCard {
-  @Input() jeu!: JeuSummary;
-  @Input() isSelected = false;
-  @Input() isEditing = false;
-  @Output() onSelect = new EventEmitter<JeuSummary>();
-  @Output() onEdit = new EventEmitter<JeuSummary>();
-  @Output() onDelete = new EventEmitter<JeuSummary>();
+  jeu = input.required<JeuSummary>();
+  isSelected = input(false);
+  isEditing = input(false);
+  onSelect = output<JeuSummary>();
+  onEdit = output<JeuSummary>();
+  onDelete = output<JeuSummary>();
 
   selectJeu(): void {
-    this.onSelect.emit(this.jeu);
+    this.onSelect.emit(this.jeu());
   }
 
   editJeu(): void {
-    this.onEdit.emit(this.jeu);
+    this.onEdit.emit(this.jeu());
   }
 
   deleteJeu(): void {
-    this.onDelete.emit(this.jeu);
+    this.onDelete.emit(this.jeu());
   }
 }

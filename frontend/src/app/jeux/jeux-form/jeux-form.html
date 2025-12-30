@@ -1,21 +1,18 @@
-<form (ngSubmit)="onSubmit()" class="jeux-form">
-  <!-- Error message -->
-  <div *ngIf="error" class="error-message">
-    {{ error }}
-  </div>
-
+<form [formGroup]="form" (ngSubmit)="submit()" class="jeux-form">
   <!-- Nom field (mandatory) -->
   <div class="form-group">
     <label for="nom">Nom du jeu <span class="mandatory">*</span></label>
     <input
       type="text"
       id="nom"
-      [(ngModel)]="nom"
-      name="nom"
+      formControlName="nom"
       class="form-control"
       placeholder="Entrez le nom du jeu"
-      [disabled]="loading"
+      [disabled]="loading()"
     />
+    @if (form.get('nom')?.hasError('required') && form.get('nom')?.touched) {
+      <span class="error-text">Le nom est obligatoire</span>
+    }
   </div>
 
   <!-- Éditeur field (mandatory) -->
@@ -23,16 +20,18 @@
     <label for="editeur">Éditeur <span class="mandatory">*</span></label>
     <select
       id="editeur"
-      [(ngModel)]="editeur_id"
-      name="editeur_id"
+      formControlName="editeur_id"
       class="form-control"
-      [disabled]="loading"
+      [disabled]="loading()"
     >
       <option [value]="null">-- Sélectionnez un éditeur --</option>
-      <option *ngFor="let editeur of editeurs" [value]="editeur.id">
-        {{ editeur.nom }}
-      </option>
+      @for (editeur of editeurs(); track editeur.id) {
+        <option [value]="editeur.id">{{ editeur.nom }}</option>
+      }
     </select>
+    @if (form.get('editeur_id')?.hasError('required') && form.get('editeur_id')?.touched) {
+      <span class="error-text">Un éditeur doit être sélectionné</span>
+    }
   </div>
 
   <!-- Type de jeu field -->
@@ -41,11 +40,10 @@
     <input
       type="text"
       id="type_jeu"
-      [(ngModel)]="type_jeu"
-      name="type_jeu"
+      formControlName="type_jeu"
       class="form-control"
       placeholder="Ex: Stratégie, Coopératif, etc."
-      [disabled]="loading"
+      [disabled]="loading()"
     />
   </div>
 
@@ -56,12 +54,11 @@
       <input
         type="number"
         id="age_mini"
-        [(ngModel)]="age_mini"
-        name="age_mini"
+        formControlName="age_mini"
         class="form-control"
         placeholder="8"
         min="0"
-        [disabled]="loading"
+        [disabled]="loading()"
       />
     </div>
     <div class="form-group half">
@@ -69,12 +66,11 @@
       <input
         type="number"
         id="age_maxi"
-        [(ngModel)]="age_maxi"
-        name="age_maxi"
+        formControlName="age_maxi"
         class="form-control"
         placeholder="99"
         min="0"
-        [disabled]="loading"
+        [disabled]="loading()"
       />
     </div>
   </div>
@@ -86,12 +82,11 @@
       <input
         type="number"
         id="joueurs_mini"
-        [(ngModel)]="joueurs_mini"
-        name="joueurs_mini"
+        formControlName="joueurs_mini"
         class="form-control"
         placeholder="1"
         min="1"
-        [disabled]="loading"
+        [disabled]="loading()"
       />
     </div>
     <div class="form-group half">
@@ -99,12 +94,11 @@
       <input
         type="number"
         id="joueurs_maxi"
-        [(ngModel)]="joueurs_maxi"
-        name="joueurs_maxi"
+        formControlName="joueurs_maxi"
         class="form-control"
         placeholder="6"
         min="1"
-        [disabled]="loading"
+        [disabled]="loading()"
       />
     </div>
   </div>
@@ -115,11 +109,10 @@
     <input
       type="text"
       id="taille_table"
-      [(ngModel)]="taille_table"
-      name="taille_table"
+      formControlName="taille_table"
       class="form-control"
       placeholder="60x100 cm"
-      [disabled]="loading"
+      [disabled]="loading()"
     />
   </div>
 
@@ -129,12 +122,11 @@
     <input
       type="number"
       id="duree_moyenne"
-      [(ngModel)]="duree_moyenne"
-      name="duree_moyenne"
+      formControlName="duree_moyenne"
       class="form-control"
       placeholder="45"
       min="0"
-      [disabled]="loading"
+      [disabled]="loading()"
     />
   </div>
 
@@ -146,42 +138,42 @@
         type="button"
         class="add-author-btn"
         (click)="addAuteur()"
-        [disabled]="loading"
+        [disabled]="loading()"
       >
         + Ajouter un auteur
       </button>
     </div>
 
-    <div *ngIf="auteurs.length === 0" class="no-authors">
-      Au moins un auteur est obligatoire
-    </div>
+    @if (auteurs.length === 0) {
+      <div class="no-authors">Au moins un auteur est obligatoire</div>
+    }
 
-    <div *ngFor="let auteur of auteurs; let i = index" class="author-item">
-      <input
-        type="text"
-        [(ngModel)]="auteur.nom"
-        [name]="'auteur_nom_' + i"
-        class="form-control"
-        placeholder="Nom"
-        [disabled]="loading"
-      />
-      <input
-        type="text"
-        [(ngModel)]="auteur.prenom"
-        [name]="'auteur_prenom_' + i"
-        class="form-control"
-        placeholder="Prénom"
-        [disabled]="loading"
-      />
-      <button
-        type="button"
-        class="remove-author-btn"
-        (click)="removeAuteur(i)"
-        [disabled]="loading"
-      >
-        ✕
-      </button>
-    </div>
+    @for (auteur of auteurs.controls; track $index; let i = $index) {
+      <div class="author-item" [formGroupName]="i">
+        <input
+          type="text"
+          formControlName="nom"
+          class="form-control"
+          placeholder="Nom"
+          [disabled]="loading()"
+        />
+        <input
+          type="text"
+          formControlName="prenom"
+          class="form-control"
+          placeholder="Prénom"
+          [disabled]="loading()"
+        />
+        <button
+          type="button"
+          class="remove-author-btn"
+          (click)="removeAuteur(i)"
+          [disabled]="loading() || auteurs.length === 1"
+        >
+          ✕
+        </button>
+      </div>
+    }
   </div>
 
   <!-- Form actions -->
@@ -189,9 +181,9 @@
     <button
       type="submit"
       class="submit-btn"
-      [disabled]="loading"
+      [disabled]="form.invalid || loading()"
     >
-      {{ loading ? 'Enregistrement...' : (isEditing ? 'Modifier le jeu' : 'Créer le jeu') }}
+      {{ loading() ? 'Enregistrement...' : submitLabel() }}
     </button>
   </div>
 </form>

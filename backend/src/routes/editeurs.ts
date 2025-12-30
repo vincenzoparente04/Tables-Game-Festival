@@ -5,7 +5,7 @@ import { requireRole, requireActivatedAccount, requirePermission } from '../midd
 const router = Router();
 
 // GET /api/editeurs    Returns the list of editors with id, name, number of games, number of contacts
-router.get('/', requireActivatedAccount(), requirePermission('festivals', 'viewAll'), async (_req, res) => {
+router.get('/', requireActivatedAccount(), requirePermission('editeurs', 'viewAll'), async (_req, res) => {
   try {
     const result = await pool.query(`
       SELECT
@@ -29,7 +29,7 @@ router.get('/', requireActivatedAccount(), requirePermission('festivals', 'viewA
 });
 
 // GET /api/editeurs/:id/jeux   Returns all games of an author
-router.get('/:id/jeux', requireActivatedAccount(), requirePermission('festivals', 'viewAll'), async (req, res) => {
+router.get('/:id/jeux', requireActivatedAccount(), requirePermission('editeurs', 'viewAll'), async (req, res) => {
   const editeurId = req.params.id;
   try {
     const result = await pool.query(`
@@ -48,7 +48,7 @@ router.get('/:id/jeux', requireActivatedAccount(), requirePermission('festivals'
 });
 
 // GET /api/editeurs/:id/contacts   Returns contacts linked to an editor
-router.get('/:id/contacts', requireActivatedAccount(), requirePermission('festivals', 'viewAll'), async (req, res) => {
+router.get('/:id/contacts', requireActivatedAccount(), requirePermission('editeurs', 'viewAll'), async (req, res) => {
   const editeurId = req.params.id;
   try {
     const result = await pool.query(`
@@ -89,7 +89,7 @@ router.get('/:id/contacts', requireActivatedAccount(), requirePermission('festiv
     - COMMIT
     ROLLBACK if something goes wrong
 */
-router.post('/', requireActivatedAccount(), requirePermission('festivals', 'viewAll'), async (req, res) => {
+router.post('/', requireActivatedAccount(), requirePermission('editeurs', 'create'), async (req, res) => {
   const { nom, contacts } = req.body as {
     nom?: string;
     contacts?: {
@@ -173,7 +173,7 @@ router.post('/', requireActivatedAccount(), requirePermission('festivals', 'view
 });
 
 // PUT /api/editeurs/:id   Update editor
-router.put('/:id', requireActivatedAccount(), requirePermission('festivals', 'viewAll'), async (req, res) => {
+router.put('/:id', requireActivatedAccount(), requirePermission('editeurs', 'update'), async (req, res) => {
   const editeurId = req.params.id;
   const { nom, contacts } = req.body as {
     nom?: string;
@@ -259,7 +259,7 @@ router.put('/:id', requireActivatedAccount(), requirePermission('festivals', 'vi
 });
 
 // DELETE /api/editeurs/:id   Delete editor
-router.delete('/:id', requireActivatedAccount(), requirePermission('festivals', 'viewAll'), async (req, res) => {
+router.delete('/:id', requireActivatedAccount(), requirePermission('editeurs', 'delete'), async (req, res) => {
   const editeurId = req.params.id;
   const client = await pool.connect();
 
