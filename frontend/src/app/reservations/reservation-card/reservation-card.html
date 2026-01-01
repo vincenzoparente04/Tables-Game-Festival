@@ -1,0 +1,91 @@
+<mat-card class="reservation-card">
+      <mat-card-header>
+        <div class="reservant-icon" [style.background-color]="getTypeColor()">
+          <mat-icon>{{ getTypeIcon() }}</mat-icon>
+        </div>
+        <mat-card-title>{{ reservation().reservant_nom }}</mat-card-title>
+        <mat-card-subtitle>
+          <mat-chip class="type-chip" [style.background-color]="getTypeColor()">
+            {{ getTypeLabel() }}
+          </mat-chip>
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        <!-- États -->
+        <div class="etats-row">
+          <div class="etat-item">
+            <span class="etat-label">Contact</span>
+            <mat-chip 
+              class="etat-chip" 
+              [style.background-color]="getEtatContactColor()">
+              {{ getEtatContactLabel() }}
+            </mat-chip>
+          </div>
+          <div class="etat-item">
+            <span class="etat-label">Présence</span>
+            <mat-chip 
+              class="etat-chip"
+              [style.background-color]="getEtatPresenceColor()">
+              {{ getEtatPresenceLabel() }}
+            </mat-chip>
+          </div>
+        </div>
+
+        <!-- Statistiques -->
+        <div class="stats">
+          <div class="stat-item">
+            <mat-icon>table_chart</mat-icon>
+            <span>{{ reservation().nb_tables_reservees || 0 }} tables</span>
+          </div>
+          <div class="stat-item">
+            <mat-icon>euro</mat-icon>
+            <span>{{ (reservation().montant_brut || 0) | currency:'EUR':'symbol':'1.0-0' }}</span>
+          </div>
+          <div class="stat-item">
+            <mat-icon>extension</mat-icon>
+            <span>{{ reservation().nb_jeux || 0 }} jeux</span>
+          </div>
+          @if (reservation().nb_jeux_places) {
+            <div class="stat-item success">
+              <mat-icon>check_circle</mat-icon>
+              <span>{{ reservation().nb_jeux_places }} placés</span>
+            </div>
+          }
+        </div>
+
+        @if (reservation().notes) {
+          <div class="notes">
+            <mat-icon>notes</mat-icon>
+            <span>{{ reservation().notes }}</span>
+          </div>
+        }
+      </mat-card-content>
+
+      <mat-card-actions align="end">
+        <a 
+          mat-button 
+          [routerLink]="['/reservations', reservation().id]"
+          color="primary">
+          <mat-icon>visibility</mat-icon>
+          Détails
+        </a>
+        @if (canModify()) {
+          <a 
+            mat-button 
+            [routerLink]="['/reservations', reservation().id, 'edit']">
+            <mat-icon>edit</mat-icon>
+            Modifier
+          </a>
+        }
+        @if (canDelete()) {
+          <button 
+            mat-icon-button 
+            color="warn"
+            (click)="delete.emit()"
+            matTooltip="Supprimer">
+            <mat-icon>delete</mat-icon>
+          </button>
+        }
+      </mat-card-actions>
+    </mat-card>

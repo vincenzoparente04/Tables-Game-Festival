@@ -1,0 +1,116 @@
+<h2 mat-dialog-title>
+      <mat-icon>add</mat-icon>
+      Créer une réservation
+    </h2>
+
+    <mat-dialog-content>
+      <form [formGroup]="form" class="reservation-form">
+        
+        <!-- Réservant -->
+        <mat-form-field appearance="outline">
+          <mat-label>Réservant</mat-label>
+          <mat-select formControlName="reservant_id" required>
+            @for (reservant of reservants(); track reservant.id) {
+              <mat-option [value]="reservant.id">
+                <div class="reservant-option">
+                  <strong>{{ reservant.nom }}</strong>
+                  <span class="type">{{ reservant.type_reservant }}</span>
+                </div>
+              </mat-option>
+            }
+          </mat-select>
+          <mat-icon matPrefix>person</mat-icon>
+          @if(form.get('reservant_id')?.hasError('required') && form.get('reservant_id')?.touched) {
+            <mat-error>Le réservant est requis</mat-error>
+          }
+        </mat-form-field>
+
+        <!-- Prises électriques -->
+        <mat-form-field appearance="outline">
+          <mat-label>Nombre de prises électriques</mat-label>
+          <input matInput type="number" min="0" formControlName="nb_prises_electriques">
+          <mat-icon matPrefix>power</mat-icon>
+          <mat-hint>Coût unitaire : {{ prixPrise() }}€</mat-hint>
+        </mat-form-field>
+
+        <!-- Viendra animer -->
+        <mat-checkbox formControlName="viendra_animer">
+          Le réservant viendra animer ses jeux
+        </mat-checkbox>
+
+        <!-- Notes -->
+        <mat-form-field appearance="outline">
+          <mat-label>Notes</mat-label>
+          <textarea matInput rows="3" formControlName="notes" placeholder="Notes internes..."></textarea>
+          <mat-icon matPrefix>notes</mat-icon>
+        </mat-form-field>
+
+        <!-- Zones réservées -->
+        <h3 class="section-title">
+          <mat-icon>table_chart</mat-icon>
+          Tables réservées par zone
+        </h3>
+
+        <div formArrayName="zones_reservees">
+          @for (zone of zonesReservees.controls; track $index; let i = $index) {
+            <div [formGroupName]="i" class="zone-row">
+              <mat-form-field appearance="outline" class="zone-select">
+                <mat-label>Zone tarifaire</mat-label>
+                <mat-select formControlName="zone_tarifaire_id">
+                  @for (zt of zonesTarifaires(); track zt.id) {
+                    <mat-option [value]="zt.id">
+                      {{ zt.nom }} - {{ zt.prix_table }}€/table
+                      ({{ zt.tables_disponibles || 0 }} dispo)
+                    </mat-option>
+                  }
+                </mat-select>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="nombre-tables">
+                <mat-label>Nombre de tables</mat-label>
+                <input matInput type="number" min="1" formControlName="nombre_tables">
+              </mat-form-field>
+
+              <button 
+                mat-icon-button 
+                color="warn" 
+                type="button"
+                (click)="removeZone(i)"
+                [disabled]="zonesReservees.length === 1">
+                <mat-icon>close</mat-icon>
+              </button>
+            </div>
+          }
+        </div>
+
+        <button 
+          mat-stroked-button 
+          type="button"
+          (click)="addZone()">
+          <mat-icon>add</mat-icon>
+          Ajouter une zone
+        </button>
+
+        <!-- Total estimé -->
+        <div class="total-box">
+          <div class="total-label">
+            <mat-icon>calculate</mat-icon>
+            Estimation totale :
+          </div>
+          <div class="total-value">{{ calculateTotal() | currency:'EUR' }}</div>
+        </div>
+
+      </form>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="onCancel()">Annuler</button>
+      <button 
+        mat-raised-button 
+        color="primary" 
+        [disabled]="form.invalid"
+        (click)="onSubmit()">
+        <mat-icon>save</mat-icon>
+        Créer
+      </button>
+    </mat-dialog-actions>

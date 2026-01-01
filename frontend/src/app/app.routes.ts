@@ -12,6 +12,7 @@ import { VuesPubliques } from './vues-publiques/vues-publiques';
 import { EditeursList } from './editeurs/editeur-list/editeurs-list';
 import { JeuxList } from './jeux/jeux-list/jeux-list';
 import { ReservantsList } from './reservant/reservants-list/reservants-list';
+import { ReservationsList } from './reservations/reservations-list/reservations-list';
 
 
 

@@ -1,0 +1,141 @@
+<div class="container">
+  <div class="header">
+    <div class="header-info">
+      <div class="breadcrumb">
+        <a routerLink="/festivals">Festivals</a>
+        <mat-icon>chevron_right</mat-icon>
+        <span>{{ festival()?.nom }}</span>
+        <mat-icon>chevron_right</mat-icon>
+        <span class="current">Réservations</span>
+      </div>
+      <h1>
+        <mat-icon>assignment</mat-icon>
+        Gestion des Réservations
+      </h1>
+      <p class="subtitle">{{ festival()?.nom }}</p>
+    </div>
+    @if (canCreate()) {
+      <button mat-raised-button color="primary" (click)="createReservation()">
+        <mat-icon>add</mat-icon>
+        Nouvelle Réservation
+      </button>
+    }
+  </div>
+
+  <!-- Statistiques -->
+  <div class="stats-cards">
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat">
+          <mat-icon color="primary">assignment</mat-icon>
+          <div>
+            <div class="stat-value">{{ totalReservations() }}</div>
+            <div class="stat-label">Total réservations</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat">
+          <mat-icon style="color: #4caf50">check_circle</mat-icon>
+          <div>
+            <div class="stat-value">{{ reservationsConfirmees() }}</div>
+            <div class="stat-label">Confirmées</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat">
+          <mat-icon style="color: #ff9800">table_chart</mat-icon>
+          <div>
+            <div class="stat-value">{{ tablesReservees() }}</div>
+            <div class="stat-label">Tables réservées</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <mat-card class="stat-card">
+      <mat-card-content>
+        <div class="stat">
+          <mat-icon style="color: #2196f3">euro</mat-icon>
+          <div>
+            <div class="stat-value">{{ montantTotal() | currency:'EUR':'symbol':'1.0-0' }}</div>
+            <div class="stat-label">Montant total</div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">
+      <mat-spinner></mat-spinner>
+      <p>Chargement des réservations...</p>
+    </div>
+  }
+
+  @if (!loading()) {
+    @if (reservations().length === 0) {
+      <div class="empty-state">
+        <mat-icon>assignment</mat-icon>
+        <h2>Aucune réservation</h2>
+        <p>Commencez par créer votre première réservation</p>
+        @if (canCreate()) {
+          <button mat-raised-button color="primary" (click)="createReservation()">
+            <mat-icon>add</mat-icon>
+            Créer une réservation
+          </button>
+        }
+      </div>
+    } @else {
+      <mat-tab-group>
+        <!-- Onglet: Vue d'ensemble -->
+        <mat-tab label="Vue d'ensemble">
+          <div class="tab-content">
+            <div class="reservations-grid">
+              @for (reservation of reservations(); track reservation.id) {
+                <app-reservation-card
+                  [reservation]="reservation"
+                  [canModify]="canModify()"
+                  [canDelete]="canDelete()"
+                  (delete)="onDelete(reservation.id, reservation.reservant_nom)">
+                </app-reservation-card>
+              }
+            </div>
+          </div>
+        </mat-tab>
+
+        <!-- Onglet: Par état de contact -->
+        <mat-tab label="Par workflow">
+          <div class="tab-content">
+            @for (etat of getEtatsWithReservations(); track etat) {
+              <div class="workflow-section">
+                <h3 class="workflow-title">
+                  <mat-chip [style.background-color]="getEtatContactColor(etat)">
+                    {{ getEtatContactLabel(etat) }} ({{ getReservationsByEtat(etat).length }})
+                  </mat-chip>
+                </h3>
+                <div class="reservations-grid">
+                  @for (reservation of getReservationsByEtat(etat); track reservation.id) {
+                    <app-reservation-card
+                      [reservation]="reservation"
+                      [canModify]="canModify()"
+                      [canDelete]="canDelete()"
+                      (delete)="onDelete(reservation.id, reservation.reservant_nom)">
+                    </app-reservation-card>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        </mat-tab>
+      </mat-tab-group>
+    }
+  }
+</div>
