@@ -1,0 +1,89 @@
+    .reservant-form {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      padding: 16px;
+    }
+
+    h3 {
+      margin: 0;
+      color: #333;
+    }
+
+    .error-message {
+      background: #f8d7da;
+      color: #721c24;
+      padding: 12px;
+      border-radius: 4px;
+      border-left: 4px solid #f5c6cb;
+    }
+
+    mat-form-field {
+      width: 100%;
+    }
+
+    .type-option {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .contacts-section {
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 16px;
+      background: #fafafa;
+    }
+
+    .contacts-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .contacts-header h4 {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      color: #1976d2;
+    }
+
+    .no-contacts {
+      text-align: center;
+      color: #999;
+      padding: 24px;
+      font-style: italic;
+    }
+
+    .contact-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+      margin-bottom: 16px;
+      padding: 16px;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #e0e0e0;
+    }
+
+    .contact-fields {
+      flex: 1;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .contact-fields {
+        grid-template-columns: 1fr;
+      }
+    }

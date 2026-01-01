@@ -11,6 +11,8 @@ import { ZonesPlanList } from './zones-plan/zones-plan-list/zones-plan-list';
 import { VuesPubliques } from './vues-publiques/vues-publiques';
 import { EditeursList } from './editeurs/editeur-list/editeurs-list';
 import { JeuxList } from './jeux/jeux-list/jeux-list';
+import { ReservantsList } from './reservant/reservants-list/reservants-list';
+
 
 
 
@@ -25,6 +27,7 @@ export const routes: Routes = [
     { path: 'vues-publiques', component: VuesPubliques, canActivate: [authGuard, notPendingUserGuard] },
     { path: 'editeurs', component: EditeursList, canActivate: [authGuard, notPendingUserGuard, hasPermission('festivals', 'viewAll')]},
     { path: 'jeux', component: JeuxList, canActivate: [authGuard, notPendingUserGuard, hasPermission('festivals', 'viewAll')]},
+    { path: 'reservants', component: ReservantsList, canActivate: [authGuard, notPendingUserGuard, hasPermission('reservants', 'view')]},
     { path: 'admin', component: Admin, canActivate: [authGuard, adminGuard] },
     { path: '', pathMatch: 'full', redirectTo: 'home' },
     { path: '**', redirectTo: 'home' },

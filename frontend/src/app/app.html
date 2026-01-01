@@ -20,6 +20,9 @@
       @if ( canviewEditeurs()) {
         <button mat-button routerLink="editeurs"><mat-icon>people</mat-icon> Éditeurs</button>
       }
+      @if ( canViewReservants()) {
+        <button mat-button routerLink="reservants"><mat-icon>person_search</mat-icon> Réservants</button>
+      }
       
     }
     

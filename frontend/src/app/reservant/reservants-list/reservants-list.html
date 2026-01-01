@@ -1,0 +1,209 @@
+<div class="container">
+      <!-- Header -->
+      <div class="header">
+        <div class="header-info">
+          <h1>
+            <mat-icon>person_search</mat-icon>
+            Gestion des Réservants
+          </h1>
+          <p class="subtitle">Organismes et personnes qui réservent des espaces au festival</p>
+        </div>
+        @if (canCreate() && !showForm()) {
+          <button mat-raised-button color="primary" (click)="startCreate()">
+            <mat-icon>add</mat-icon>
+            Nouveau Réservant
+          </button>
+        }
+      </div>
+
+      <!-- Statistiques -->
+      <div class="stats-cards">
+        <mat-card class="stat-card">
+          <mat-card-content>
+            <div class="stat">
+              <mat-icon color="primary">people</mat-icon>
+              <div>
+                <div class="stat-value">{{ reservants().length }}</div>
+                <div class="stat-label">Total</div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+
+        @for (type of typeStats(); track type.type) {
+          <mat-card class="stat-card">
+            <mat-card-content>
+              <div class="stat">
+                <mat-icon [style.color]="type.color">{{ type.icon }}</mat-icon>
+                <div>
+                  <div class="stat-value">{{ type.count }}</div>
+                  <div class="stat-label">{{ type.label }}</div>
+                </div>
+              </div>
+            </mat-card-content>
+          </mat-card>
+        }
+      </div>
+
+      @if (loading()) {
+        <div class="loading">
+          <mat-spinner></mat-spinner>
+          <p>Chargement des réservants...</p>
+        </div>
+      }
+
+      @if (!loading()) {
+        <!-- Formulaire -->
+        @if (showForm()) {
+          <mat-card class="form-card">
+            <mat-card-content>
+              <app-reservant-form
+                [reservantToEdit]="reservantToEdit()"
+                [editeurs]="editeurs()"
+                (created)="onCreated()"
+                (updated)="onUpdated()"
+                (cancelled)="onFormCancelled()">
+              </app-reservant-form>
+            </mat-card-content>
+          </mat-card>
+        }
+
+        <!-- Layout principal -->
+        @if (!showForm()) {
+          <div class="content-layout">
+            <!-- Liste des réservants -->
+            <div class="list-column">
+              @if (reservants().length === 0) {
+                <div class="empty-state">
+                  <mat-icon>person_search</mat-icon>
+                  <h2>Aucun réservant</h2>
+                  <p>Commencez par créer votre premier réservant</p>
+                  @if (canCreate()) {
+                    <button mat-raised-button color="primary" (click)="startCreate()">
+                      <mat-icon>add</mat-icon>
+                      Créer un réservant
+                    </button>
+                  }
+                </div>
+              } @else {
+                <div class="reservants-grid">
+                  @for (reservant of reservants(); track reservant.id) {
+                    <app-reservant-card
+                      [reservant]="reservant"
+                      [selected]="selectedReservant()?.id === reservant.id"
+                      [canModify]="canModify()"
+                      [canDelete]="canDelete()"
+                      (select)="selectReservant($event)"
+                      (edit)="editReservant($event)"
+                      (delete)="deleteReservant($event)">
+                    </app-reservant-card>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- Détails du réservant sélectionné -->
+            <div class="detail-column">
+              @if (!selectedReservant()) {
+                <div class="no-selection">
+                  <mat-icon>info</mat-icon>
+                  <p>Sélectionnez un réservant pour voir les détails</p>
+                </div>
+              } @else if (loadingDetail()) {
+                <div class="loading-detail">
+                  <mat-spinner diameter="32"></mat-spinner>
+                  <p>Chargement des détails...</p>
+                </div>
+              } @else if (reservantDetail()) {
+                <mat-card class="detail-card">
+                  <mat-card-header>
+                    <div class="detail-header-icon" [style.background-color]="getDetailTypeColor()">
+                      <mat-icon>{{ getDetailTypeIcon() }}</mat-icon>
+                    </div>
+                    <mat-card-title>{{ reservantDetail()!.nom }}</mat-card-title>
+                    <mat-card-subtitle>
+                      <mat-chip [style.background-color]="getDetailTypeColor()">
+                        {{ getDetailTypeLabel() }}
+                      </mat-chip>
+                    </mat-card-subtitle>
+                  </mat-card-header>
+
+                  <mat-card-content>
+                    <mat-tab-group>
+                      <!-- Onglet: Contacts -->
+                      <mat-tab label="Contacts">
+                        <div class="tab-content">
+                          @if (reservantDetail()!.contacts.length === 0) {
+                            <p class="no-data">Aucun contact</p>
+                          } @else {
+                            <div class="contacts-list">
+                              @for (contact of reservantDetail()!.contacts; track contact.id) {
+                                <mat-card class="contact-card">
+                                  <mat-card-content>
+                                    <div class="contact-info">
+                                      <mat-icon>person</mat-icon>
+                                      <div class="contact-details">
+                                        <strong>{{ contact.nom }}</strong>
+                                        @if (contact.role_profession) {
+                                          <span class="role">{{ contact.role_profession }}</span>
+                                        }
+                                        @if (contact.email) {
+                                          <a [href]="'mailto:' + contact.email">{{ contact.email }}</a>
+                                        }
+                                        @if (contact.telephone) {
+                                          <span>{{ contact.telephone }}</span>
+                                        }
+                                      </div>
+                                    </div>
+                                  </mat-card-content>
+                                </mat-card>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </mat-tab>
+
+                      <!-- Onglet: Historique -->
+                      <mat-tab [label]="'Historique (' + reservantDetail()!.historique.length + ')'">
+                        <div class="tab-content">
+                          @if (reservantDetail()!.historique.length === 0) {
+                            <p class="no-data">Aucune réservation dans l'historique</p>
+                          } @else {
+                            <div class="historique-list">
+                              @for (histo of reservantDetail()!.historique; track histo.id) {
+                                <mat-card class="histo-card">
+                                  <mat-card-header>
+                                    <mat-card-title>{{ histo.festival_nom }}</mat-card-title>
+                                    <mat-card-subtitle>
+                                      @if (histo.date_debut) {
+                                        {{ histo.date_debut | date:'yyyy' }}
+                                      }
+                                    </mat-card-subtitle>
+                                  </mat-card-header>
+                                  <mat-card-content>
+                                    <div class="histo-details">
+                                      <div class="histo-stat">
+                                        <mat-icon>table_chart</mat-icon>
+                                        <span>{{ histo.nb_tables }} tables</span>
+                                      </div>
+                                      <div class="histo-stat">
+                                        <mat-icon>euro</mat-icon>
+                                        <span>{{ histo.montant_total | currency:'EUR' }}</span>
+                                      </div>
+                                    </div>
+                                  </mat-card-content>
+                                </mat-card>
+                              }
+                            </div>
+                          }
+                        </div>
+                      </mat-tab>
+                    </mat-tab-group>
+                  </mat-card-content>
+                </mat-card>
+              }
+            </div>
+          </div>
+        }
+      }
+    </div>

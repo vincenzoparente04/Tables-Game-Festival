@@ -1,0 +1,51 @@
+<mat-card class="reservant-card" [class.selected]="selected()">
+      <mat-card-header>
+        <div class="type-icon" [style.background-color]="getTypeColor()">
+          <mat-icon>{{ getTypeIcon() }}</mat-icon>
+        </div>
+        <mat-card-title>{{ reservant().nom }}</mat-card-title>
+        <mat-card-subtitle>
+          <mat-chip class="type-chip" [style.background-color]="getTypeColor()">
+            {{ getTypeLabel() }}
+          </mat-chip>
+        </mat-card-subtitle>
+      </mat-card-header>
+
+      <mat-card-content>
+        @if (reservant().editeur_nom) {
+          <div class="info-line">
+            <mat-icon>link</mat-icon>
+            <span>Lié à l'éditeur: <strong>{{ reservant().editeur_nom }}</strong></span>
+          </div>
+        }
+
+        <div class="stats">
+          <div class="stat-item">
+            <mat-icon>contacts</mat-icon>
+            <span>{{ reservant().nb_contacts }} contact(s)</span>
+          </div>
+          <div class="stat-item">
+            <mat-icon>event</mat-icon>
+            <span>{{ reservant().nb_reservations }} réservation(s)</span>
+          </div>
+        </div>
+      </mat-card-content>
+
+      <mat-card-actions align="end">
+        <button mat-button (click)="onSelect()">
+          <mat-icon>visibility</mat-icon>
+          Détails
+        </button>
+        @if (canModify()) {
+          <button mat-button (click)="onEdit()">
+            <mat-icon>edit</mat-icon>
+            Modifier
+          </button>
+        }
+        @if (canDelete()) {
+          <button mat-icon-button color="warn" (click)="onDelete()" matTooltip="Supprimer">
+            <mat-icon>delete</mat-icon>
+          </button>
+        }
+      </mat-card-actions>
+    </mat-card>

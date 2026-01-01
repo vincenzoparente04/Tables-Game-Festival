@@ -1,13 +1,13 @@
 import { TestBed } from '@angular/core/testing';
 
-import { VuesPubliquesService } from './vues-publiques-service';
+import { ReservantService } from './reservant-service';
 
-describe('VuesPubliquesService', () => {
-  let service: VuesPubliquesService;
+describe('ReservantService', () => {
+  let service: ReservantService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({});
-    service = TestBed.inject(VuesPubliquesService);
+    service = TestBed.inject(ReservantService);
   });
 
   it('should be created', () => {

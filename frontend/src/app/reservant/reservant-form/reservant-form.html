@@ -1,0 +1,122 @@
+<form [formGroup]="form" (ngSubmit)="submit()" class="reservant-form">
+      <h3>{{ submitLabel() }}</h3>
+
+      @if (error()) {
+        <div class="error-message">{{ error() }}</div>
+      }
+
+      <!-- Nom -->
+      <mat-form-field appearance="outline">
+        <mat-label>Nom du réservant *</mat-label>
+        <input matInput formControlName="nom" required>
+        <mat-icon matPrefix>badge</mat-icon>
+        @if (form.get('nom')?.hasError('required') && form.get('nom')?.touched) {
+          <mat-error>Le nom est requis</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Type -->
+      <mat-form-field appearance="outline">
+        <mat-label>Type *</mat-label>
+        <mat-select formControlName="type_reservant" required>
+          @for (type of typesReservant; track type.value) {
+            <mat-option [value]="type.value">
+              <div class="type-option">
+                <mat-icon [style.color]="type.color">{{ type.icon }}</mat-icon>
+                <span>{{ type.label }}</span>
+              </div>
+            </mat-option>
+          }
+        </mat-select>
+        <mat-icon matPrefix>category</mat-icon>
+        @if (form.get('type_reservant')?.hasError('required') && form.get('type_reservant')?.touched) {
+          <mat-error>Le type est requis</mat-error>
+        }
+      </mat-form-field>
+
+      <!-- Éditeur (si type = editeur) -->
+      @if (form.get('type_reservant')?.value === 'editeur') {
+        <mat-form-field appearance="outline">
+          <mat-label>Éditeur lié</mat-label>
+          <mat-select formControlName="editeur_id">
+            <mat-option [value]="null">-- Aucun --</mat-option>
+            @for (editeur of editeurs(); track editeur.id) {
+              <mat-option [value]="editeur.id">{{ editeur.nom }}</mat-option>
+            }
+          </mat-select>
+          <mat-icon matPrefix>business</mat-icon>
+          <mat-hint>Lier ce réservant à un éditeur existant (optionnel)</mat-hint>
+        </mat-form-field>
+      }
+
+      <!-- Contacts -->
+      <div class="contacts-section">
+        <div class="contacts-header">
+          <h4>
+            <mat-icon>contacts</mat-icon>
+            Contacts
+          </h4>
+          <button type="button" mat-mini-fab color="primary" (click)="addContact()" [disabled]="loading()">
+            <mat-icon>add</mat-icon>
+          </button>
+        </div>
+
+        @if (contacts.length === 0) {
+          <p class="no-contacts">Aucun contact pour le moment</p>
+        }
+
+        @for (contact of contactsFG; track $index; let i = $index) {
+          <div class="contact-item" [formGroup]="contact">
+            <div class="contact-fields">
+              <mat-form-field appearance="outline">
+                <mat-label>Nom *</mat-label>
+                <input matInput formControlName="nom" required>
+                @if (contact.get('nom')?.hasError('required') && contact.get('nom')?.touched) {
+                  <mat-error>Requis</mat-error>
+                }
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Email</mat-label>
+                <input matInput type="email" formControlName="email">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Téléphone</mat-label>
+                <input matInput formControlName="telephone">
+              </mat-form-field>
+
+              <mat-form-field appearance="outline">
+                <mat-label>Rôle/Fonction</mat-label>
+                <input matInput formControlName="role_profession">
+              </mat-form-field>
+            </div>
+
+            <button 
+              type="button" 
+              mat-icon-button 
+              color="warn" 
+              (click)="removeContact(i)"
+              [disabled]="loading()">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+        }
+      </div>
+
+      <!-- Actions -->
+      <div class="form-actions">
+        <button type="button" mat-button (click)="cancel()" [disabled]="loading()">
+          Annuler
+        </button>
+        <button type="submit" mat-raised-button color="primary" [disabled]="form.invalid || loading()">
+          @if (loading()) {
+            <mat-spinner diameter="20"></mat-spinner>
+            Enregistrement...
+          } @else {
+            <mat-icon>save</mat-icon>
+            {{ submitLabel() }}
+          }
+        </button>
+      </div>
+    </form>

@@ -17,6 +17,8 @@ import zonesPlanRouter from './routes/zones-plan.js'
 import editeursRouter from './routes/editeurs.js'
 import jeuxRouter from './routes/jeux.js'
 import viewPublicRouter from './routes/viewPublic.js'
+import reservantsRouter from './routes/reservants.js'
+
 
 
 
@@ -60,6 +62,7 @@ app.use('/api/zones-plan', verifyToken, zonesPlanRouter);
 app.use('/api/editeurs', verifyToken, editeursRouter);
 app.use('/api/jeux', verifyToken, jeuxRouter);
 app.use('/api/view-public', verifyToken, viewPublicRouter);
+app.use('/api/reservants', verifyToken, reservantsRouter);
 app.use('/api/users', verifyToken, usersRouter); 
 app.use('/api/admin', verifyToken, requireAdmin, (req, res) => {
 res.json({ message: 'Bienvenue admin' });

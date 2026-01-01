@@ -35,6 +35,7 @@ export class FestivalCard {
   zonesChanged = output<void>();
 
   canViewZonesPlan = input<boolean>(false); 
+  canViewReservations = input<boolean>(false);
 
   
 
