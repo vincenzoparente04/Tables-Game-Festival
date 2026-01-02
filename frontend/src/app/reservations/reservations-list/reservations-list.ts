@@ -118,7 +118,7 @@ export class ReservationsList {
 
   createReservation() {
     const dialogRef = this.dialog.open(ReservationFormDialog, {
-      width: '800px',
+      width: '1000px',
       maxHeight: '90vh',
       disableClose: true,
       data: { festivalId: this.festivalId() }
@@ -147,7 +147,7 @@ export class ReservationsList {
     }
 
     const dialogRef = this.dialog.open(ReservationFormDialog, {
-      width: '800px',
+      width: '1000px',
       maxHeight: '90vh',
       disableClose: true,
       data: {

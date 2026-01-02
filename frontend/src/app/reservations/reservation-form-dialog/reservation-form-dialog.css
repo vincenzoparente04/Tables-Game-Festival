@@ -50,6 +50,14 @@
       gap: 12px;
       align-items: start;
       margin-bottom: 12px;
+      padding: 12px;
+      background: #f5f5f5;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .zone-row:hover {
+      background: #e8f4f8;
     }
 
     .total-box {

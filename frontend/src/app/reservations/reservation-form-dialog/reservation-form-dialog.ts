@@ -12,6 +12,7 @@ import { ReservantService } from '../../services/reservant-service';
 import { ZonesTarifService } from '../../zones-tarifaires/zones-tarif-service';
 import { ReservantSummary } from '../../types/reservant-dto';
 import { ZoneTarifaireDto } from '../../types/zone-tarifaire-dto';
+import { ReservationsService } from '../../services/reservations-service';
 
 interface DialogData {
   festivalId: number;
@@ -40,6 +41,7 @@ export class ReservationFormDialog {
   private data = inject<DialogData>(MAT_DIALOG_DATA);
   private reservantsService = inject(ReservantService);
   private zonesTarifService = inject(ZonesTarifService);
+  private reservationsService = inject(ReservationsService);
 
   reservants = signal<ReservantSummary[]>([]);
   zonesTarifaires = signal<ZoneTarifaireDto[]>([]);
@@ -65,6 +67,8 @@ export class ReservationFormDialog {
     }
 
     if (this.data.reservation) {
+      this.reservationId.set(this.data.reservation.id);
+      this.submitLabel.set('Modifier');
       this.patchForm(this.data.reservation);
     } else {
       this.addZone(); // création → au moins une zone
@@ -84,8 +88,36 @@ export class ReservationFormDialog {
   }
 
   private loadReservants() {
+    const festivalId = this.getFestivalId();
     this.reservantsService.getReservants().subscribe({
-      next: (reservants) => this.reservants.set(reservants),
+      next: (allReservants) => {
+        // Si on est en mode édition, on garde le réservant actuel
+        const currentReservantId = this.data.reservation?.reservant_id;
+        // Filtrer les réservants : on garde ceux qui n'ont pas encore de réservation pour ce festival
+        if (festivalId) {
+          this.reservationsService.getByFestival(festivalId).subscribe({
+            next: (reservations) => {
+              const reservantIdsWithReservation = new Set(
+                reservations.map(r => r.reservant_id)
+              );
+
+              // Filtrer : garder ceux qui n'ont pas de réservation OU le réservant actuel (édition)
+              const available = allReservants.filter(reservant => 
+                !reservantIdsWithReservation.has(reservant.id) || 
+                reservant.id === currentReservantId
+              );
+              
+              this.reservants.set(available);
+            },
+            error: (err) => {
+              console.error('Erreur chargement réservations:', err);
+              this.reservants.set(allReservants); 
+            }
+          });
+        } else {
+          this.reservants.set(allReservants);
+        }
+      },
       error: (err) => console.error('Erreur réservants:', err)
     });
   }
@@ -120,17 +152,18 @@ export class ReservationFormDialog {
 
     this.zonesReservees.clear();
 
-    reservation.zones_reservees?.forEach((z: any) => {
-      this.zonesReservees.push(
-        new FormGroup({
-          zone_tarifaire_id: new FormControl(z.zone_tarifaire_id, Validators.required),
-          nombre_tables: new FormControl(z.nombre_tables, [
-            Validators.required,
-            Validators.min(1)
-          ])
-        })
-      );
-    });
+    if (reservation.zones_reservees && reservation.zones_reservees.length > 0) {
+      reservation.zones_reservees.forEach((z: any) => {
+        this.zonesReservees.push(
+          new FormGroup({
+            zone_tarifaire_id: new FormControl(z.zone_tarifaire_id, Validators.required),
+            nombre_tables: new FormControl(z.nombre_tables, [ Validators.required, Validators.min(1)])
+          })
+        );
+      });
+    } else {
+      this.addZone();
+    }
   }
 
   calculateTotal(): number {
@@ -152,6 +185,22 @@ export class ReservationFormDialog {
     total += prises * this.prixPrise();
 
     return total;
+  }
+
+  // Vérifier si une zone est déjà sélectionnée
+  isZoneSelected(zoneId: number, currentIndex: number): boolean {
+    return this.zonesReservees.controls.some((control, index) => {
+      if (index === currentIndex) return false;
+      return control.get('zone_tarifaire_id')?.value === zoneId;
+    });
+  }
+
+  // Obtenir les zones disponibles pour un index donné
+  getAvailableZones(currentIndex: number): ZoneTarifaireDto[] {
+    return this.zonesTarifaires().filter(zone => {
+      return !this.isZoneSelected(zone.id, currentIndex) || 
+             this.zonesReservees.at(currentIndex).get('zone_tarifaire_id')?.value === zone.id;
+    });
   }
 
   onSubmit() {

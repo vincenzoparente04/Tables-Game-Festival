@@ -194,55 +194,91 @@ router.post('/festival/:festivalId',requireActivatedAccount(),requirePermission(
 // ============================================
 //  Mettre à jour une réservation
 // ============================================
-router.patch('/:id',requireActivatedAccount(),requirePermission('reservations', 'update'),
+router.patch('/:id', requireActivatedAccount(), requirePermission('reservations', 'update'),
   async (req, res) => {
     const { id } = req.params;
-    const updates = req.body;
+    const { zones_reservees, ...updates } = req.body;
 
-    const allowedFields = [
-      'etat_contact',
-      'etat_presence',
-      'nb_prises_electriques',
-      'remise_tables',
-      'remise_montant',
-      'notes',
-      'viendra_animer'
-    ];
-
-    const fields: string[] = [];
-    const values: any[] = [];
-    let paramCount = 1;
-
-    for (const [key, value] of Object.entries(updates)) {
-      if (allowedFields.includes(key) && value !== undefined) {
-        fields.push(`${key} = $${paramCount}`);
-        values.push(value);
-        paramCount++;
-      }
-    }
-
-    if (fields.length === 0) {
-      return res.status(400).json({ error: 'Aucune donnée à mettre à jour' });
-    }
-
-    values.push(id);
-
+    const client = await pool.connect();
+    
     try {
-      const result = await pool.query(`
-        UPDATE reservations
-        SET ${fields.join(', ')}, updated_at = CURRENT_TIMESTAMP
-        WHERE id = $${paramCount}
-        RETURNING *
-      `, values);
+      await client.query('BEGIN');
 
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Réservation non trouvée' });
+      // Mettre à jour les champs simples
+      if (Object.keys(updates).length > 0) {
+        const fields: string[] = [];
+        const values: any[] = [];
+        let paramCount = 1;
+
+        const allowedFields = [
+          'etat_contact', 'etat_presence', 'nb_prises_electriques',
+          'remise_tables', 'remise_montant', 'notes', 'viendra_animer'
+        ];
+
+        for (const [key, value] of Object.entries(updates)) {
+          if (allowedFields.includes(key) && value !== undefined) {
+            fields.push(`${key} = $${paramCount}`);
+            values.push(value);
+            paramCount++;
+          }
+        }
+
+        if (fields.length > 0) {
+          values.push(id);
+          await client.query(`
+            UPDATE reservations
+            SET ${fields.join(', ')}, updated_at = CURRENT_TIMESTAMP
+            WHERE id = $${paramCount}
+          `, values);
+        }
       }
 
-      res.json(result.rows[0]);
-    } catch (error) {
+      // Si zones_reservees est fourni, les mettre à jour
+      if (zones_reservees && Array.isArray(zones_reservees)) {
+        // Supprimer les anciennes zones
+        await client.query(
+          'DELETE FROM reservations_zones WHERE reservation_id = $1',
+          [id]
+        );
+
+        // Insérer les nouvelles zones
+        for (const zone of zones_reservees) {
+          if (!zone.zone_tarifaire_id || !zone.nombre_tables) continue;
+
+          const zoneInfo = await client.query(
+            'SELECT prix_table FROM zones_tarifaires WHERE id = $1',
+            [zone.zone_tarifaire_id]
+          );
+
+          if (zoneInfo.rows.length === 0) continue;
+
+          const prix_unitaire = zone.prix_unitaire || zoneInfo.rows[0].prix_table;
+
+          await client.query(`
+            INSERT INTO reservations_zones (
+              reservation_id,
+              zone_tarifaire_id,
+              nombre_tables,
+              prix_unitaire
+            ) VALUES ($1, $2, $3, $4)
+          `, [id, zone.zone_tarifaire_id, zone.nombre_tables, prix_unitaire]);
+        }
+      }
+
+      await client.query('COMMIT');
+
+      // Retourner le détail complet
+      const detail = await pool.query(`
+        SELECT * FROM vue_reservations_detail WHERE id = $1
+      `, [id]);
+
+      res.json(detail.rows[0]);
+    } catch (error: any) {
+      await client.query('ROLLBACK');
       console.error('Erreur modification réservation:', error);
       res.status(500).json({ error: 'Erreur serveur' });
+    } finally {
+      client.release();
     }
   }
 );

@@ -181,11 +181,15 @@ export class ReservationDetail {
     const res = this.reservation();
     if (!res) return;
 
+    // Récupérer les IDs des jeux déjà ajoutés à cette réservation
+    const jeuxDejaAjoutes = res.jeux.map(j => j.jeu_id);
+
     const dialogRef = this.dialog.open(AddJeuDialog, {
       width: '600px',
       data: { 
         festivalId: res.festival_id,
-        tablesRestantes: this.getTablesRestantes()
+        tablesRestantes: this.getTablesRestantes(),
+        jeuxDejaAjoutes: jeuxDejaAjoutes
       }
     });
 

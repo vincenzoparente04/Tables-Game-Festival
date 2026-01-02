@@ -12,6 +12,7 @@ import { JeuxService, JeuSummary } from '../../services/jeux-service';
 interface DialogData {
   festivalId: number;
   tablesRestantes: number;
+  jeuxDejaAjoutes?: number[]; // IDs des jeux déjà dans la réservation
 }
 
 @Component({
@@ -55,7 +56,13 @@ export class AddJeuDialog {
 
   private loadJeux() {
     this.jeuxService.getJeux().subscribe({
-      next: (jeux) => this.jeux.set(jeux),
+      next: (allJeux) => {
+        // Filtrer les jeux déjà ajoutés à cette réservation
+        const jeuxDejaAjoutes = this.data.jeuxDejaAjoutes || [];
+        const jeuxDisponibles = allJeux.filter(jeu => !jeuxDejaAjoutes.includes(jeu.id));
+        
+        this.jeux.set(jeuxDisponibles);
+      },
       error: (err) => console.error('Erreur chargement jeux:', err)
     });
   }
