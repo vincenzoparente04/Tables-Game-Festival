@@ -1,4 +1,12 @@
 <form [formGroup]="form" (ngSubmit)="submit()" class="jeux-form">
+  <!-- Validation error summary -->
+  @if (form.invalid && form.touched) {
+    <div class="error-message">
+      <strong>⚠️ Le formulaire contient des erreurs</strong>
+      <br />
+      Veuillez remplir tous les champs obligatoires marqués avec <span class="mandatory">*</span>
+    </div>
+  }
   <!-- Nom field (mandatory) -->
   <div class="form-group">
     <label for="nom">Nom du jeu <span class="mandatory">*</span></label>
@@ -106,14 +114,16 @@
   <!-- Taille table -->
   <div class="form-group">
     <label for="taille_table">Taille de table</label>
-    <input
-      type="text"
+    <select
       id="taille_table"
       formControlName="taille_table"
       class="form-control"
-      placeholder="60x100 cm"
       [disabled]="loading()"
-    />
+    >
+      <option value="">-- Sélectionnez une taille --</option>
+      <option value="petite">Petite</option>
+      <option value="grande">Grande</option>
+    </select>
   </div>
 
   <!-- Durée moyenne -->
@@ -138,37 +148,38 @@
         type="button"
         class="add-author-btn"
         (click)="addAuteur()"
-        [disabled]="loading()"
       >
         + Ajouter un auteur
       </button>
     </div>
 
-    @if (auteurs.length === 0) {
+    @if (auteurs().length === 0) {
       <div class="no-authors">Au moins un auteur est obligatoire</div>
     }
 
-    @for (auteur of auteurs.controls; track $index; let i = $index) {
-      <div class="author-item" [formGroupName]="i">
+    @for (auteur of auteurs(); track $index; let i = $index) {
+      <div class="author-item">
         <input
           type="text"
-          formControlName="nom"
           class="form-control"
           placeholder="Nom"
+          [value]="auteur.nom"
+          (input)="updateAuteur(i, 'nom', $event.target.value)"
           [disabled]="loading()"
         />
         <input
           type="text"
-          formControlName="prenom"
           class="form-control"
           placeholder="Prénom"
+          [value]="auteur.prenom"
+          (input)="updateAuteur(i, 'prenom', $event.target.value)"
           [disabled]="loading()"
         />
         <button
           type="button"
           class="remove-author-btn"
           (click)="removeAuteur(i)"
-          [disabled]="loading() || auteurs.length === 1"
+          [disabled]="loading() || auteurs().length === 1"
         >
           ✕
         </button>
@@ -181,9 +192,12 @@
     <button
       type="submit"
       class="submit-btn"
-      [disabled]="form.invalid || loading()"
+      [disabled]="loading()"
     >
       {{ loading() ? 'Enregistrement...' : submitLabel() }}
     </button>
+    @if (form.invalid && form.touched) {
+      <span class="form-hint">Veuillez remplir tous les champs obligatoires</span>
+    }
   </div>
 </form>

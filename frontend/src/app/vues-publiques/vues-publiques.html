@@ -4,7 +4,7 @@
   <div class="subnav">
     <button
       class="subnav-btn"
-      [class.active]="viewMode === 'jeux'"
+      [class.active]="viewMode() === 'jeux'"
       (click)="setViewMode('jeux')"
     >
       Jeux
@@ -12,28 +12,28 @@
 
     <button
       class="subnav-btn"
-      [class.active]="viewMode === 'editeurs'"
+      [class.active]="viewMode() === 'editeurs'"
       (click)="setViewMode('editeurs')"
     >
       Éditeurs
     </button>
   </div>
 
-  @if (viewMode === 'jeux') {
-    @if (loadingJeux) {
+  @if (viewMode() === 'jeux') {
+    @if (loadingJeux()) {
       <p>Chargement des jeux du festival...</p>
     } @else {
-      @if (errorJeux) {
-        <p class="error">{{ errorJeux }}</p>
+      @if (errorJeux()) {
+        <p class="error">{{ errorJeux() }}</p>
       } @else {
-        @if (jeuxFestival.length === 0) {
+        @if (jeuxFestival().length === 0) {
           <p>
             Aucun jeu enregistré pour le festival courant
             (ou aucun jeu placé pour l’instant).
           </p>
         } @else {
           <div class="cards-container">
-            @for (jeu of jeuxFestival; track jeu.jeu_id) {
+            @for (jeu of jeuxFestival(); track jeu.jeu_id) {
               <div class="game-card">
                 <h3>{{ jeu.jeu_nom }}</h3>
 
@@ -79,18 +79,18 @@
     }
   }
 
-  @if (viewMode === 'editeurs') {
-    @if (loadingEditeurs) {
+  @if (viewMode() === 'editeurs') {
+    @if (loadingEditeurs()) {
       <p>Chargement des éditeurs du festival...</p>
     } @else {
-      @if (errorEditeurs) {
-        <p class="error">{{ errorEditeurs }}</p>
+      @if (errorEditeurs()) {
+        <p class="error">{{ errorEditeurs() }}</p>
       } @else {
-        @if (editeursFestival.length === 0) {
+        @if (editeursFestival().length === 0) {
           <p>Aucun éditeur enregistré pour le festival courant.</p>
         } @else {
           <div class="cards-container">
-            @for (editeur of editeursFestival; track editeur.editeur_id) {
+            @for (editeur of editeursFestival(); track editeur.editeur_id) {
               <div class="editeur-card">
                 <h3>{{ editeur.editeur_nom }}</h3>
                 <p>Festival : {{ editeur.festival_nom }}</p>

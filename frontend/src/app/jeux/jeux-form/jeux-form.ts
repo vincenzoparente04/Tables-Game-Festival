@@ -1,6 +1,6 @@
 import { Component, input, output, inject, signal, effect, ChangeDetectionStrategy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormGroup, FormControl, Validators, ReactiveFormsModule, FormArray } from '@angular/forms';
+import { FormGroup, FormBuilder, Validators, ReactiveFormsModule, FormArray } from '@angular/forms';
 import { JeuxService, JeuSummary, CreateJeuPayload } from '../../services/jeux-service';
 import { EditeurSummary } from '../../services/editeurs-service';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
@@ -23,11 +23,12 @@ import { MatButtonModule } from '@angular/material/button';
   ],
   templateUrl: './jeux-form.html',
   styleUrl: './jeux-form.css',
-  changeDetection: ChangeDetectionStrategy.OnPush,
+  changeDetection: ChangeDetectionStrategy.Default,
 })
 export class JeuxForm {
   private readonly jeuxService = inject(JeuxService);
   private readonly snackBar = inject(MatSnackBar);
+  private readonly fb = inject(FormBuilder);
 
   jeu = input<JeuSummary | null>(null);
   editeurs = input<EditeurSummary[]>([]);
@@ -36,26 +37,17 @@ export class JeuxForm {
 
   loading = signal(false);
   submitLabel = signal('Créer le jeu');
+  
+  // Manage authors separately as signals
+  auteurs = signal<Array<{ nom: string; prenom: string }>>([
+    { nom: '', prenom: '' }
+  ]);
 
-  form = new FormGroup({
-    nom: new FormControl('', { validators: [Validators.required], nonNullable: true }),
-    editeur_id: new FormControl<number | null>(null, { validators: [Validators.required] }),
-    type_jeu: new FormControl('', { nonNullable: true }),
-    age_mini: new FormControl<number | null>(null),
-    age_maxi: new FormControl<number | null>(null),
-    joueurs_mini: new FormControl<number | null>(null),
-    joueurs_maxi: new FormControl<number | null>(null),
-    taille_table: new FormControl('', { nonNullable: true }),
-    duree_moyenne: new FormControl<number | null>(null),
-    auteurs: new FormArray([
-      new FormGroup({
-        nom: new FormControl('', { validators: [Validators.required], nonNullable: true }),
-        prenom: new FormControl('', { nonNullable: true }),
-      }),
-    ]),
-  });
+  form!: FormGroup;
 
   constructor() {
+    this.initializeForm();
+    
     effect(() => {
       const currentJeu = this.jeu();
       if (currentJeu && currentJeu.id && currentJeu.id > 0) {
@@ -63,6 +55,20 @@ export class JeuxForm {
       } else {
         this.resetForm();
       }
+    });
+  }
+
+  private initializeForm(): void {
+    this.form = this.fb.group({
+      nom: ['', Validators.required],
+      editeur_id: [null as number | null, Validators.required],
+      type_jeu: [''],
+      age_mini: [null as number | null],
+      age_maxi: [null as number | null],
+      joueurs_mini: [null as number | null],
+      joueurs_maxi: [null as number | null],
+      taille_table: [''],
+      duree_moyenne: [null as number | null],
     });
   }
 
@@ -80,48 +86,52 @@ export class JeuxForm {
       duree_moyenne: jeu.duree_moyenne,
     });
 
-    const auteursArray = this.form.get('auteurs') as FormArray;
-    auteursArray.clear();
+    // Set authors from jeu
     if (jeu.auteurs && jeu.auteurs.length > 0) {
-      jeu.auteurs.forEach((auteur) => {
-        auteursArray.push(
-          new FormGroup({
-            nom: new FormControl(auteur.nom, { validators: [Validators.required], nonNullable: true }),
-            prenom: new FormControl(auteur.prenom || '', { nonNullable: true }),
-          })
-        );
-      });
+      this.auteurs.set(jeu.auteurs.map(a => ({ nom: a.nom, prenom: a.prenom || '' })));
     } else {
-      auteursArray.push(
-        new FormGroup({
-          nom: new FormControl('', { validators: [Validators.required], nonNullable: true }),
-          prenom: new FormControl('', { nonNullable: true }),
-        })
-      );
+      this.auteurs.set([{ nom: '', prenom: '' }]);
     }
-  }
-
-  get auteurs(): FormArray {
-    return this.form.get('auteurs') as FormArray;
   }
 
   addAuteur(): void {
-    this.auteurs.push(
-      new FormGroup({
-        nom: new FormControl('', { validators: [Validators.required], nonNullable: true }),
-        prenom: new FormControl('', { nonNullable: true }),
-      })
-    );
+    const current = this.auteurs();
+    this.auteurs.set([...current, { nom: '', prenom: '' }]);
   }
 
   removeAuteur(index: number): void {
-    if (this.auteurs.length > 1) {
-      this.auteurs.removeAt(index);
+    const current = this.auteurs();
+    if (current.length > 1) {
+      this.auteurs.set(current.filter((_, i) => i !== index));
     }
   }
 
+  updateAuteur(index: number, field: 'nom' | 'prenom', value: string): void {
+    const current = this.auteurs();
+    current[index][field] = value;
+    this.auteurs.set([...current]); // Trigger reactivity
+  }
+
   submit(): void {
-    if (this.form.invalid) return;
+    // Validate main form
+    if (this.form.invalid) {
+      this.form.markAllAsTouched();
+      this.snackBar.open('Le formulaire contient des erreurs. Veuillez les corriger.', 'Fermer', { duration: 5000 });
+      return;
+    }
+
+    // Validate auteurs
+    const auteurs = this.auteurs();
+    if (!auteurs || auteurs.length === 0) {
+      this.snackBar.open('Au moins un auteur est obligatoire', 'Fermer', { duration: 5000 });
+      return;
+    }
+
+    const hasEmptyAuteur = auteurs.some(a => !a.nom || a.nom.trim() === '');
+    if (hasEmptyAuteur) {
+      this.snackBar.open('Tous les auteurs doivent avoir un nom', 'Fermer', { duration: 5000 });
+      return;
+    }
 
     this.loading.set(true);
     const formValue = this.form.value;
@@ -136,8 +146,10 @@ export class JeuxForm {
       joueurs_maxi: formValue.joueurs_maxi || undefined,
       taille_table: formValue.taille_table || undefined,
       duree_moyenne: formValue.duree_moyenne || undefined,
-      auteurs: (formValue.auteurs as any[]) || [],
+      auteurs: auteurs,
     };
+
+    console.log('Payload da inviare:', payload);
 
     const isEditing = this.jeu()?.id && this.jeu()!.id > 0;
     const operation$ = isEditing
@@ -158,34 +170,21 @@ export class JeuxForm {
       error: (err) => {
         this.loading.set(false);
         const errorMsg = err?.error?.error || 'Erreur lors de l\'enregistrement du jeu';
-        this.snackBar.open(errorMsg, 'Fermer', { duration: 3000 });
-        console.error(err);
+        this.snackBar.open(errorMsg, 'Fermer', { duration: 5000 });
+        console.error('Erreur création/modification jeu:', err);
       },
     });
   }
 
   resetForm(): void {
     this.submitLabel.set('Créer le jeu');
-    this.form.reset({
-      nom: '',
-      editeur_id: null,
-      type_jeu: '',
-      age_mini: null,
-      age_maxi: null,
-      joueurs_mini: null,
-      joueurs_maxi: null,
-      taille_table: '',
-      duree_moyenne: null,
-    });
-
-    const auteursArray = this.form.get('auteurs') as FormArray;
-    auteursArray.clear();
-    auteursArray.push(
-      new FormGroup({
-        nom: new FormControl('', { validators: [Validators.required], nonNullable: true }),
-        prenom: new FormControl('', { nonNullable: true }),
-      })
-    );
+    
+    // Reset main form
+    this.form.reset();
+    this.form.enable();
+    
+    // Reset auteurs
+    this.auteurs.set([{ nom: '', prenom: '' }]);
   }
 
   cancel(): void {
