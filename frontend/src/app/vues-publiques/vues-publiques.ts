@@ -1,10 +1,11 @@
 import { Component , signal, inject, ChangeDetectionStrategy} from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { VuesPubliquesService, JeuPublicFestival, EditeurFestivalPublic } from '../services/vues-publiques-service';
 
 @Component({
   selector: 'app-vues-publiques',
   standalone: true,
-  imports: [],
+  imports: [CommonModule],
   templateUrl: './vues-publiques.html',
   styleUrl: './vues-publiques.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -40,10 +41,10 @@ export class VuesPubliques{
   setViewMode(mode: 'jeux' | 'editeurs'): void {
     this.viewMode = mode;
 
-    if (mode === 'jeux' && this.jeuxFestival.length === 0 && !this.loadingJeux) {
+    if (mode === 'jeux' && this.jeuxFestival().length === 0 && !this.loadingJeux()) {
       this.loadJeuxFestival();
     }
-    if (mode === 'editeurs' && this.editeursFestival.length === 0 && !this.loadingEditeurs) {
+    if (mode === 'editeurs' && this.editeursFestival().length === 0 && !this.loadingEditeurs()) {
       this.loadEditeursFestival();
     }
   }

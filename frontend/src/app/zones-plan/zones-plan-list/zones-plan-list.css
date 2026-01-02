@@ -305,18 +305,76 @@ h1 mat-icon {
   text-align: right;
 }
 
+.stock-value-static {
+  font-size: 16px;
+  font-weight: 700;
+  color: #1976d2;
+  padding: 8px 0;
+}
 
 .jeux-non-places-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 16px;
 }
 
-.jeu-non-place-card mat-card-content {
+.reservation-group-card {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+
+.reservation-title {
+  display: flex !important;
+  align-items: center;
+  gap: 12px;
+  font-size: 16px;
+  padding: 12px 16px !important;
+  background: #f0f4c3;
+  border-bottom: 1px solid #ddd;
+  margin: 0 !important;
+}
+
+.reservation-title mat-icon {
+  color: #827717;
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.type-badge {
+  font-size: 12px;
+  background: rgba(131, 119, 23, 0.15);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 8px;
+  font-weight: 600;
+}
+
+.tables-estimees {
+  background: #827717;
+  color: white;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  margin-left: auto;
+}
+
+.jeux-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+}
+
+.jeu-non-place-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px;
+  padding: 12px;
+  background: #fff;
+  border-radius: 6px;
+  border-left: 4px solid #1976d2;
 }
 
 .jeu-info {
@@ -326,10 +384,16 @@ h1 mat-icon {
   flex: 1;
 }
 
+.jeu-text {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .jeu-info mat-icon {
-  font-size: 32px;
-  width: 32px;
-  height: 32px;
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
   color: #1976d2;
 }
 
@@ -348,6 +412,9 @@ h1 mat-icon {
   flex-direction: column;
   gap: 4px;
   font-size: 13px;
+  color: #666;
+  margin: 0 12px;
+}
   color: #666;
   margin-right: 16px;
 }

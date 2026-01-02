@@ -75,6 +75,12 @@
               <div class="label">Remise</div>
               <div class="value">{{ (reservation()!.remise_montant || 0) | currency:'EUR' }}</div>
             </div>
+            @if ((reservation()!.remise_tables || 0) > 0) {
+              <div>
+                <div class="label">Remise tables</div>
+                <div class="value">{{ reservation()!.remise_tables }} table(s)</div>
+              </div>
+            }
           </div>
           <div class="summary-item total">
             <mat-icon>paid</mat-icon>

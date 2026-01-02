@@ -42,40 +42,57 @@
               <mat-icon>videogame_asset</mat-icon>
               Jeux placés ({{ jeux().length }})
             </h4>
-            @for (jeu of jeux(); track jeu.id) {
-              <div class="jeu-item">
-                <div class="jeu-info">
-                  <div class="jeu-icon">
-                    <mat-icon>extension</mat-icon>
-                  </div>
-                  <div class="jeu-details">
-                    <strong>{{ jeu.jeu_nom }}</strong>
-                    <span class="jeu-editeur">{{ jeu.editeur_nom }}</span>
-                  </div>
+            
+            <!-- Groupement par réservation -->
+            @for (groupe of jeuxParReservation(); track groupe.reservationId) {
+              <div class="reservation-group">
+                <div class="reservation-header">
+                  <mat-icon>receipt</mat-icon>
+                  <span class="reservation-label">
+                    Réservation - {{ groupe.jeux[0].reservant_nom }} 
+                    <span class="type-badge">{{ groupe.jeux[0].type_reservant | titlecase }}</span>
+                  </span>
+                  <span class="reservation-tables">{{ getTablesTotalByReservation(groupe.jeux) }} table(s)</span>
                 </div>
-                <div class="jeu-stats">
-                  <span class="stat">{{ jeu.nombre_exemplaires }} ex.</span>
-                  <span class="stat">{{ jeu.tables_allouees }} table(s)</span>
-                  <div class="tables-types">
-                    @if (jeu.nb_tables_std > 0) {
-                      <mat-chip class="table-chip std">{{ jeu.nb_tables_std }} Std</mat-chip>
-                    }
-                    @if (jeu.nb_tables_gde > 0) {
-                      <mat-chip class="table-chip gde">{{ jeu.nb_tables_gde }} Gde</mat-chip>
-                    }
-                    @if (jeu.nb_tables_mairie > 0) {
-                      <mat-chip class="table-chip mairie">{{ jeu.nb_tables_mairie }} Mai</mat-chip>
-                    }
-                  </div>
+                
+                <div class="reservation-jeux">
+                  @for (jeu of groupe.jeux; track jeu.id) {
+                    <div class="jeu-item">
+                      <div class="jeu-info">
+                        <div class="jeu-icon">
+                          <mat-icon>extension</mat-icon>
+                        </div>
+                        <div class="jeu-details">
+                          <strong>{{ jeu.jeu_nom }}</strong>
+                          <span class="jeu-editeur">{{ jeu.editeur_nom }}</span>
+                        </div>
+                      </div>
+                      <div class="jeu-stats">
+                        <span class="stat">{{ jeu.nombre_exemplaires }} ex.</span>
+                        <span class="stat">{{ jeu.tables_allouees }} table(s)</span>
+                        <div class="tables-types">
+                          @if (jeu.nb_tables_std > 0) {
+                            <mat-chip class="table-chip std">{{ jeu.nb_tables_std }} Std</mat-chip>
+                          }
+                          @if (jeu.nb_tables_gde > 0) {
+                            <mat-chip class="table-chip gde">{{ jeu.nb_tables_gde }} Gde</mat-chip>
+                          }
+                          @if (jeu.nb_tables_mairie > 0) {
+                            <mat-chip class="table-chip mairie">{{ jeu.nb_tables_mairie }} Mai</mat-chip>
+                          }
+                        </div>
+                      </div>
+                      @if (canPlace()) {
+                        <button 
+                          mat-icon-button 
+                          color="warn"
+                          (click)="retirerJeu.emit(jeu.id)">
+                          <mat-icon>close</mat-icon>
+                        </button>
+                      }
+                    </div>
+                  }
                 </div>
-                @if (canPlace()) {
-                  <button 
-                    mat-icon-button 
-                    color="warn"
-                    (click)="retirerJeu.emit(jeu.id)">
-                    <mat-icon>close</mat-icon>
-                  </button>
-                }
               </div>
             }
           </div>

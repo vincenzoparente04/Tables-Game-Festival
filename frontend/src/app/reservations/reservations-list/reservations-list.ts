@@ -58,9 +58,12 @@ export class ReservationsList {
   reservationsConfirmees = computed(() => 
     this.reservations().filter(r => r.etat_contact === 'reserve').length
   );
-  montantTotal = computed(() => 
-    this.reservations().reduce((sum, r) => sum + (parseFloat(String(r.montant_brut || 0))), 0)
-  );
+  montantTotal = computed(() => {
+    return this.reservations().reduce((sum, r) => {
+      const montantBrut = parseFloat(String(r.montant_brut || 0));
+      return sum + montantBrut;
+    }, 0);
+  });
   tablesReservees = computed(() => 
     this.reservations().reduce((sum, r) => sum + (parseInt(String(r.nb_tables_reservees || 0), 10)), 0)
   );

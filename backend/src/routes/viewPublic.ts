@@ -33,7 +33,7 @@ router.get('/editeurs/festival-courant', requireActivatedAccount(), requirePermi
     try {
       const query = `
         SELECT *
-        FROM vue_editeurs_festival v
+        FROM vue_editeurs_publics_festival v
         WHERE v.festival_id = (
           SELECT id FROM festivals WHERE est_courant = true LIMIT 1
         )

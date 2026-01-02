@@ -62,6 +62,12 @@ export class PlacementJeuDialog {
   
   totalTables = signal(0);
 
+  // Estimation du nombre de tables nécessaires (arrondies supérieurement)
+  estimatedTables = computed(() => {
+    const jeu = this.selectedJeu();
+    return jeu ? Math.ceil(jeu.tables_allouees) : 0;
+  });
+
   constructor() {
     if (this.data.zone && this.data.jeuxDisponibles) {
       this.modeSelectionJeu.set(true);
@@ -97,8 +103,8 @@ export class PlacementJeuDialog {
         const jeu = this.jeuxDisponibles.find(j => j.id === jeuId);
         if (jeu) {
           this.selectedJeu.set(jeu);
-          const estimatedTables = Math.ceil(jeu.tables_allouees);
-          this.form.patchValue({ nb_tables_std: estimatedTables });
+          // Utiliser le signal computed estimatedTables
+          this.form.patchValue({ nb_tables_std: this.estimatedTables() });
         }
       }
     });

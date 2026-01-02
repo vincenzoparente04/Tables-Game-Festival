@@ -48,6 +48,7 @@ export class ZonesPlanList {
   festival = signal<FestivalsDto | null>(null);
   zones = signal<ZonePlanDto[]>([]);
   jeuxNonPlaces = signal<JeuFestivalDto[]>([]);
+  tousLesJeux = signal<JeuFestivalDto[]>([]);
   loading = signal(false);
 
   readonly canCreate = this.permissions.can('zonesPlan', 'create');
@@ -58,13 +59,13 @@ export class ZonesPlanList {
 
   //stat pour l'ensemble des zones
   totalTablesUtilisees = computed(() => 
-    this.zones().reduce((sum, z) => sum + (z.tables_utilisees || 0), 0)
+    this.zones().reduce((sum, z) => sum + (Number(z.tables_utilisees) || 0), 0)
   );
   totalTablesDisponibles = computed(() => 
-    this.zones().reduce((sum, z) => sum + z.nombre_tables_total, 0)
+    this.zones().reduce((sum, z) => sum + Number(z.nombre_tables_total), 0)
   );
   totalJeuxPlaces = computed(() => 
-    this.zones().reduce((sum, z) => sum + (z.nb_jeux_places || 0), 0)
+    this.zones().reduce((sum, z) => sum + (Number(z.nb_jeux_places) || 0), 0)
   );
   tauxOccupation = computed(() => {
     const total = this.totalTablesDisponibles();
@@ -74,6 +75,40 @@ export class ZonesPlanList {
   tablesLibres = computed(() => 
     this.totalTablesDisponibles() - this.totalTablesUtilisees()
   );
+
+  // Calculer l'utilisation réelle de chaque type de table (ce qui est placé dans les zones)
+  utilisationTablesStandard = computed(() => {
+    return this.tousLesJeux()
+      .filter(j => j.est_place)
+      .reduce((sum, j) => sum + (Number(j.nb_tables_std) || 0), 0);
+  });
+
+  utilisationTablesGrandes = computed(() => {
+    return this.tousLesJeux()
+      .filter(j => j.est_place)
+      .reduce((sum, j) => sum + (Number(j.nb_tables_gde) || 0), 0);
+  });
+
+  utilisationTablesMairie = computed(() => {
+    return this.tousLesJeux()
+      .filter(j => j.est_place)
+      .reduce((sum, j) => sum + (Number(j.nb_tables_mairie) || 0), 0);
+  });
+
+  // Regrouper les jeux non placés par réservation
+  jeuxNonPlacesParReservation = computed(() => {
+    const jeux = this.jeuxNonPlaces();
+    const grouped = new Map<number, { reservationId: number; jeux: JeuFestivalDto[] }>();
+    
+    jeux.forEach(jeu => {
+      if (!grouped.has(jeu.reservation_id)) {
+        grouped.set(jeu.reservation_id, { reservationId: jeu.reservation_id, jeux: [] });
+      }
+      grouped.get(jeu.reservation_id)!.jeux.push(jeu);
+    });
+    
+    return Array.from(grouped.values()).sort((a, b) => a.reservationId - b.reservationId);
+  });
 
   constructor() {
     this.route.params.subscribe(params => {
@@ -97,6 +132,9 @@ export class ZonesPlanList {
     // Charger zones plan
     this.loadZones();
 
+    // Charger tous les jeux (placés + non placés)
+    this.loadTousLesJeux();
+
     // Charger jeux non placés
     this.loadJeuxNonPlaces();
   }
@@ -119,6 +157,25 @@ export class ZonesPlanList {
     this.zonesPlanService.getJeuxNonPlaces(this.festivalId()).subscribe({
       next: (jeux) => this.jeuxNonPlaces.set(jeux),
       error: (err) => console.error('Erreur jeux non placés:', err)
+    });
+  }
+
+  private loadTousLesJeux() {
+    this.zonesPlanService.getByFestival(this.festivalId()).subscribe({
+      next: (zones) => {
+        // Charger les jeux placés de chaque zone
+        let tousLesJeux: JeuFestivalDto[] = [];
+        zones.forEach(zone => {
+          this.zonesPlanService.getJeuxByZone(zone.id).subscribe({
+            next: (jeux) => {
+              tousLesJeux = [...tousLesJeux, ...jeux];
+              this.tousLesJeux.set([...this.jeuxNonPlaces(), ...tousLesJeux]);
+            },
+            error: (err) => console.error('Erreur jeux zone:', err)
+          });
+        });
+      },
+      error: (err) => console.error('Erreur zones:', err)
     });
   }
 
@@ -245,6 +302,7 @@ export class ZonesPlanList {
             this.snackBar.open('Jeu placé avec succès !', 'OK', { duration: 2000 });
             this.loadZones();
             this.loadJeuxNonPlaces();
+            this.loadTousLesJeux();
           },
           error: (err) => {
             const errorMsg = err.error?.error || 'Erreur lors du placement';
@@ -255,6 +313,11 @@ export class ZonesPlanList {
     });
   }
 
+  // Calculer les tables allouées par une réservation (jeux non placés)
+  getTablesAllouesByReservation(jeux: JeuFestivalDto[]): number {
+    return jeux.reduce((sum, j) => sum + Number(j.tables_allouees), 0);
+  }
+
   onRetirerJeu(jeuFestivalId: number) {
     if (confirm('Retirer ce jeu de la zone ?')) {
       this.zonesPlanService.retirerJeu(jeuFestivalId).subscribe({
@@ -262,6 +325,7 @@ export class ZonesPlanList {
           this.snackBar.open('Jeu retiré', 'OK', { duration: 2000 });
           this.loadZones();
           this.loadJeuxNonPlaces();
+          this.loadTousLesJeux();
         },
         error: (err) => {
           const errorMsg = err.error?.error || 'Erreur';

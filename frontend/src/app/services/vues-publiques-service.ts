@@ -33,7 +33,6 @@ export interface EditeurFestivalPublic {
   editeur_nom: string;
   nb_jeux_presentes: number;
   nb_reservants_pour_editeur: number;
-  jeux_noms: string[]; 
 }
 
 @Injectable({

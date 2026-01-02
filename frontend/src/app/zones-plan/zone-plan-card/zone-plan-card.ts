@@ -1,4 +1,4 @@
-import { Component, input, output, inject, signal, effect } from '@angular/core';
+import { Component, input, output, inject, signal, effect, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatButtonModule } from '@angular/material/button';
@@ -36,6 +36,21 @@ export class ZonePlanCard {
   jeux = signal<JeuFestivalDto[]>([]);
   loadingJeux = signal(false);
 
+  // Regrouper les jeux par réservation
+  jeuxParReservation = computed(() => {
+    const jeux = this.jeux();
+    const grouped = new Map<number, { reservationId: number; jeux: JeuFestivalDto[] }>();
+    
+    jeux.forEach(jeu => {
+      if (!grouped.has(jeu.reservation_id)) {
+        grouped.set(jeu.reservation_id, { reservationId: jeu.reservation_id, jeux: [] });
+      }
+      grouped.get(jeu.reservation_id)!.jeux.push(jeu);
+    });
+    
+    return Array.from(grouped.values()).sort((a, b) => a.reservationId - b.reservationId);
+  });
+
   constructor() {
     effect(() => {
       const z = this.zone();
@@ -63,7 +78,12 @@ export class ZonePlanCard {
   getOccupationRate(): number {
     const zone = this.zone();
     if (!zone || zone.nombre_tables_total === 0) return 0;
-    return Math.round(((zone.tables_utilisees || 0) / zone.nombre_tables_total) * 100);
+    return Math.round(((Number(zone.tables_utilisees) || 0) / Number(zone.nombre_tables_total)) * 100);
+  }
+
+  // Calculer les tables utilisées par une réservation
+  getTablesTotalByReservation(jeux: JeuFestivalDto[]): number {
+    return jeux.reduce((sum, j) => sum + (j.nb_tables_std + j.nb_tables_gde + j.nb_tables_mairie), 0);
   }
 
   refreshJeux() {

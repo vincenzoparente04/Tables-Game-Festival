@@ -16,6 +16,8 @@ export interface JeuFestivalDto {
   jeu_id: number;
   jeu_nom?: string;
   editeur_nom?: string;
+  reservant_nom?: string;
+  type_reservant?: string;
   zone_plan_id: number | null;
   zone_plan_nom?: string;
   nombre_exemplaires: number;

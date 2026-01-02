@@ -151,9 +151,9 @@
                       </div>
                       <div class="stock-bar">
                         <div class="bar-container">
-                          <div class="bar-fill green" [style.width.%]="0"></div>
+                          <div class="bar-fill green" [style.width.%]="(utilisationTablesStandard() / festival()!.stock_tables_standard) * 100"></div>
                         </div>
-                        <span class="stock-value">0 / {{ festival()!.stock_tables_standard }}</span>
+                        <span class="stock-value">{{ utilisationTablesStandard() }} / {{ festival()!.stock_tables_standard }}</span>
                       </div>
                     </div>
 
@@ -164,9 +164,9 @@
                       </div>
                       <div class="stock-bar">
                         <div class="bar-container">
-                          <div class="bar-fill blue" [style.width.%]="0"></div>
+                          <div class="bar-fill blue" [style.width.%]="(utilisationTablesGrandes() / festival()!.stock_tables_grandes) * 100"></div>
                         </div>
-                        <span class="stock-value">0 / {{ festival()!.stock_tables_grandes }}</span>
+                        <span class="stock-value">{{ utilisationTablesGrandes() }} / {{ festival()!.stock_tables_grandes }}</span>
                       </div>
                     </div>
 
@@ -177,9 +177,9 @@
                       </div>
                       <div class="stock-bar">
                         <div class="bar-container">
-                          <div class="bar-fill yellow" [style.width.%]="0"></div>
+                          <div class="bar-fill yellow" [style.width.%]="(utilisationTablesMairie() / festival()!.stock_tables_mairie) * 100"></div>
                         </div>
-                        <span class="stock-value">0 / {{ festival()!.stock_tables_mairie }}</span>
+                        <span class="stock-value">{{ utilisationTablesMairie() }} / {{ festival()!.stock_tables_mairie }}</span>
                       </div>
                     </div>
                   </div>
@@ -201,11 +201,8 @@
                         <mat-icon>chair</mat-icon>
                         Chaises standard
                       </div>
-                      <div class="stock-bar">
-                        <div class="bar-container">
-                          <div class="bar-fill green" [style.width.%]="0"></div>
-                        </div>
-                        <span class="stock-value">0 / {{ festival()!.stock_chaises_standard }}</span>
+                      <div class="stock-value-static">
+                        {{ festival()!.stock_chaises_standard }}
                       </div>
                     </div>
 
@@ -214,11 +211,8 @@
                         <mat-icon>chair_alt</mat-icon>
                         Chaises mairie
                       </div>
-                      <div class="stock-bar">
-                        <div class="bar-container">
-                          <div class="bar-fill yellow" [style.width.%]="0"></div>
-                        </div>
-                        <span class="stock-value">0 / {{ festival()!.stock_chaises_mairie }}</span>
+                      <div class="stock-value-static">
+                        {{ festival()!.stock_chaises_mairie }}
                       </div>
                     </div>
                   </div>
@@ -241,24 +235,40 @@
               </div>
             } @else {
               <div class="jeux-non-places-list">
-                @for (jeu of jeuxNonPlaces(); track jeu.id) {
-                  <mat-card class="jeu-non-place-card">
+                @for (groupe of jeuxNonPlacesParReservation(); track groupe.reservationId) {
+                  <mat-card class="reservation-group-card">
+                    <mat-card-header>
+                      <mat-card-title class="reservation-title">
+                        <mat-icon>receipt</mat-icon>
+                        <span>
+                          Réservation - {{ groupe.jeux[0].reservant_nom }}
+                          <span class="type-badge">{{ groupe.jeux[0].type_reservant | titlecase }}</span>
+                        </span>
+                        <span class="tables-estimees">{{ getTablesAllouesByReservation(groupe.jeux) }} table(s)</span>
+                      </mat-card-title>
+                    </mat-card-header>
                     <mat-card-content>
-                      <div class="jeu-info">
-                        <mat-icon>extension</mat-icon>
-                        <div>
-                          <strong>{{ jeu.jeu_nom }}</strong>
-                          <span class="editeur">{{ jeu.editeur_nom }}</span>
-                        </div>
+                      <div class="jeux-container">
+                        @for (jeu of groupe.jeux; track jeu.id) {
+                          <div class="jeu-non-place-item">
+                            <div class="jeu-info">
+                              <mat-icon>extension</mat-icon>
+                              <div class="jeu-text">
+                                <strong>{{ jeu.jeu_nom }}</strong>
+                                <span class="editeur">{{ jeu.editeur_nom }}</span>
+                              </div>
+                            </div>
+                            <div class="jeu-details">
+                              <span>{{ jeu.nombre_exemplaires }} ex.</span>
+                              <span>{{ jeu.tables_allouees }} table(s)</span>
+                            </div>
+                            <button mat-raised-button color="primary" (click)="onPlacerJeuDepuisListe(jeu)">
+                              <mat-icon>add_location</mat-icon>
+                              Placer
+                            </button>
+                          </div>
+                        }
                       </div>
-                      <div class="jeu-details">
-                        <span>{{ jeu.nombre_exemplaires }} exemplaire(s)</span>
-                        <span>{{ jeu.tables_allouees }} table(s)</span>
-                      </div>
-                      <button mat-raised-button color="primary" (click)="onPlacerJeuDepuisListe(jeu)">
-                        <mat-icon>add_location</mat-icon>
-                        Placer
-                      </button>
                     </mat-card-content>
                   </mat-card>
                 }

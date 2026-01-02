@@ -59,7 +59,28 @@ export class ReservationDetail {
   montantTotal = computed(() => {
     const res = this.reservation();
     if (!res) return 0;
-    return (res.montant_brut || 0) - (res.remise_montant || 0);
+    
+    // Calcul de la valeur des tables remisées
+    let montantRemiseTables = 0;
+    if ((res.remise_tables || 0) > 0) {
+      // Calculer le prix moyen par table à partir des zones réservées
+      let totalMontantTables = 0;
+      let totalTables = 0;
+      
+      (res.zones_reservees || []).forEach((zone: any) => {
+        const nbTables = zone.nombre_tables || 0;
+        const prixUnitaire = zone.prix_unitaire || 0;
+        totalMontantTables += nbTables * prixUnitaire;
+        totalTables += nbTables;
+      });
+      
+      if (totalTables > 0) {
+        const prixMoyenParTable = totalMontantTables / totalTables;
+        montantRemiseTables = prixMoyenParTable * (res.remise_tables || 0);
+      }
+    }
+    
+    return (res.montant_brut || 0) - (res.remise_montant || 0) - montantRemiseTables;
   });
 
   constructor() {

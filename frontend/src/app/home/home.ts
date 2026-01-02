@@ -29,7 +29,12 @@ export class Home {
   userRole = this.permissions.currentRole;
   isPendingUser = this.permissions.isPendingUser;
   canViewFestivals = this.permissions.can('festivals', 'viewAll');
+  canViewCurrentFestival = this.permissions.can('festivals', 'viewCurrent');
   isAdmin = this.permissions.isAdmin;
+  canViewJeuxPublic = this.permissions.can('jeux', 'viewPublic');
+  canViewEditeursPublic = this.permissions.can('editeurs', 'viewPublic');
+  canViewZonesPlan = this.permissions.can('zonesPlan', 'view');
+  canViewReservations = this.permissions.can('reservations', 'view');
 
 
 }

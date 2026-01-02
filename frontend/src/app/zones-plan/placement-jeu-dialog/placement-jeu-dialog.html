@@ -60,6 +60,20 @@
           </div>
         }
 
+        <!-- Helper: Estimation vs tables physiques -->
+        @if (selectedJeu()) {
+          <div class="info-box warning-box">
+            <mat-icon>lightbulb</mat-icon>
+            <div class="helper-text">
+              <p>💡 <strong>Ce jeu nécessite {{ selectedJeu()!.tables_allouees }} table(s) estimée(s).</strong></p>
+              <p>Sélectionnez au minimum <strong>{{ estimatedTables() }} table(s) physique(s)</strong> pour le placer.</p>
+              <p style="font-size: 0.85em; opacity: 0.8;">
+                Les tables physiques (standard, grandes, mairie) doivent être entières car il s'agit de tables réelles.
+              </p>
+            </div>
+          </div>
+        }
+
         @if (selectedZone()) {
           <div class="info-box zone-info">
             <div class="info-header">

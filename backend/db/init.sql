@@ -333,11 +333,16 @@ SELECT
     zp.festival_id,
     zp.nom,
     zp.nombre_tables_total,
-    zp.nombre_tables_total - COALESCE(SUM(jf.tables_allouees), 0) as tables_disponibles,
-    COALESCE(SUM(jf.tables_allouees), 0) as tables_utilisees,
+    -- Utiliser les tables PHYSIQUES réellement placées
+    zp.nombre_tables_total - COALESCE(SUM(
+        jf.nb_tables_std + jf.nb_tables_gde + jf.nb_tables_mairie
+    ), 0) as tables_disponibles,
+    COALESCE(SUM(
+        jf.nb_tables_std + jf.nb_tables_gde + jf.nb_tables_mairie
+    ), 0) as tables_utilisees,
     COUNT(DISTINCT jf.jeu_id) as nb_jeux_places
 FROM zones_plan zp
-LEFT JOIN jeux_festival jf ON zp.id = jf.zone_plan_id
+LEFT JOIN jeux_festival jf ON zp.id = jf.zone_plan_id AND jf.zone_plan_id IS NOT NULL
 GROUP BY zp.id, zp.festival_id, zp.nom, zp.nombre_tables_total;
 
 -- Vue : Stocks de tables par festival (décompte)
@@ -569,6 +574,25 @@ JOIN jeux j ON jf.jeu_id = j.id
 JOIN editeurs e ON j.editeur_id = e.id
 JOIN reservants res ON r.reservant_id = res.id
 GROUP BY f.id, f.nom, e.id, e.nom;
+
+-- Vue : Éditeurs des jeux publics (jeux placés)
+CREATE OR REPLACE VIEW vue_editeurs_publics_festival AS
+SELECT DISTINCT
+    f.id as festival_id,
+    f.nom as festival_nom,
+    e.id as editeur_id,
+    e.nom as editeur_nom,
+    COUNT(DISTINCT j.id) as nb_jeux_presentes,
+    COUNT(DISTINCT res.id) as nb_reservants_pour_editeur
+FROM festivals f
+JOIN reservations r ON f.id = r.festival_id
+JOIN jeux_festival jf ON r.id = jf.reservation_id
+JOIN jeux j ON jf.jeu_id = j.id
+JOIN editeurs e ON j.editeur_id = e.id
+JOIN reservants res ON r.reservant_id = res.id
+WHERE jf.est_place = true
+GROUP BY f.id, f.nom, e.id, e.nom
+ORDER BY e.nom;
 
 -- Vue : Jeux non placés (pour suivi du placement)
 CREATE OR REPLACE VIEW vue_jeux_non_places AS
@@ -853,6 +877,33 @@ FOR EACH ROW
 WHEN (NEW.nb_tables_std > 0 OR NEW.nb_tables_gde > 0 OR NEW.nb_tables_mairie > 0)
 EXECUTE FUNCTION check_stock_tables();
 
+-- Trigger : Vérifier que les tables physiques >= estimation arrondie
+CREATE OR REPLACE FUNCTION trigger_check_tables_physiques()
+RETURNS TRIGGER AS $$
+DECLARE
+    v_total_physique INTEGER;
+    v_estimation_requise INTEGER;
+BEGIN
+    v_total_physique := NEW.nb_tables_std + NEW.nb_tables_gde + NEW.nb_tables_mairie;
+    v_estimation_requise := CEIL(NEW.tables_allouees);
+    
+    -- Seulement si le jeu est placé dans une zone
+    IF NEW.zone_plan_id IS NOT NULL THEN
+        IF v_total_physique < v_estimation_requise THEN
+            RAISE EXCEPTION 'Erreur: Tables physiques (%) insuffisantes. Minimum requis: % table(s) pour ce jeu.',
+                v_total_physique, v_estimation_requise;
+        END IF;
+    END IF;
+    
+    RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_check_tables_physiques
+BEFORE INSERT OR UPDATE ON jeux_festival
+FOR EACH ROW
+EXECUTE FUNCTION trigger_check_tables_physiques();
+
 -- Trigger : Vérifier que les jeux placés ne dépassent pas l'espace réservé
 CREATE OR REPLACE FUNCTION trigger_check_tables_allouees()
 RETURNS TRIGGER AS $$
@@ -1041,3 +1092,15 @@ CREATE TRIGGER update_contacts_reservants_updated_at
 BEFORE UPDATE ON contacts_reservants 
 FOR EACH ROW 
 EXECUTE FUNCTION update_updated_at_column();
+-- =============================================
+-- MIGRATION DES DONNÉES
+-- =============================================
+-- Corriger les tables physiques pour les jeux déjà placés
+-- Si les tables physiques sont à 0 ou incohérentes, utiliser l'arrondi supérieur de l'estimation
+UPDATE jeux_festival
+SET 
+  nb_tables_std = CEIL(tables_allouees),
+  nb_tables_gde = 0,
+  nb_tables_mairie = 0
+WHERE zone_plan_id IS NOT NULL 
+  AND (nb_tables_std + nb_tables_gde + nb_tables_mairie) = 0;
