@@ -15,6 +15,7 @@ import { ZoneTarifaireDto } from '../../types/zone-tarifaire-dto';
 
 interface DialogData {
   festivalId: number;
+  reservation?: any;
 }
 
 @Component({
@@ -44,6 +45,9 @@ export class ReservationFormDialog {
   zonesTarifaires = signal<ZoneTarifaireDto[]>([]);
   prixPrise = signal(0);
 
+  reservationId = signal<number | null>(null);
+  submitLabel = signal('Créer');
+
   form = new FormGroup({
     reservant_id: new FormControl<number | null>(null, Validators.required),
     nb_prises_electriques: new FormControl(0, [Validators.min(0)]),
@@ -54,8 +58,25 @@ export class ReservationFormDialog {
 
   constructor() {
     this.loadReservants();
-    this.loadZonesTarifaires();
-    this.addZone(); // Au moins une zone au départ
+
+    const festivalId = this.getFestivalId();
+    if (festivalId) {
+      this.loadZonesTarifaires(festivalId);
+    }
+
+    if (this.data.reservation) {
+      this.patchForm(this.data.reservation);
+    } else {
+      this.addZone(); // création → au moins une zone
+    }
+  }
+
+  private getFestivalId(): number | null {
+    return (
+      this.data.reservation?.festival_id ??
+      this.data.festivalId ??
+      null
+    );
   }
 
   get zonesReservees(): FormArray {
@@ -69,10 +90,10 @@ export class ReservationFormDialog {
     });
   }
 
-  private loadZonesTarifaires() {
-    this.zonesTarifService.getByFestival(this.data.festivalId).subscribe({
+  private loadZonesTarifaires(festivalId: number) {
+    this.zonesTarifService.getByFestival(festivalId).subscribe({
       next: (zones) => this.zonesTarifaires.set(zones),
-      error: (err) => console.error('Erreur zones:', err)
+      error: (e) => console.error('Erreur zones tarifaires:', e)
     });
   }
 
@@ -87,6 +108,29 @@ export class ReservationFormDialog {
     if (this.zonesReservees.length > 1) {
       this.zonesReservees.removeAt(index);
     }
+  }
+
+  private patchForm(reservation: any) {
+    this.form.patchValue({
+      reservant_id: reservation.reservant_id,
+      nb_prises_electriques: reservation.nb_prises_electriques,
+      viendra_animer: reservation.viendra_animer,
+      notes: reservation.notes
+    });
+
+    this.zonesReservees.clear();
+
+    reservation.zones_reservees?.forEach((z: any) => {
+      this.zonesReservees.push(
+        new FormGroup({
+          zone_tarifaire_id: new FormControl(z.zone_tarifaire_id, Validators.required),
+          nombre_tables: new FormControl(z.nombre_tables, [
+            Validators.required,
+            Validators.min(1)
+          ])
+        })
+      );
+    });
   }
 
   calculateTotal(): number {
@@ -114,15 +158,13 @@ export class ReservationFormDialog {
     if (this.form.invalid) return;
 
     const payload = {
-      reservant_id: this.form.value.reservant_id!,
-      nb_prises_electriques: this.form.value.nb_prises_electriques || 0,
-      viendra_animer: this.form.value.viendra_animer || false,
-      notes: this.form.value.notes || '',
-      zones_reservees: this.zonesReservees.value.filter((z: any) => z.zone_tarifaire_id && z.nombre_tables)
+      ...this.form.value,
+      zones_reservees: this.zonesReservees.value
     };
 
     this.dialogRef.close(payload);
   }
+
 
   onCancel() {
     this.dialogRef.close();

@@ -99,6 +99,15 @@
 
   <mat-card-actions align="end">
     
+    @if (canViewReservations()) {
+      <button 
+        mat-button 
+        color="primary"
+        [routerLink]="['/festivals', festival()!.id, 'reservations']">
+        <mat-icon>assignment</mat-icon>
+        Réservations
+      </button>
+    }
 
     @if (canViewZonesPlan()) {
       <button 

@@ -1,0 +1,362 @@
+<div class="container">
+  @if (loading()) {
+    <div class="loading">
+      <mat-spinner></mat-spinner>
+      <p>Chargement...</p>
+    </div>
+  }
+
+  @if (!loading() && reservation()) {
+    <div class="header">
+      <div class="breadcrumb">
+        <a routerLink="/festivals">Festivals</a>
+        <mat-icon>chevron_right</mat-icon>
+        <a [routerLink]="['/festivals', reservation()!.festival_id, 'reservations']">
+          {{ reservation()!.festival_nom }}
+        </a>
+        <mat-icon>chevron_right</mat-icon>
+        <span class="current">{{ reservation()!.reservant_nom }}</span>
+      </div>
+
+      <div class="header-content">
+        <div class="header-info">
+          <h1>
+            <mat-icon>assignment</mat-icon>
+            Réservation : {{ reservation()!.reservant_nom }}
+          </h1>
+          <div class="etats">
+            <mat-chip [style.background-color]="getEtatContactColor(reservation()!.etat_contact)">
+              {{ getEtatContactLabel(reservation()!.etat_contact) }}
+            </mat-chip>
+            <mat-chip [style.background-color]="getEtatPresenceColor(reservation()!.etat_presence)">
+              {{ getEtatPresenceLabel(reservation()!.etat_presence) }}
+            </mat-chip>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          @if (canModify()) {
+            <button mat-raised-button color="primary" (click)="editReservation()">
+              <mat-icon>edit</mat-icon>
+              Modifier
+            </button>
+          }
+          @if (canDelete()) {
+            <button mat-raised-button color="warn" (click)="deleteReservation()">
+              <mat-icon>delete</mat-icon>
+              Supprimer
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Récapitulatif financier -->
+    <mat-card class="summary-card">
+      <mat-card-content>
+        <div class="summary-grid">
+          <div class="summary-item">
+            <mat-icon>table_chart</mat-icon>
+            <div>
+              <div class="label">Tables réservées</div>
+              <div class="value">{{ reservation()!.nb_tables_reservees || 0 }}</div>
+            </div>
+          </div>
+          <div class="summary-item">
+            <mat-icon>euro</mat-icon>
+            <div>
+              <div class="label">Montant brut</div>
+              <div class="value">{{ (reservation()!.montant_brut || 0) | currency:'EUR' }}</div>
+            </div>
+          </div>
+          <div class="summary-item">
+            <mat-icon>discount</mat-icon>
+            <div>
+              <div class="label">Remise</div>
+              <div class="value">{{ (reservation()!.remise_montant || 0) | currency:'EUR' }}</div>
+            </div>
+          </div>
+          <div class="summary-item total">
+            <mat-icon>paid</mat-icon>
+            <div>
+              <div class="label">Total à payer</div>
+              <div class="value">{{ montantTotal() | currency:'EUR' }}</div>
+            </div>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+
+    <!-- Onglets -->
+    <mat-tab-group>
+      <!-- Informations générales -->
+      <mat-tab label="Informations">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Détails de la réservation</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              <div class="info-grid">
+                <div class="info-item">
+                  <span class="label">Type</span>
+                  <span class="value">{{ reservation()!.type_reservant || 'N/A' }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Prises électriques</span>
+                  <span class="value">{{ reservation()!.nb_prises_electriques }}</span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Viendra animer</span>
+                  <span class="value">
+                    <mat-icon [style.color]="reservation()!.viendra_animer ? '#4caf50' : '#f44336'">
+                      {{ reservation()!.viendra_animer ? 'check_circle' : 'cancel' }}
+                    </mat-icon>
+                  </span>
+                </div>
+                <div class="info-item">
+                  <span class="label">Date dernier contact</span>
+                  <span class="value">
+                    {{ reservation()!.date_dernier_contact ? (reservation()!.date_dernier_contact | date:'dd/MM/yyyy HH:mm') : 'Jamais contacté' }}
+                  </span>
+                </div>
+              </div>
+
+              @if (reservation()!.notes) {
+                <mat-divider style="margin: 16px 0;"></mat-divider>
+                <div class="notes-section">
+                  <h4>
+                    <mat-icon>notes</mat-icon>
+                    Notes
+                  </h4>
+                  <p>{{ reservation()!.notes }}</p>
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+
+          <!-- Zones réservées -->
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Zones réservées</mat-card-title>
+            </mat-card-header>
+            <mat-card-content>
+              @if (reservation()!.zones_reservees.length === 0) {
+                <p class="empty">Aucune zone réservée</p>
+              } @else {
+                <table mat-table [dataSource]="reservation()!.zones_reservees">
+                  <ng-container matColumnDef="zone">
+                    <th mat-header-cell *matHeaderCellDef>Zone</th>
+                    <td mat-cell *matCellDef="let zone">{{ zone.zone_tarifaire_nom }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="tables">
+                    <th mat-header-cell *matHeaderCellDef>Tables</th>
+                    <td mat-cell *matCellDef="let zone">{{ zone.nombre_tables }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="prix_unitaire">
+                    <th mat-header-cell *matHeaderCellDef>Prix unitaire</th>
+                    <td mat-cell *matCellDef="let zone">{{ zone.prix_unitaire | currency:'EUR' }}</td>
+                  </ng-container>
+                  <ng-container matColumnDef="total">
+                    <th mat-header-cell *matHeaderCellDef>Total</th>
+                    <td mat-cell *matCellDef="let zone">{{ (zone.nombre_tables * zone.prix_unitaire) | currency:'EUR' }}</td>
+                  </ng-container>
+                  <tr mat-header-row *matHeaderRowDef="['zone', 'tables', 'prix_unitaire', 'total']"></tr>
+                  <tr mat-row *matRowDef="let row; columns: ['zone', 'tables', 'prix_unitaire', 'total'];"></tr>
+                </table>
+              }
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Workflow -->
+      <mat-tab label="Workflow">
+        <div class="tab-content">
+          @if (canUpdateWorkflow()) {
+            <mat-card>
+              <mat-card-header>
+                <mat-card-title>Gestion du workflow</mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="workflow-actions">
+                  <div class="workflow-section">
+                    <h4>État de contact</h4>
+                    <div class="button-grid">
+                      @for (etat of etatsContact; track etat.value) {
+                        <button 
+                          mat-stroked-button
+                          [color]="reservation()!.etat_contact === etat.value ? 'primary' : ''"
+                          [disabled]="reservation()!.etat_contact === etat.value"
+                          (click)="updateEtatContact(etat.value)">
+                          {{ etat.label }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+
+                  <mat-divider></mat-divider>
+
+                  <div class="workflow-section">
+                    <h4>État de présence</h4>
+                    <div class="button-grid">
+                      @for (etat of etatsPresence; track etat.value) {
+                        <button 
+                          mat-stroked-button
+                          [color]="reservation()!.etat_presence === etat.value ? 'primary' : ''"
+                          [disabled]="reservation()!.etat_presence === etat.value"
+                          (click)="updateEtatPresence(etat.value)">
+                          {{ etat.label }}
+                        </button>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          }
+
+          <!-- Historique des contacts -->
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Historique des contacts</mat-card-title>
+              @if (canUpdateWorkflow()) {
+                <button mat-icon-button color="primary" (click)="addContact()">
+                  <mat-icon>add</mat-icon>
+                </button>
+              }
+            </mat-card-header>
+            <mat-card-content>
+              @if (reservation()!.contacts.length === 0) {
+                <p class="empty">Aucun contact enregistré</p>
+              } @else {
+                <mat-list>
+                  @for (contact of reservation()!.contacts; track contact.id) {
+                    <mat-list-item>
+                      <mat-icon matListItemIcon>event</mat-icon>
+                      <div matListItemTitle>
+                        {{ contact.date_contact | date:'dd/MM/yyyy HH:mm' }}
+                        @if (contact.type_contact) {
+                          - {{ contact.type_contact }}
+                        }
+                      </div>
+                      @if (contact.notes) {
+                        <div matListItemLine>{{ contact.notes }}</div>
+                      }
+                    </mat-list-item>
+                    <mat-divider></mat-divider>
+                  }
+                </mat-list>
+              }
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Jeux -->
+      <mat-tab [label]="'Jeux (' + reservation()!.jeux.length + ')'">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Jeux de la réservation</mat-card-title>
+              @if (canModify()) {
+                <button mat-raised-button color="primary" (click)="addJeu()">
+                  <mat-icon>add</mat-icon>
+                  Ajouter un jeu
+                </button>
+              }
+            </mat-card-header>
+            <mat-card-content>
+              @if (getTablesRestantes() > 0 && canModify()) {
+                <div class="info-box">
+                  <mat-icon>info</mat-icon>
+                  <span>{{ getTablesRestantes() }} table(s) disponible(s) pour placer des jeux</span>
+                </div>
+              }
+
+              @if (reservation()!.jeux.length === 0) {
+                <p class="empty">Aucun jeu ajouté à cette réservation</p>
+              } @else {
+                <div class="jeux-grid">
+                  @for (jeu of reservation()!.jeux; track jeu.id) {
+                    <mat-card class="jeu-card">
+                      <mat-card-content>
+                        <div class="jeu-header">
+                          <mat-icon>extension</mat-icon>
+                          <div class="jeu-info">
+                            <strong>{{ jeu.jeu_nom }}</strong>
+                            <span class="editeur">{{ jeu.editeur_nom }}</span>
+                          </div>
+                          @if (canModify()) {
+                            <button 
+                              mat-icon-button 
+                              color="warn"
+                              (click)="removeJeu(jeu.id!, jeu.jeu_nom!)">
+                              <mat-icon>close</mat-icon>
+                            </button>
+                          }
+                        </div>
+
+                        <div class="jeu-details">
+                          <div class="detail-item">
+                            <mat-icon>content_copy</mat-icon>
+                            <span>{{ jeu.nombre_exemplaires }} ex.</span>
+                          </div>
+                          <div class="detail-item">
+                            <mat-icon>table_chart</mat-icon>
+                            <span>{{ jeu.tables_allouees }} table(s)</span>
+                          </div>
+                          @if (jeu.zone_plan_nom) {
+                            <div class="detail-item placed">
+                              <mat-icon>check_circle</mat-icon>
+                              <span>{{ jeu.zone_plan_nom }}</span>
+                            </div>
+                          } @else {
+                            <div class="detail-item not-placed">
+                              <mat-icon>info</mat-icon>
+                              <span>Non placé</span>
+                            </div>
+                          }
+                        </div>
+
+                        @if (canModify()) {
+                          <div class="jeu-actions">
+                            <button 
+                              mat-stroked-button
+                              [color]="jeu.jeu_recu ? 'accent' : ''"
+                              (click)="toggleJeuRecu(jeu.id!, jeu.jeu_recu)">
+                              <mat-icon>{{ jeu.jeu_recu ? 'check_box' : 'check_box_outline_blank' }}</mat-icon>
+                              {{ jeu.jeu_recu ? 'Reçu' : 'Marquer reçu' }}
+                            </button>
+                          </div>
+                        }
+                      </mat-card-content>
+                    </mat-card>
+                  }
+                </div>
+              }
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+
+      <!-- Facturation -->
+      <mat-tab label="Facturation">
+        <div class="tab-content">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>Facturation</mat-card-title>
+              <button mat-raised-button color="primary" (click)="genererFacture()">
+                <mat-icon>receipt</mat-icon>
+                Générer la facture
+              </button>
+            </mat-card-header>
+            <mat-card-content>
+              <p>qlq'un d'autre continue car j'en peux plus</p>
+            </mat-card-content>
+          </mat-card>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  }
+</div>

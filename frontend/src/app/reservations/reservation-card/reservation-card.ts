@@ -26,10 +26,19 @@ import { ReservationsService } from '../../services/reservations-service';
 })
 export class ReservationCard {
   reservation = input.required<ReservationSummary>();
-  canModify = input(false);
-  canDelete = input(false);
+  canModify = input<boolean>(false);
+  canDelete = input<boolean>(false);
 
-  delete = output<void>();
+  edit = output<ReservationSummary>();
+  delete = output<number>();
+
+  onEdit() {
+    this.edit.emit(this.reservation());
+  }
+
+  onDelete() {
+    this.delete.emit(this.reservation().id);
+  }
 
   getTypeLabel(): string {
     return this.reservation().type_reservant || 'Non défini';

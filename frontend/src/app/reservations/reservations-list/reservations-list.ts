@@ -59,10 +59,10 @@ export class ReservationsList {
     this.reservations().filter(r => r.etat_contact === 'reserve').length
   );
   montantTotal = computed(() => 
-    this.reservations().reduce((sum, r) => sum + (r.montant_brut || 0), 0)
+    this.reservations().reduce((sum, r) => sum + (parseFloat(String(r.montant_brut || 0))), 0)
   );
   tablesReservees = computed(() => 
-    this.reservations().reduce((sum, r) => sum + (r.nb_tables_reservees || 0), 0)
+    this.reservations().reduce((sum, r) => sum + (parseInt(String(r.nb_tables_reservees || 0), 10)), 0)
   );
 
   // Réservations par état de contact
@@ -139,6 +139,39 @@ export class ReservationsList {
       }
     });
   }
+
+  onEdit(reservation: ReservationSummary) {
+    if (!this.canModify()) {
+      this.snackBar.open('Pas de permission', 'Fermer', { duration: 3000 });
+      return;
+    }
+
+    const dialogRef = this.dialog.open(ReservationFormDialog, {
+      width: '800px',
+      maxHeight: '90vh',
+      disableClose: true,
+      data: {
+        reservation,               
+        festivalId: this.festivalId()
+      }
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (!result) return;
+
+      this.reservationsService
+        .update(reservation.id, result)
+        .subscribe({
+          next: () => {
+            this.snackBar.open('Réservation modifiée', 'OK', { duration: 2000 });
+            this.loadReservations();
+          },
+          error: () => {
+            this.snackBar.open('Erreur modification', 'Fermer', { duration: 3000 });
+          }
+        });
+    });
+  } 
 
   onDelete(reservationId: number, reservantNom: string) {
     if (confirm(`⚠️ Supprimer la réservation de "${reservantNom}" ?\n\nCette action est irréversible.`)) {

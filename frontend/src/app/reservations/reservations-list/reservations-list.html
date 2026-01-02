@@ -104,7 +104,8 @@
                   [reservation]="reservation"
                   [canModify]="canModify()"
                   [canDelete]="canDelete()"
-                  (delete)="onDelete(reservation.id, reservation.reservant_nom)">
+                  (edit)="onEdit($event)"
+                  (delete)="onDelete($event, reservation.reservant_nom)">
                 </app-reservation-card>
               }
             </div>
@@ -127,7 +128,8 @@
                       [reservation]="reservation"
                       [canModify]="canModify()"
                       [canDelete]="canDelete()"
-                      (delete)="onDelete(reservation.id, reservation.reservant_nom)">
+                      (edit)="onEdit($event)"
+                      (delete)="onDelete($event, reservation.reservant_nom)">
                     </app-reservation-card>
                   }
                 </div>

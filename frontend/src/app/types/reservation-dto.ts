@@ -76,7 +76,7 @@ export interface ReservationSummary {
   updated_at: string;
 }
 
-export interface ReservationDetail extends ReservationSummary {
+export interface ReservationDetails extends ReservationSummary {
   contacts: ContactReservation[];
   zones_reservees: ReservationZone[];
   jeux: JeuReservation[];

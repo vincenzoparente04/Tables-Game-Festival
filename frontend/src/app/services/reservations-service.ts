@@ -4,7 +4,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import {
   ReservationSummary,
-  ReservationDetail,
+  ReservationDetails,
   CreateReservationPayload,
   UpdateReservationPayload,
   AddJeuToReservationPayload,
@@ -29,18 +29,18 @@ export class ReservationsService {
   }
 
   // Détail complet d'une réservation
-  getById(id: number): Observable<ReservationDetail> {
-    return this.http.get<ReservationDetail>(`${this.API}/${id}`);
+  getById(id: number): Observable<ReservationDetails> {
+    return this.http.get<ReservationDetails>(`${this.API}/${id}`);
   }
 
   // Créer une réservation
-  create(festivalId: number, payload: CreateReservationPayload): Observable<ReservationDetail> {
-    return this.http.post<ReservationDetail>(`${this.API}/festival/${festivalId}`, payload);
+  create(festivalId: number, payload: CreateReservationPayload): Observable<ReservationDetails> {
+    return this.http.post<ReservationDetails>(`${this.API}/festival/${festivalId}`, payload);
   }
 
   // Mettre à jour une réservation
-  update(id: number, payload: UpdateReservationPayload): Observable<ReservationDetail> {
-    return this.http.patch<ReservationDetail>(`${this.API}/${id}`, payload);
+  update(id: number, payload: UpdateReservationPayload): Observable<ReservationDetails> {
+    return this.http.patch<ReservationDetails>(`${this.API}/${id}`, payload);
   }
 
   // Supprimer une réservation
@@ -54,13 +54,13 @@ export class ReservationsService {
   }
 
   // Workflow - Mettre à jour l'état de contact
-  updateEtatContact(reservationId: number, etat: EtatContact): Observable<ReservationDetail> {
-    return this.http.patch<ReservationDetail>(`${this.API}/${reservationId}/workflow/contact`, { etat_contact: etat });
+  updateEtatContact(reservationId: number, etat: EtatContact): Observable<ReservationDetails> {
+    return this.http.patch<ReservationDetails>(`${this.API}/${reservationId}/workflow/contact`, { etat_contact: etat });
   }
 
   // Workflow - Mettre à jour l'état de présence
-  updateEtatPresence(reservationId: number, etat: EtatPresence): Observable<ReservationDetail> {
-    return this.http.patch<ReservationDetail>(`${this.API}/${reservationId}/workflow/presence`, { etat_presence: etat });
+  updateEtatPresence(reservationId: number, etat: EtatPresence): Observable<ReservationDetails> {
+    return this.http.patch<ReservationDetails>(`${this.API}/${reservationId}/workflow/presence`, { etat_presence: etat });
   }
 
   // Ajouter un jeu à la réservation

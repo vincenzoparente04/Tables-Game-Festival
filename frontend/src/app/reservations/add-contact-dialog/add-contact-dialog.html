@@ -1,0 +1,46 @@
+    <h2 mat-dialog-title>
+      <mat-icon>add</mat-icon>
+      Ajouter un contact / relance
+    </h2>
+
+    <mat-dialog-content>
+      <form [formGroup]="form" class="contact-form">
+        
+        <mat-form-field appearance="outline">
+          <mat-label>Date et heure</mat-label>
+          <input matInput type="datetime-local" formControlName="date_contact" required>
+          <mat-icon matPrefix>event</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Type de contact</mat-label>
+          <mat-select formControlName="type_contact">
+            <mat-option value="email">Email</mat-option>
+            <mat-option value="telephone">Téléphone</mat-option>
+            <mat-option value="reunion">Réunion</mat-option>
+            <mat-option value="visite">Visite</mat-option>
+            <mat-option value="autre">Autre</mat-option>
+          </mat-select>
+          <mat-icon matPrefix>phone</mat-icon>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Notes</mat-label>
+          <textarea matInput rows="4" formControlName="notes" placeholder="Résumé de l'échange..."></textarea>
+          <mat-icon matPrefix>notes</mat-icon>
+        </mat-form-field>
+
+      </form>
+    </mat-dialog-content>
+
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="onCancel()">Annuler</button>
+      <button 
+        mat-raised-button 
+        color="primary" 
+        [disabled]="form.invalid"
+        (click)="onSubmit()">
+        <mat-icon>save</mat-icon>
+        Enregistrer
+      </button>
+    </mat-dialog-actions>

@@ -13,6 +13,7 @@ import { EditeursList } from './editeurs/editeur-list/editeurs-list';
 import { JeuxList } from './jeux/jeux-list/jeux-list';
 import { ReservantsList } from './reservant/reservants-list/reservants-list';
 import { ReservationsList } from './reservations/reservations-list/reservations-list';
+import { ReservationDetail } from './reservations/reservation-detail/reservation-detail';
 
 
 
@@ -24,6 +25,8 @@ export const routes: Routes = [
     { path: 'festivals', component: FestivalsList , canActivate: [authGuard, notPendingUserGuard, hasPermission('festivals', 'viewAll')] },
     { path: 'festivals/courant', component: FestivalsList , canActivate: [authGuard, notPendingUserGuard, hasPermission('festivals', 'viewCurrent')] },
     { path: 'festivals/:id/zones-plan', component: ZonesPlanList, canActivate: [authGuard, notPendingUserGuard, hasPermission('zonesPlan', 'view')] },
+    { path: 'festivals/:id/reservations', component: ReservationsList, canActivate: [authGuard, notPendingUserGuard, hasPermission('reservations', 'view')] },
+    { path: 'reservations/:id', component: ReservationDetail, canActivate: [authGuard, notPendingUserGuard, hasPermission('reservations', 'view')] },
     { path: 'home', component: Home },
     { path: 'vues-publiques', component: VuesPubliques, canActivate: [authGuard, notPendingUserGuard] },
     { path: 'editeurs', component: EditeursList, canActivate: [authGuard, notPendingUserGuard, hasPermission('festivals', 'viewAll')]},

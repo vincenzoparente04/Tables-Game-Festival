@@ -414,6 +414,33 @@ GROUP BY f.id, f.nom, f.est_actif, f.est_courant, f.espace_tables_total, f.date_
 
 -- Vue : Détail complet des réservations
 CREATE OR REPLACE VIEW vue_reservations_detail AS
+WITH zones_stats AS (
+  SELECT 
+    r.id,
+    COALESCE(SUM(rz.nombre_tables), 0) as nb_tables_reservees,
+    COALESCE(SUM(rz.nombre_tables * rz.prix_unitaire), 0) as montant_tables
+  FROM reservations r
+  LEFT JOIN reservations_zones rz ON r.id = rz.reservation_id
+  GROUP BY r.id
+),
+jeux_stats AS (
+  SELECT 
+    r.id,
+    COUNT(DISTINCT jf.id) as nb_jeux,
+    COUNT(DISTINCT CASE WHEN jf.est_place = true THEN jf.id END) as nb_jeux_places,
+    COUNT(DISTINCT CASE WHEN jf.jeu_recu = true THEN jf.id END) as nb_jeux_recus
+  FROM reservations r
+  LEFT JOIN jeux_festival jf ON r.id = jf.reservation_id
+  GROUP BY r.id
+),
+contacts_stats AS (
+  SELECT 
+    r.id,
+    COUNT(DISTINCT cr.id) as nb_contacts
+  FROM reservations r
+  LEFT JOIN contacts_reservations cr ON r.id = cr.reservation_id
+  GROUP BY r.id
+)
 SELECT 
     r.id,
     r.festival_id,
@@ -431,25 +458,23 @@ SELECT
     r.remise_tables,
     r.remise_montant,
     r.notes,
-    COUNT(DISTINCT cr.id) as nb_contacts,
-    COALESCE(SUM(rz.nombre_tables), 0) as nb_tables_reservees,
-    COALESCE(SUM(rz.nombre_tables * rz.prix_unitaire), 0) as montant_tables,
+    r.created_at,
+    r.updated_at,
+    COALESCE(cs.nb_contacts, 0) as nb_contacts,
+    zs.nb_tables_reservees,
+    zs.montant_tables,
     (r.nb_prises_electriques * f.prix_prise_electrique) as montant_prises,
-    COALESCE(SUM(rz.nombre_tables * rz.prix_unitaire), 0) + (r.nb_prises_electriques * f.prix_prise_electrique) as montant_brut,
-    COUNT(DISTINCT jf.id) as nb_jeux,
-    COUNT(DISTINCT CASE WHEN jf.est_place = true THEN jf.id END) as nb_jeux_places,
-    COUNT(DISTINCT CASE WHEN jf.jeu_recu = true THEN jf.id END) as nb_jeux_recus
+    zs.montant_tables + (r.nb_prises_electriques * f.prix_prise_electrique) as montant_brut,
+    COALESCE(js.nb_jeux, 0) as nb_jeux,
+    COALESCE(js.nb_jeux_places, 0) as nb_jeux_places,
+    COALESCE(js.nb_jeux_recus, 0) as nb_jeux_recus
 FROM reservations r
 JOIN festivals f ON r.festival_id = f.id
 JOIN reservants res ON r.reservant_id = res.id
 LEFT JOIN editeurs e ON res.editeur_id = e.id
-LEFT JOIN contacts_reservations cr ON r.id = cr.reservation_id
-LEFT JOIN reservations_zones rz ON r.id = rz.reservation_id
-LEFT JOIN jeux_festival jf ON r.id = jf.reservation_id
-GROUP BY r.id, r.festival_id, f.nom, f.prix_prise_electrique,
-         r.reservant_id, res.nom, res.type_reservant, res.editeur_id, e.nom,
-         r.etat_contact, r.etat_presence, r.date_dernier_contact,
-         r.nb_prises_electriques, r.viendra_animer, r.remise_tables, r.remise_montant, r.notes;
+LEFT JOIN zones_stats zs ON r.id = zs.id
+LEFT JOIN jeux_stats js ON r.id = js.id
+LEFT JOIN contacts_stats cs ON r.id = cs.id;
 
 -- Vue : Récapitulatif pour facturation
 CREATE OR REPLACE VIEW vue_recapitulatif_factures AS

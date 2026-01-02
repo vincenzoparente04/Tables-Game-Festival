@@ -71,19 +71,18 @@
           Détails
         </a>
         @if (canModify()) {
-          <a 
-            mat-button 
-            [routerLink]="['/reservations', reservation().id, 'edit']">
+          <button 
+            mat-icon-button 
+            color="warn"
+            (click)="onEdit()">
             <mat-icon>edit</mat-icon>
-            Modifier
-          </a>
+          </button>
         }
         @if (canDelete()) {
           <button 
             mat-icon-button 
             color="warn"
-            (click)="delete.emit()"
-            matTooltip="Supprimer">
+            (click)="onDelete()">
             <mat-icon>delete</mat-icon>
           </button>
         }
