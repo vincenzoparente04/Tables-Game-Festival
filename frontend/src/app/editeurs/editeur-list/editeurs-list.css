@@ -20,15 +20,20 @@
   display: grid;
   grid-template-columns: 1fr 2fr;
   gap: 1rem;
+  height: calc(100vh - 300px);
 }
 
 .editeurs-list {
   border-right: 1px solid #eee;
   padding-right: 1rem;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .editeur-detail {
   padding-left: 0.5rem;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .detail-block {
