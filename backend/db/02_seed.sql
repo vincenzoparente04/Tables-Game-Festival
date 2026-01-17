@@ -1,6 +1,6 @@
 -- =============================================
 -- 02_seed.sql
--- Import CSV -> staging -> tables app (MINIMAL)
+-- Import CSV -> staging -> tables app 
 -- =============================================
 
 -- 1) staging
@@ -41,7 +41,7 @@ CREATE TABLE stg_jeu (
   "videoRegle" TEXT
 );
 
--- 2) COPY (file dentro docker-entrypoint-initdb.d/seed)
+-- 2) COPY (file inside docker-entrypoint-initdb.d/seed)
 COPY stg_editeur
 FROM '/docker-entrypoint-initdb.d/seed/editeur.csv'
 WITH (FORMAT csv, HEADER true, DELIMITER ',', QUOTE '"');
@@ -54,7 +54,7 @@ COPY stg_jeu
 FROM '/docker-entrypoint-initdb.d/seed/jeu.csv'
 WITH (FORMAT csv, HEADER true, DELIMITER ',', QUOTE '"');
 
--- 3) Inserisci editeurs (evita duplicati per nome)
+-- 3) Insert editeurs (avoid duplicates)
 INSERT INTO editeurs (nom)
 SELECT DISTINCT TRIM(se."libelleEditeur")
 FROM stg_editeur se
@@ -79,7 +79,7 @@ FROM stg_editeur se
 JOIN editeurs e ON e.nom = TRIM(se."libelleEditeur")
 WHERE se."idEditeur" IS NOT NULL;
 
--- 5) Inserisci jeux (con correzione min/max)
+-- 5) Insert jeux (with correction min/max)
 INSERT INTO jeux (
   editeur_id, nom, type_jeu,
   age_mini, age_maxi,
