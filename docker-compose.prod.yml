@@ -34,7 +34,7 @@ services:
       JWT_SECRET: "mon_secret_jwt_super_long_et_complexe"
       JWT_EXPIRATION: "15m"
       REFRESH_EXPIRATION: "7d"
-      FRONTEND_URL: https://localhost:8080
+      FRONTEND_URL: https://162.38.111.34:8080
     volumes:
       - ./backend/certs:/app/certs:ro
     ports:
