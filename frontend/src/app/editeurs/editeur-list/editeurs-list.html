@@ -24,18 +24,37 @@
         @if (editeurs().length === 0) {
           <p>Aucun éditeur enregistré.</p>
         } @else {
+          <div class="sort-controls">
+            <label for="sortSelect">Trier par :</label>
+            <select id="sortSelect" [value]="sortBy()" (change)="onSortChange($event)" class="sort-select">
+              <option value="nom">Nom (A-Z)</option>
+              <option value="nom-desc">Nom (Z-A)</option>
+            </select>
+
+            <label for="filterSelect">Filtrer :</label>
+            <select id="filterSelect" [value]="filterBy()" (change)="onFilterChange($event)" class="sort-select">
+              <option value="tous">Tous les éditeurs</option>
+              <option value="sans-contacts">Sans contacts</option>
+              <option value="sans-jeux">Sans jeux</option>
+            </select>
+          </div>
+
           <div class="layout">
             <div class="editeurs-list">
-              @for (editeur of editeurs(); track editeur.id) {
-                <app-editeur-card
-                  [editeur]="editeur"
-                  [canModify]="canModify()"
-                  [canDelete]="canDelete()"
-                  [selected]="selectedEditeur()?.id === editeur.id || editeurToEdit()?.id === editeur.id"
-                  (onSelect)="selectEditeur($event)"
-                  (onEdit)="onEditEditeur($event)"
-                  (onDelete)="onDeleteEditeur($event)"
-                />
+              @if (editeursTries().length === 0) {
+                <div class="empty-state">Aucun éditeur ne correspond à ce filtre.</div>
+              } @else {
+                @for (editeur of editeursTries(); track editeur.id) {
+                  <app-editeur-card
+                    [editeur]="editeur"
+                    [canModify]="canModify()"
+                    [canDelete]="canDelete()"
+                    [selected]="selectedEditeur()?.id === editeur.id || editeurToEdit()?.id === editeur.id"
+                    (onSelect)="selectEditeur($event)"
+                    (onEdit)="onEditEditeur($event)"
+                    (onDelete)="onDeleteEditeur($event)"
+                  />
+                }
               }
             </div>
 

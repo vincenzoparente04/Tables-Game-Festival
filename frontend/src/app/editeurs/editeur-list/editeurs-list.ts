@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EditeursService, EditeurSummary, JeuEditeur, ContactEditeur} from '../../services/editeurs-service';
 import { EditeursForm } from '../editeurs-form/editeurs-form';
@@ -30,6 +30,34 @@ export class EditeursList {
   errorDetail = signal<string | null>(null);
   editeurToEdit = signal<EditeurSummary | null>(null);
   contactsToEdit = signal<ContactEditeur[]>([]);
+  sortBy = signal<'nom' | 'nom-desc'>('nom');
+  filterBy = signal<'tous' | 'sans-contacts' | 'sans-jeux'>('tous');
+
+  editeursTries = computed(() => {
+    const editeurs = this.editeurs();
+    const sort = this.sortBy();
+    const filter = this.filterBy();
+
+    let filtered = editeurs;
+    if (filter === 'sans-contacts') {
+      filtered = editeurs.filter(e => Number(e.nb_contacts) === 0);
+    } else if (filter === 'sans-jeux') {
+      filtered = editeurs.filter(e => Number(e.nb_jeux) === 0);
+    }
+
+    const sorted = [...filtered];
+    
+    switch (sort) {
+      case 'nom':
+        sorted.sort((a, b) => a.nom.localeCompare(b.nom));
+        break;
+      case 'nom-desc':
+        sorted.sort((a, b) => b.nom.localeCompare(a.nom));
+        break;
+    }
+    
+    return sorted;
+  });
 
   readonly canCreate = this.permissions.can('editeurs', 'create');
   readonly canModify = this.permissions.can('editeurs', 'update');
@@ -140,5 +168,17 @@ export class EditeursList {
         },
       });
     }
+  }
+
+  // Handle sort change
+  onSortChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.sortBy.set(value === 'nom' ? 'nom' : 'nom-desc');
+  }
+
+  // Handle filter change
+  onFilterChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.filterBy.set(value as 'tous' | 'sans-contacts' | 'sans-jeux');
   }
 }
