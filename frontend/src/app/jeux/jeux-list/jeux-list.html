@@ -19,8 +19,16 @@
     }
 
     @if (!loadingList() && jeux().length > 0) {
+      <div class="sort-controls">
+        <label for="sortSelect">Trier par :</label>
+        <select id="sortSelect" [value]="sortBy()" (change)="onSortChange($event)" class="sort-select">
+          <option value="nom">Nom (A-Z)</option>
+          <option value="nom-desc">Nom (Z-A)</option>
+        </select>
+      </div>
+
       <div class="jeux-cards">
-        @for (jeu of jeux(); track jeu.id) {
+        @for (jeu of jeuxTries(); track jeu.id) {
           <app-jeux-card
             [jeu]="jeu"
             [isSelected]="selectedJeu()?.id === jeu.id"

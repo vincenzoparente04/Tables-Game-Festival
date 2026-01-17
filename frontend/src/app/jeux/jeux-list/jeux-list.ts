@@ -1,4 +1,4 @@
-import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { JeuxService, JeuSummary } from '../../services/jeux-service';
 import { EditeursService, EditeurSummary } from '../../services/editeurs-service';
@@ -41,6 +41,25 @@ export class JeuxList {
   loadingList = signal(false);
   loadingEditeurs = signal(false);
   errorList = signal<string | null>(null);
+  sortBy = signal<'nom' | 'nom-desc'>('nom');
+
+  jeuxTries = computed(() => {
+    const jeux = this.jeux();
+    const sort = this.sortBy();
+
+    const sorted = [...jeux];
+    
+    switch (sort) {
+      case 'nom':
+        sorted.sort((a, b) => a.nom.localeCompare(b.nom));
+        break;
+      case 'nom-desc':
+        sorted.sort((a, b) => b.nom.localeCompare(a.nom));
+        break;
+    }
+    
+    return sorted;
+  });
 
   canCreate = this.permissions.can('jeux', 'create');
   canModify = this.permissions.can('jeux', 'update');
@@ -124,6 +143,11 @@ export class JeuxList {
         },
       });
     }
+  }
+
+  onSortChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.sortBy.set(value === 'nom' ? 'nom' : 'nom-desc');
   }
 
   startCreateJeu(): void {
