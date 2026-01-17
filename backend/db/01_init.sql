@@ -580,19 +580,19 @@ CREATE OR REPLACE VIEW vue_editeurs_publics_festival AS
 SELECT DISTINCT
     f.id as festival_id,
     f.nom as festival_nom,
-    e.id as editeur_id,
-    e.nom as editeur_nom,
+    res_editeur.id as editeur_id,
+    res_editeur.nom as editeur_nom,
     COUNT(DISTINCT j.id) as nb_jeux_presentes,
     COUNT(DISTINCT res.id) as nb_reservants_pour_editeur
 FROM festivals f
 JOIN reservations r ON f.id = r.festival_id
+JOIN reservants res ON r.reservant_id = res.id
+JOIN editeurs res_editeur ON res.editeur_id = res_editeur.id
 JOIN jeux_festival jf ON r.id = jf.reservation_id
 JOIN jeux j ON jf.jeu_id = j.id
-JOIN editeurs e ON j.editeur_id = e.id
-JOIN reservants res ON r.reservant_id = res.id
 WHERE jf.est_place = true
-GROUP BY f.id, f.nom, e.id, e.nom
-ORDER BY e.nom;
+GROUP BY f.id, f.nom, res_editeur.id, res_editeur.nom
+ORDER BY res_editeur.nom;
 
 -- Vue : Jeux non placés (pour suivi du placement)
 CREATE OR REPLACE VIEW vue_jeux_non_places AS
