@@ -238,6 +238,7 @@ export class ReservationDetail {
     });
   }
 
+  // Contacts
   addContact() {
     const dialogRef = this.dialog.open(AddContactDialog, {
       width: '500px'

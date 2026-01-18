@@ -357,6 +357,7 @@ table {
   width: 100%;
   border-collapse: collapse;
   margin-bottom: 24px;
+  table-layout: fixed;
 }
 
 .facture-table thead th {
@@ -369,10 +370,25 @@ table {
   border-bottom: 2px solid #ddd;
 }
 
+.facture-table thead th:first-child {
+  width: 50%;
+}
+
+.facture-table thead th:not(:first-child) {
+  width: 16.67%;
+  text-align: right;
+  padding-right: 24px;
+}
+
 .facture-table tbody td {
   padding: 12px 16px;
   border-bottom: 1px solid #e0e0e0;
   font-size: 14px;
+}
+
+.facture-table tbody td:first-child {
+  width: 50%;
+  text-align: left;
 }
 
 .facture-table tbody tr:hover {
@@ -381,6 +397,7 @@ table {
 
 .facture-table .text-right {
   text-align: right;
+  padding-right: 24px;
 }
 
 .facture-summary {
