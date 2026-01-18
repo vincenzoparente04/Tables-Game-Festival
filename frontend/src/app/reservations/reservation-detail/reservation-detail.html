@@ -31,6 +31,11 @@
             <mat-chip [style.background-color]="getEtatPresenceColor(reservation()!.etat_presence)">
               {{ getEtatPresenceLabel(reservation()!.etat_presence) }}
             </mat-chip>
+            @if (factureExistante()) {
+              <mat-chip [style.background-color]="getEtatPaiementColor(factureExistante()!.statut_paiement)" style="color: white;">
+                {{ getEtatPaiementLabel(factureExistante()!.statut_paiement) }}
+              </mat-chip>
+            }
           </div>
         </div>
 
@@ -217,6 +222,27 @@
                       }
                     </div>
                   </div>
+
+                  <mat-divider></mat-divider>
+
+                  <div class="workflow-section">
+                    <h4>État de paiement de la facture</h4>
+                    @if (factureExistante()) {
+                      <div class="button-grid">
+                        @for (etat of etatsPaiement; track etat.value) {
+                          <button 
+                            mat-stroked-button
+                            [color]="factureExistante()!.statut_paiement === etat.value ? 'primary' : ''"
+                            [disabled]="factureExistante()!.statut_paiement === etat.value"
+                            (click)="updateEtatPaiement(etat.value)">
+                            {{ etat.label }}
+                          </button>
+                        }
+                      </div>
+                    } @else {
+                      <p class="empty" style="margin-top: 8px;">Aucune facture générée</p>
+                    }
+                  </div>
                 </div>
               </mat-card-content>
             </mat-card>
@@ -349,18 +375,100 @@
       <!-- Facturation -->
       <mat-tab label="Facturation">
         <div class="tab-content">
-          <mat-card>
-            <mat-card-header>
-              <mat-card-title>Facturation</mat-card-title>
-              <button mat-raised-button color="primary" (click)="genererFacture()">
-                <mat-icon>receipt</mat-icon>
-                Générer la facture
-              </button>
-            </mat-card-header>
-            <mat-card-content>
-              <p>qlq'un d'autre continue car j'en peux plus</p>
-            </mat-card-content>
-          </mat-card>
+          @if (recapFacture()) {
+            <mat-card class="facture-card">
+              <mat-card-header>
+                <mat-card-title>Récapitulatif de facturation</mat-card-title>
+                <mat-card-subtitle>{{ recapFacture()!.reservant_nom }}</mat-card-subtitle>
+              </mat-card-header>
+
+              <mat-card-content>
+                <!-- Détail des zones réservées -->
+                @if (recapFacture()!.zones.length > 0) {
+                  <div class="zones-section">
+                    <h3>Zones réservées</h3>
+                    <table class="facture-table">
+                      <thead>
+                        <tr>
+                          <th>Zone</th>
+                          <th class="text-right">Tables</th>
+                          <th class="text-right">Prix unitaire</th>
+                          <th class="text-right">Montant</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        @for (zone of recapFacture()!.zones; track zone.nom) {
+                          <tr>
+                            <td>{{ zone.nom }}</td>
+                            <td class="text-right">{{ zone.nb_tables }}</td>
+                            <td class="text-right">{{ zone.prix_unitaire | currency:'EUR' }}</td>
+                            <td class="text-right">{{ zone.total | currency:'EUR' }}</td>
+                          </tr>
+                        }
+                      </tbody>
+                    </table>
+                  </div>
+                }
+
+                <!-- Résumé financier -->
+                <div class="facture-summary">
+                  <div class="summary-row">
+                    <span class="label">Montant tables</span>
+                    <span class="value">{{ recapFacture()!.montant_tables | currency:'EUR' }}</span>
+                  </div>
+                  
+                  <div class="summary-row">
+                    <span class="label">Prises électriques</span>
+                    <span class="value">{{ recapFacture()!.montant_prises | currency:'EUR' }}</span>
+                  </div>
+
+                  <div class="summary-row">
+                    <span class="label">Montant brut</span>
+                    <span class="value">{{ recapFacture()!.montant_brut | currency:'EUR' }}</span>
+                  </div>
+
+                  @if (recapFacture()!.remise_montant > 0) {
+                    <div class="summary-row remise">
+                      <span class="label">Remise montant</span>
+                      <span class="value">-{{ recapFacture()!.remise_montant | currency:'EUR' }}</span>
+                    </div>
+                  }
+
+                  @if (recapFacture()!.remise_tables_montant > 0) {
+                    <div class="summary-row remise">
+                      <span class="label">Remise tables</span>
+                      <span class="value">-{{ recapFacture()!.remise_tables_montant | currency:'EUR' }}</span>
+                    </div>
+                  }
+
+                  <mat-divider></mat-divider>
+
+                  <div class="summary-row total">
+                    <span class="label">Total à payer</span>
+                    <span class="value">{{ recapFacture()!.montant_total | currency:'EUR' }}</span>
+                  </div>
+                </div>
+              </mat-card-content>
+
+              <mat-card-actions>
+                <button 
+                  mat-raised-button 
+                  color="primary"
+                  (click)="genererFacture()"
+                  [disabled]="generatingFacture()">
+                  @if (generatingFacture()) {
+                    <mat-spinner diameter="20"></mat-spinner>
+                    Génération en cours...
+                  } @else {
+                    <ng-container>
+                      <mat-icon>receipt</mat-icon>
+                      Générer la facture
+                    </ng-container>
+                  }
+                </button>
+              </mat-card-actions>
+            </mat-card>
+          }
         </div>
       </mat-tab>
     </mat-tab-group>
