@@ -24,6 +24,7 @@
   font-size: 14px;
   font-weight: 600;
   display: flex;
+  justify-content: space-between;
   align-items: center;
   gap: 8px;
   color: #333;
@@ -34,12 +35,63 @@
   font-size: 20px;
 }
 
+.sidenav-header .close-btn {
+  margin-left: auto;
+  color: #999;
+}
+
+.sidenav-header .close-btn:hover {
+  color: #1976d2;
+  background-color: rgba(25, 118, 210, 0.1);
+}
+
 .sidenav-nav {
   flex: 1;
   padding: 12px 6px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+}
+
+.festival-section {
+  padding: 12px;
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 100%);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  color: white;
+}
+
+.festival-info-block {
+  padding: 12px 0;
+  margin-bottom: 12px;
+}
+
+.festival-name {
+  font-size: 12px;
+  font-weight: 700;
+  opacity: 0.9;
+  letter-spacing: 0.5px;
+}
+
+.festival-date {
+  font-size: 11px;
+  opacity: 0.75;
+  margin-top: 4px;
+}
+
+.zone-plan-btn {
+  color: white !important;
+  background: rgba(255, 255, 255, 0.15) !important;
+  border-radius: 6px;
+  width: 100%;
+  justify-content: flex-start;
+  padding: 12px !important;
+  font-size: 13px !important;
+  font-weight: 500;
+}
+
+.zone-plan-btn:hover {
+  background: rgba(255, 255, 255, 0.25) !important;
 }
 
 .sidenav-nav a {
@@ -139,6 +191,15 @@
   padding: 0 16px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
   border-bottom: 1px solid #e0e0e0;
+}
+
+.menu-toggle {
+  margin-right: 16px;
+  color: inherit;
+}
+
+.menu-toggle:hover {
+  background-color: rgba(0, 0, 0, 0.05);
 }
 
 .toolbar-title {

@@ -35,6 +35,10 @@
               <mat-chip [style.background-color]="getEtatPaiementColor(factureExistante()!.statut_paiement)" style="color: white;">
                 {{ getEtatPaiementLabel(factureExistante()!.statut_paiement) }}
               </mat-chip>
+            } @else {
+              <mat-chip [style.background-color]="'#9e9e9e'" style="color: white;">
+                Pas de facture
+              </mat-chip>
             }
           </div>
         </div>
@@ -454,18 +458,28 @@
                 <button 
                   mat-raised-button 
                   color="primary"
-                  (click)="genererFacture()"
+                  (click)="gererFacture()"
                   [disabled]="generatingFacture()">
                   @if (generatingFacture()) {
                     <mat-spinner diameter="20"></mat-spinner>
-                    Génération en cours...
+                    Traitement en cours...
                   } @else {
                     <ng-container>
-                      <mat-icon>receipt</mat-icon>
-                      Générer la facture
+                      <mat-icon>{{ factureExiste() ? 'edit' : 'receipt' }}</mat-icon>
+                      {{ texteBoutonFacture() }}
                     </ng-container>
                   }
                 </button>
+
+                @if (factureExiste() && factureExistante()?.statut_paiement !== 'paye') {
+                  <button 
+                    mat-raised-button 
+                    color="warn"
+                    (click)="supprimerFacture()">
+                    <mat-icon>delete</mat-icon>
+                    Supprimer la facture
+                  </button>
+                }
               </mat-card-actions>
             </mat-card>
           }

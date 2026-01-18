@@ -50,5 +50,9 @@ export class VuesPubliquesService {
   getEditeursFestivalCourant(): Observable<EditeurFestivalPublic[]> {
     return this.http.get<EditeurFestivalPublic[]>(`${this.baseUrl}/editeurs/festival-courant`);
   }
+
+  getFestivalCourant(): Observable<any> {
+    return this.http.get<any>(`${this.baseUrl}/festival-courant`);
+  }
   
 }

@@ -1,13 +1,18 @@
 <mat-sidenav-container class="app-container">
   
-  <mat-sidenav #sidenav class="app-sidenav" mode="side" opened>
+  <mat-sidenav #sidenav class="app-sidenav" mode="side" [opened]="true">
     <div class="sidenav-header">
       <span class="logo">🎲</span>
       <span>Festival Manager</span>
+      <button mat-icon-button (click)="sidenav.close()" class="close-btn" title="Fermer le menu">
+        <mat-icon>close</mat-icon>
+      </button>
     </div>
 
     <nav class="sidenav-nav">
       @if(isLoggedIn()) {
+        
+
         <a mat-button routerLink="home" routerLinkActive="active">
           <mat-icon>home</mat-icon>
           <span>Accueil</span>
@@ -18,16 +23,18 @@
             <mat-icon>visibility</mat-icon>
             <span>Vues publiques</span>
           </a>
+
+          @if(isVisitorOrBenevole() && currentFestival()) {
+            <a mat-button [routerLink]="['/festivals', currentFestival()!.id, 'zones-plan']" routerLinkActive="active">
+              <mat-icon>map</mat-icon>
+              <span>Zone plan</span>
+            </a>
+          }
           
           @if(canViewFestivals()) {
             <a mat-button routerLink="festivals" routerLinkActive="active">
               <mat-icon>event</mat-icon>
               <span>Festivals</span>
-            </a>
-          } @else if (canViewCurrent()) {
-            <a mat-button routerLink="festivals/courant" routerLinkActive="active">
-              <mat-icon>event</mat-icon>
-              <span>Festival courant</span>
             </a>
           }
 
@@ -85,7 +92,12 @@
 
   <mat-sidenav-content class="app-content">
     <mat-toolbar color="primary" class="main-toolbar">
-      <span class="toolbar-title">Festival Manager</span>
+      @if(!sidenav.opened) {
+        <button mat-icon-button (click)="sidenav.open()" class="menu-toggle" title="Ouvrir le menu">
+          <mat-icon>menu</mat-icon>
+        </button>
+      }
+      <span class="toolbar-title"></span>
       <span class="spacer"></span>
     </mat-toolbar>
     

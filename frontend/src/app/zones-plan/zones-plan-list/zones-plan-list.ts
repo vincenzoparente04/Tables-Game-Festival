@@ -120,6 +120,11 @@ export class ZonesPlanList {
     });
   }
 
+  isVisitorOrBenevole(): boolean {
+    const role = this.permissions.currentRole();
+    return role === 'visiteur' || role === 'benevole';
+  }
+
   private loadData() {
     this.loading.set(true);
     

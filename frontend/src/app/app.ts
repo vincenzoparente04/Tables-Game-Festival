@@ -1,4 +1,4 @@
-import { Component, signal, inject } from '@angular/core';
+import { Component, signal, inject, computed, effect } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
 import { AuthService } from './shared/auth/auth-service';
 import { PermissionsService } from './services/permissions-service';
@@ -37,11 +37,33 @@ export class App {
   private auth = inject(AuthService);
   private router = inject(Router);
   private permissions = inject(PermissionsService);
+  private festivalsService = inject(FestivalsService);
 
+  // Festival courant pour la navigation zone plan
+  currentFestival = signal<FestivalsDto | null>(null);
 
   isLoggedIn = this.auth.isLoggedIn;
   isAdmin = this.auth.isAdmin;
 
+  constructor() {
+    // Load current festival whenever user logs in
+    effect(() => {
+      if (this.isLoggedIn()) {
+        this.loadCurrentFestival();
+      }
+    });
+  }
+
+  private loadCurrentFestival(): void {
+    this.festivalsService.getCurrent().subscribe({
+      next: (festival) => {
+        this.currentFestival.set(festival);
+      },
+      error: (err) => {
+        console.error('Erreur chargement festival courant:', err);
+      }
+    });
+  }
   
   logoutApp(){
     this.auth.logout();
@@ -58,4 +80,9 @@ export class App {
   canViewgames = this.permissions.can('jeux', 'viewAll');
   canviewEditeurs = this.permissions.can('editeurs', 'viewAll');
   canViewReservants = this.permissions.can('reservants', 'view');
+
+  isVisitorOrBenevole(): boolean {
+    const role = this.permissions.currentRole();
+    return role === 'visiteur' || role === 'benevole';
+  }
 }

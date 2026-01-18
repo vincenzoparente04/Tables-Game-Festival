@@ -44,5 +44,22 @@ export class FacturesService {
       statut_paiement: statut,
     });
   }
+
+  /**
+   * Modifie une facture existante
+   */
+  modifierFacture(
+    factureId: number,
+    payload: CreateFacturePayload
+  ): Observable<Facture> {
+    return this.http.put<Facture>(`${this.API}/${factureId}`, payload);
+  }
+
+  /**
+   * Supprime une facture (seulement si non payée)
+   */
+  supprimerFacture(factureId: number): Observable<any> {
+    return this.http.delete(`${this.API}/${factureId}`);
+  }
 }
 

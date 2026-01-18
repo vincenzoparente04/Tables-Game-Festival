@@ -1,86 +1,93 @@
 .editeurs-gestion-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 12px;
+  padding: 16px;
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
 }
 
 .list-section {
   margin-top: 12px;
-  padding: 10px;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
-  background: #fff;
+  padding: 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(25, 118, 210, 0.08);
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(10px);
 }
 
 .sort-controls {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin-bottom: 12px;
-  padding: 12px;
-  background: #f8f9fa;
-  border-radius: 6px;
-  border-left: 3px solid #1976d2;
+  gap: 14px;
+  margin-bottom: 16px;
+  padding: 14px 20px;
+  background: linear-gradient(135deg, #1976d2 0%, #1565c0 50%, #1458b8 100%);
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 8px 24px rgba(25, 118, 210, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
 .sort-controls label {
-  font-weight: 600;
-  color: #333;
+  font-weight: 700;
+  color: #fff;
   font-size: 12px;
   text-transform: uppercase;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.6px;
+  opacity: 0.95;
 }
 
 .sort-select {
-  padding: 8px 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  background: #fff;
-  color: #333;
+  padding: 9px 14px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.97);
+  color: #1a1a1a;
   cursor: pointer;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   flex: 1;
-  max-width: 200px;
+  max-width: 250px;
 }
 
 .sort-select:hover {
-  border-color: #1976d2;
-  background: #f0f7ff;
-  box-shadow: 0 2px 6px rgba(25, 118, 210, 0.1);
+  border-color: rgba(255, 255, 255, 0.6);
+  background: #fff;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
 }
 
 .sort-select:focus {
   outline: none;
-  border-color: #1976d2;
-  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.15);
+  border-color: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.25);
 }
 
 .error {
   color: #d32f2f;
+  font-weight: 600;
 }
 
 .layout {
   display: grid;
   grid-template-columns: 1fr 2fr;
-  gap: 1rem;
+  gap: 16px;
   height: calc(100vh - 80px);
 }
 
 .editeurs-list {
-  border-right: 1px solid #eee;
-  padding-right: 1rem;
+  border-right: 1px solid rgba(25, 118, 210, 0.08);
+  padding-right: 16px;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
 .editeur-detail {
-  padding-left: 0.5rem;
+  padding-left: 20px;
   overflow-y: auto;
   overflow-x: hidden;
 }
 
 .detail-block {
-  margin-top: 1rem;
+  margin-top: 24px;
 }

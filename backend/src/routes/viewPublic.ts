@@ -49,5 +49,26 @@ router.get('/editeurs/festival-courant', requireActivatedAccount(), requirePermi
   }
 );
 
+router.get('/festival-courant', requireActivatedAccount(), async (_req, res) => {
+  try {
+    const query = `
+      SELECT id, nom, date_debut, date_fin, est_courant
+      FROM festivals
+      WHERE est_courant = true
+      LIMIT 1
+    `;
+
+    const result = await pool.query(query);
+    if (result.rows.length === 0) {
+      return res.status(404).json({ error: 'Aucun festival courant' });
+    }
+
+    res.json(result.rows[0]);
+  } catch (error) {
+    console.error('Erreur festival courant:', error);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+});
+
 export default router
 

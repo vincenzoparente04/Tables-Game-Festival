@@ -1,6 +1,7 @@
 import { Component , signal, inject, ChangeDetectionStrategy} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { VuesPubliquesService, JeuPublicFestival, EditeurFestivalPublic } from '../services/vues-publiques-service';
+import { PermissionsService } from '../services/permissions-service';
 
 @Component({
   selector: 'app-vues-publiques',
@@ -13,6 +14,10 @@ import { VuesPubliquesService, JeuPublicFestival, EditeurFestivalPublic } from '
 export class VuesPubliques{
   viewMode: 'jeux' | 'editeurs' = 'jeux';
   private readonly vuesService = inject(VuesPubliquesService);
+  private readonly permissionsService = inject(PermissionsService);
+  
+  // Festival info
+  festivalCourant = signal<any>(null);
   
   // games
   jeuxFestival = signal<JeuPublicFestival[]>([]);
@@ -32,7 +37,33 @@ export class VuesPubliques{
   private expandedEditeurs = new Set<number>();
 
   constructor() {
+    this.loadFestivalCourant();
     this.loadJeuxFestival();
+  }
+
+  isVisitorOrBenevole(): boolean {
+    const role = this.permissionsService.currentRole();
+    return role === 'visiteur' || role === 'benevole';
+  }
+
+  formatDate(date: string | undefined): string {
+    if (!date) return '';
+    return new Date(date).toLocaleDateString('fr-FR', { 
+      day: '2-digit', 
+      month: '2-digit', 
+      year: 'numeric' 
+    });
+  }
+
+  private loadFestivalCourant(): void {
+    this.vuesService.getFestivalCourant().subscribe({
+      next: (festival) => {
+        this.festivalCourant.set(festival);
+      },
+      error: (err) => {
+        console.error('Erreur chargement festival courant:', err);
+      }
+    });
   }
 
 

@@ -57,6 +57,12 @@ export class ReservationDetail {
   factureExistante = signal<any>(null);
   loadingFacture = signal(false);
 
+  // Signaux computed pour la facture
+  factureExiste = computed(() => !!this.factureExistante());
+  texteBoutonFacture = computed(() => 
+    this.factureExiste() ? ' Modifier facture' : ' Générer facture'
+  );
+
   readonly canModify = this.permissions.can('reservations', 'update');
   readonly canDelete = this.permissions.can('reservations', 'delete');
   readonly canUpdateWorkflow = this.permissions.can('reservations', 'updateWorkflow');
@@ -343,8 +349,8 @@ export class ReservationDetail {
     });
   }
 
-  // Facturation
-  genererFacture() {
+  // Facturation - Créer ou modifier la facture
+  gererFacture() {
     const recap = this.recapFacture();
     if (!recap) return;
 
@@ -369,33 +375,31 @@ export class ReservationDetail {
           quantite: 1,
           prix_unitaire: recap.montant_prises,
           montant_ligne: recap.montant_prises
-        },
-        ...(recap.remise_montant > 0 ? [{
-          description: 'Remise montant',
-          quantite: 1,
-          prix_unitaire: -recap.remise_montant,
-          montant_ligne: -recap.remise_montant
-        }] : []),
-        ...(recap.remise_tables_montant > 0 ? [{
-          description: 'Remise tables',
-          quantite: 1,
-          prix_unitaire: -recap.remise_tables_montant,
-          montant_ligne: -recap.remise_tables_montant
-        }] : [])
+        }
       ]
     };
 
-    this.facturesService.creerFacture(payload).subscribe({
-      next: (facture) => {
+    // Vérifier si facture existe déjà
+    const facture = this.factureExistante();
+    const call$ = facture 
+      ? this.facturesService.modifierFacture(facture.id, payload)
+      : this.facturesService.creerFacture(payload);
+
+    call$.subscribe({
+      next: (factureResponse: any) => {
         this.generatingFacture.set(false);
-        this.factureExistante.set(facture);
-        this.snackBar.open(`Facture ${facture.numero_facture} générée`, 'OK', { duration: 3000 });
-        this.loadReservation();
+        this.factureExistante.set(factureResponse);
+        const message = facture 
+          ? `Facture ${factureResponse.numero_facture} modifiée`
+          : `Facture ${factureResponse.numero_facture} générée`;
+        this.snackBar.open(message, 'OK', { duration: 3000 });
       },
       error: (err) => {
         this.generatingFacture.set(false);
-        const errorMsg = err.error?.error || 'Erreur lors de la génération';
+        const errorMsg = err.error?.error || 'Erreur lors de l\'opération';
         this.snackBar.open(errorMsg, 'Fermer', { duration: 3000 });
+        // En cas d'erreur, recharger la facture au cas où l'opération a partiellement réussi
+        this.loadFacture();
       }
     });
   }
@@ -416,6 +420,34 @@ export class ReservationDetail {
       },
       error: (err) => {
         const errorMsg = err.error?.error || 'Erreur lors de la mise à jour';
+        this.snackBar.open(errorMsg, 'Fermer', { duration: 3000 });
+      }
+    });
+  }
+
+  // Supprimer la facture
+  supprimerFacture() {
+    const facture = this.factureExistante();
+    if (!facture) return;
+
+    // Vérifier que la facture n'est pas payée
+    if (facture.statut_paiement === 'paye') {
+      this.snackBar.open('Impossible de supprimer une facture payée', 'Fermer', { duration: 3000 });
+      return;
+    }
+
+    // Demander confirmation
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer la facture ${facture.numero_facture} ?`)) {
+      return;
+    }
+
+    this.facturesService.supprimerFacture(facture.id).subscribe({
+      next: () => {
+        this.factureExistante.set(null);
+        this.snackBar.open(`Facture ${facture.numero_facture} supprimée ✅`, 'OK', { duration: 3000 });
+      },
+      error: (err) => {
+        const errorMsg = err.error?.error || 'Erreur lors de la suppression';
         this.snackBar.open(errorMsg, 'Fermer', { duration: 3000 });
       }
     });

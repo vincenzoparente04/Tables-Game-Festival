@@ -177,6 +177,77 @@ router.get('/', requireActivatedAccount(), requirePermission('reservations', 'vi
   }
 );
 
+// PUT: Modifier une facture complète (avec lignes)
+router.put('/:id', requireActivatedAccount(), requirePermission('reservations', 'update'),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { 
+        montant_tables, 
+        montant_prises, 
+        montant_brut, 
+        montant_remise, 
+        montant_total,
+        lignes_facture 
+      } = req.body;
+
+      // Vérifier facture existe
+      const factureExistante = await pool.query(
+        'SELECT * FROM factures WHERE id = $1',
+        [id]
+      );
+
+      if (factureExistante.rows.length === 0) {
+        return res.status(404).json({ error: 'Facture introuvable' });
+      }
+
+      // Protection: pas de modif si payée
+      if (factureExistante.rows[0].statut_paiement === 'paye') {
+        return res.status(400).json({ 
+          error: 'Impossible de modifier une facture payée' 
+        });
+      }
+
+      // Mettre à jour la facture
+      const result = await pool.query(
+        `UPDATE factures SET 
+          montant_tables = $1,
+          montant_prises = $2,
+          montant_brut = $3,
+          montant_remise = $4,
+          montant_total = $5,
+          updated_at = NOW()
+        WHERE id = $6
+        RETURNING *`,
+        [montant_tables, montant_prises, montant_brut, montant_remise, montant_total, id]
+      );
+
+      // Supprimer anciennes lignes
+      await pool.query('DELETE FROM lignes_facture WHERE facture_id = $1', [id]);
+
+      // Créer nouvelles lignes
+      const lignes = [];
+      if (lignes_facture && lignes_facture.length > 0) {
+        for (const ligne of lignes_facture) {
+          const ligneResult = await pool.query(
+            `INSERT INTO lignes_facture 
+              (facture_id, description, quantite, prix_unitaire, montant_ligne)
+            VALUES ($1, $2, $3, $4, $5)
+            RETURNING *`,
+            [id, ligne.description, ligne.quantite, ligne.prix_unitaire, ligne.montant_ligne]
+          );
+          lignes.push(ligneResult.rows[0]);
+        }
+      }
+
+      res.json({ ...result.rows[0], lignes });
+    } catch (error) {
+      console.error('Errore modification factura:', error);
+      res.status(500).json({ error: 'Errore serveur' });
+    }
+  }
+);
+
 // PUT: Mettre à jour le statut de paiement
 router.put('/:id/statut', requireActivatedAccount(), requirePermission('reservations', 'update'),
   async (req, res) => {
@@ -200,6 +271,43 @@ router.put('/:id/statut', requireActivatedAccount(), requirePermission('reservat
       res.json(result.rows[0]);
     } catch (error) {
       console.error('Errore aggiornamento fattura:', error);
+      res.status(500).json({ error: 'Errore serveur' });
+    }
+  }
+);
+
+// DELETE: Supprimer une facture (seulement si non payée)
+router.delete('/:id', requireActivatedAccount(), requirePermission('reservations', 'update'),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      // Vérifier que la facture existe
+      const factureExistante = await pool.query(
+        'SELECT * FROM factures WHERE id = $1',
+        [id]
+      );
+
+      if (factureExistante.rows.length === 0) {
+        return res.status(404).json({ error: 'Facture introuvable' });
+      }
+
+      // Protection: pas de suppression si payée
+      if (factureExistante.rows[0].statut_paiement === 'paye') {
+        return res.status(400).json({ 
+          error: 'Impossible de supprimer une facture payée' 
+        });
+      }
+
+      // Supprimer les lignes de facture
+      await pool.query('DELETE FROM lignes_facture WHERE facture_id = $1', [id]);
+
+      // Supprimer la facture
+      await pool.query('DELETE FROM factures WHERE id = $1', [id]);
+
+      res.json({ message: 'Facture supprimée avec succès' });
+    } catch (error) {
+      console.error('Errore suppression factura:', error);
       res.status(500).json({ error: 'Errore serveur' });
     }
   }

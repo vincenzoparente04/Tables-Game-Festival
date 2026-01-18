@@ -145,8 +145,9 @@ export class FestivalsList {
         const current = this.festivals();
         // Mettre le nouveau festival comme courant et les autres comme non courants
         const updatedList = current.map(f => ({ ...f, est_courant: false }));
-        updatedList.push({ ...result, est_courant: true });
-        this.festivals.set(updatedList);
+        // Ajouter le nouveau festival EN HAUT de la liste 
+        const newList = [{ ...result, est_courant: true }, ...updatedList];
+        this.festivals.set(newList);
       }
     });
   }

@@ -1,4 +1,15 @@
 <div class="vues-publiques-container">
+  @if (isVisitorOrBenevole()) {
+    <div class="festival-header-banner">
+      <div class="festival-info">
+        <h2>{{ festivalCourant()?.nom }}</h2>
+        <p class="festival-dates">
+          {{ formatDate(festivalCourant()?.date_debut) }} - {{ formatDate(festivalCourant()?.date_fin) }}
+        </p>
+      </div>
+    </div>
+  }
+
   <h1>Vues publiques du festival courant</h1>
 
   <div class="subnav">

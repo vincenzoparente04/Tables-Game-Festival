@@ -291,14 +291,41 @@ router.delete('/:id',requireActivatedAccount(),requirePermission('reservations',
     const { id } = req.params;
     
     try {
+      // Vérifier si la réservation existe
+      const reservationCheck = await pool.query(
+        'SELECT id FROM reservations WHERE id = $1',
+        [id]
+      );
+
+      if (reservationCheck.rows.length === 0) {
+        return res.status(404).json({ error: 'Réservation non trouvée' });
+      }
+
+      // Vérifier s'il existe une facture payée
+      const factureCheck = await pool.query(
+        'SELECT id FROM factures WHERE reservation_id = $1 AND statut_paiement = $2',
+        [id, 'paye']
+      );
+
+      if (factureCheck.rows.length > 0) {
+        return res.status(400).json({ error: 'Impossible de supprimer une réservation avec une facture payée' });
+      }
+
+      // Vérifier s'il existe des jeux placés dans une zone plan
+      const jeuxPlacesCheck = await pool.query(
+        'SELECT id FROM jeux_festival WHERE reservation_id = $1 AND zone_plan_id IS NOT NULL',
+        [id]
+      );
+
+      if (jeuxPlacesCheck.rows.length > 0) {
+        return res.status(400).json({ error: 'Impossible de supprimer une réservation avec des jeux placés dans la zone plan' });
+      }
+
+      // Supprimer la réservation
       const result = await pool.query(
         'DELETE FROM reservations WHERE id = $1 RETURNING id',
         [id]
       );
-
-      if (result.rows.length === 0) {
-        return res.status(404).json({ error: 'Réservation non trouvée' });
-      }
 
       res.json({ message: 'Réservation supprimée' });
     } catch (error) {

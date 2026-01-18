@@ -61,7 +61,19 @@ export class ReservationsList {
   montantTotal = computed(() => {
     return this.reservations().reduce((sum, r) => {
       const montantBrut = parseFloat(String(r.montant_brut || 0));
-      return sum + montantBrut;
+      const remiseMontant = parseFloat(String(r.remise_montant || 0));
+      const montantTables = parseFloat(String(r.montant_tables || 0));
+      const remiseTables = parseFloat(String(r.remise_tables || 0));
+      const nbTablesReservees = parseFloat(String(r.nb_tables_reservees || 0));
+    
+      let remiseTablesAmount = 0;
+      if (remiseTables > 0 && nbTablesReservees > 0 && montantTables > 0) {
+        const prixMoyenParTable = montantTables / nbTablesReservees;
+        remiseTablesAmount = remiseTables * prixMoyenParTable;
+      }
+      
+      const montantAPayerReservation = montantBrut - remiseMontant - remiseTablesAmount;
+      return sum + montantAPayerReservation;
     }, 0);
   });
   tablesReservees = computed(() => 
