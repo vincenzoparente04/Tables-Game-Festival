@@ -150,35 +150,43 @@ export class ReservationsList {
       return;
     }
 
-    const dialogRef = this.dialog.open(ReservationFormDialog, {
-      width: '1000px',
-      maxHeight: '90vh',
-      disableClose: true,
-      data: {
-        reservation,               
-        festivalId: this.festivalId()
-      }
-    });
-
-    dialogRef.afterClosed().subscribe(result => {
-      if (!result) return;
-
-      this.reservationsService
-        .update(reservation.id, result)
-        .subscribe({
-          next: (updatedReservation: ReservationSummary) => {
-            const current = this.reservations();
-            const index = current.findIndex(r => r.id === reservation.id);
-            if (index !== -1) {
-              current[index] = updatedReservation;
-              this.reservations.set([...current]);
-            }
-            this.snackBar.open('Réservation modifiée', 'OK', { duration: 2000 });
-          },
-          error: () => {
-            this.snackBar.open('Erreur modification', 'Fermer', { duration: 3000 });
+    // Charger les détails complets de la réservation (avec zones_reservees)
+    this.reservationsService.getById(reservation.id).subscribe({
+      next: (reservationDetails) => {
+        const dialogRef = this.dialog.open(ReservationFormDialog, {
+          width: '1000px',
+          maxHeight: '90vh',
+          disableClose: true,
+          data: {
+            reservation: reservationDetails,               
+            festivalId: this.festivalId()
           }
         });
+
+        dialogRef.afterClosed().subscribe(result => {
+          if (!result) return;
+
+          this.reservationsService
+            .update(reservationDetails.id, result)
+            .subscribe({
+              next: (updatedReservation: ReservationSummary) => {
+                const current = this.reservations();
+                const index = current.findIndex(r => r.id === reservationDetails.id);
+                if (index !== -1) {
+                  current[index] = updatedReservation;
+                  this.reservations.set([...current]);
+                }
+                this.snackBar.open('Réservation modifiée', 'OK', { duration: 2000 });
+              },
+              error: () => {
+                this.snackBar.open('Erreur modification', 'Fermer', { duration: 3000 });
+              }
+            });
+        });
+      },
+      error: () => {
+        this.snackBar.open('Erreur chargement réservation', 'Fermer', { duration: 3000 });
+      }
     });
   } 
 
