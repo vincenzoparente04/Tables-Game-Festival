@@ -19,6 +19,7 @@ import jeuxRouter from './routes/jeux.js'
 import viewPublicRouter from './routes/viewPublic.js'
 import reservantsRouter from './routes/reservants.js'
 import reservationsRouter from './routes/reservations.js'
+import facturasRouter from './routes/factures.js'
 
 
 
@@ -65,6 +66,7 @@ app.use('/api/jeux', verifyToken, jeuxRouter);
 app.use('/api/view-public', verifyToken, viewPublicRouter);
 app.use('/api/reservants', verifyToken, reservantsRouter);
 app.use('/api/reservations', verifyToken, reservationsRouter);
+app.use('/api/factures', verifyToken, facturasRouter);
 app.use('/api/users', verifyToken, usersRouter); 
 app.use('/api/admin', verifyToken, requireAdmin, (req, res) => {
 res.json({ message: 'Bienvenue admin' });

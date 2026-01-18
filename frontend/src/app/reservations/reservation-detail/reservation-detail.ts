@@ -15,9 +15,11 @@ import { MatListModule } from '@angular/material/list';
 import { ReservationDetails, ContactReservation } from '../../types/reservation-dto';
 import { ReservationsService } from '../../services/reservations-service';
 import { PermissionsService } from '../../services/permissions-service';
+import { FacturesService } from '../../services/factures-service';
 import { AddJeuDialog } from '../add-jeu-dialog/add-jeu-dialog';
 import { AddContactDialog } from '../add-contact-dialog/add-contact-dialog';
 import { EditReservationDialog } from '../edit-reservation-dialog/edit-reservation-dialog';
+import { RecapFacture } from '../../types/factures-dto';
 
 @Component({
   selector: 'app-reservation-detail',
@@ -43,6 +45,7 @@ export class ReservationDetail {
   private route = inject(ActivatedRoute);
   private router = inject(Router);
   private reservationsService = inject(ReservationsService);
+  private facturesService = inject(FacturesService);
   private permissions = inject(PermissionsService);
   private snackBar = inject(MatSnackBar);
   private dialog = inject(MatDialog);
@@ -50,6 +53,9 @@ export class ReservationDetail {
   reservationId = signal<number>(0);
   reservation = signal<ReservationDetails | null>(null);
   loading = signal(false);
+  generatingFacture = signal(false);
+  factureExistante = signal<any>(null);
+  loadingFacture = signal(false);
 
   readonly canModify = this.permissions.can('reservations', 'update');
   readonly canDelete = this.permissions.can('reservations', 'delete');
@@ -83,6 +89,31 @@ export class ReservationDetail {
     return (res.montant_brut || 0) - (res.remise_montant || 0) - montantRemiseTables;
   });
 
+  recapFacture = computed<RecapFacture | null>(() => {
+    const res = this.reservation();
+    if (!res) return null;
+
+    const montantRemiseTables = this.calculateMontantRemiseTables();
+    const montantTotal = this.montantTotal();
+
+    return {
+      reservation_id: res.id,
+      reservant_nom: res.reservant_nom,
+      montant_tables: res.montant_tables || 0,
+      montant_prises: res.montant_prises || 0,
+      montant_brut: res.montant_brut || 0,
+      remise_montant: res.remise_montant || 0,
+      remise_tables_montant: montantRemiseTables,
+      montant_total: montantTotal,
+      zones: (res.zones_reservees || []).map(zone => ({
+        nom: zone.zone_tarifaire_nom || 'Zone',
+        nb_tables: zone.nombre_tables,
+        prix_unitaire: zone.prix_unitaire,
+        total: zone.nombre_tables * zone.prix_unitaire
+      }))
+    };
+  });
+
   constructor() {
     this.route.params.subscribe(params => {
       const id = +params['id'];
@@ -99,11 +130,32 @@ export class ReservationDetail {
       next: (detail) => {
         this.reservation.set(detail);
         this.loading.set(false);
+        // Charge the invoice if any
+        this.loadFacture();
       },
       error: (err) => {
-        console.error('Erreur chargement réservation:', err);
+        console.error('Errore chargement réservation:', err);
         this.loading.set(false);
         this.snackBar.open('Erreur lors du chargement', 'Fermer', { duration: 3000 });
+      }
+    });
+  }
+
+  private loadFacture() {
+    this.loadingFacture.set(true);
+    this.facturesService.getByReservation(this.reservationId()).subscribe({
+      next: (facture) => {
+        if (facture) {
+          this.factureExistante.set(facture);
+        } else {
+          this.factureExistante.set(null);
+        }
+        this.loadingFacture.set(false);
+      },
+      error: (err) => {
+        console.error('Erreur chargement facture:', err);
+        this.factureExistante.set(null);
+        this.loadingFacture.set(false);
       }
     });
   }
@@ -293,16 +345,102 @@ export class ReservationDetail {
 
   // Facturation
   genererFacture() {
-    this.reservationsService.genererFacture(this.reservationId()).subscribe({
-      next: () => {
-        this.snackBar.open('Facture générée', 'OK', { duration: 2000 });
+    const recap = this.recapFacture();
+    if (!recap) return;
+
+    this.generatingFacture.set(true);
+
+    const payload = {
+      reservation_id: recap.reservation_id,
+      montant_tables: recap.montant_tables,
+      montant_prises: recap.montant_prises,
+      montant_brut: recap.montant_brut,
+      montant_remise: recap.remise_montant + recap.remise_tables_montant,
+      montant_total: recap.montant_total,
+      lignes_facture: [
+        {
+          description: 'Tables réservées',
+          quantite: 1,
+          prix_unitaire: recap.montant_tables,
+          montant_ligne: recap.montant_tables
+        },
+        {
+          description: 'Prises électriques',
+          quantite: 1,
+          prix_unitaire: recap.montant_prises,
+          montant_ligne: recap.montant_prises
+        },
+        ...(recap.remise_montant > 0 ? [{
+          description: 'Remise montant',
+          quantite: 1,
+          prix_unitaire: -recap.remise_montant,
+          montant_ligne: -recap.remise_montant
+        }] : []),
+        ...(recap.remise_tables_montant > 0 ? [{
+          description: 'Remise tables',
+          quantite: 1,
+          prix_unitaire: -recap.remise_tables_montant,
+          montant_ligne: -recap.remise_tables_montant
+        }] : [])
+      ]
+    };
+
+    this.facturesService.creerFacture(payload).subscribe({
+      next: (facture) => {
+        this.generatingFacture.set(false);
+        this.factureExistante.set(facture);
+        this.snackBar.open(`Facture ${facture.numero_facture} générée`, 'OK', { duration: 3000 });
         this.loadReservation();
       },
       error: (err) => {
+        this.generatingFacture.set(false);
         const errorMsg = err.error?.error || 'Erreur lors de la génération';
         this.snackBar.open(errorMsg, 'Fermer', { duration: 3000 });
       }
     });
+  }
+
+  updateEtatPaiement(nouvelEtat: string) {
+    const facture = this.factureExistante();
+    if (!facture) return;
+
+    this.facturesService.updateStatutPaiement(facture.id, nouvelEtat as any).subscribe({
+      next: () => {
+        // Mise à jour locale du signal
+        const currentFacture = this.factureExistante();
+        if (currentFacture) {
+          currentFacture.statut_paiement = nouvelEtat;
+          this.factureExistante.set({...currentFacture});
+        }
+        this.snackBar.open('État de paiement mis à jour', 'OK', { duration: 2000 });
+      },
+      error: (err) => {
+        const errorMsg = err.error?.error || 'Erreur lors de la mise à jour';
+        this.snackBar.open(errorMsg, 'Fermer', { duration: 3000 });
+      }
+    });
+  }
+
+  private calculateMontantRemiseTables(): number {
+    const res = this.reservation();
+    if (!res || (res.remise_tables || 0) === 0) return 0;
+
+    let totalMontantTables = 0;
+    let totalTables = 0;
+    
+    (res.zones_reservees || []).forEach((zone: any) => {
+      const nbTables = zone.nombre_tables || 0;
+      const prixUnitaire = zone.prix_unitaire || 0;
+      totalMontantTables += nbTables * prixUnitaire;
+      totalTables += nbTables;
+    });
+    
+    if (totalTables > 0) {
+      const prixMoyenParTable = totalMontantTables / totalTables;
+      return prixMoyenParTable * (res.remise_tables || 0);
+    }
+    
+    return 0;
   }
 
   // Helpers
@@ -348,4 +486,30 @@ export class ReservationDetail {
     { value: 'absent', label: 'Absent' }
   ];
 
-}
+  etatsPaiement = [
+    { value: 'non_paye', label: 'Non payé' },
+    { value: 'partiel', label: 'Partiellement payé' },
+    { value: 'paye', label: 'Payé' }
+  ];
+
+  getEtatPaiementLabel(etat: string): string {
+    const paiement = this.etatsPaiement.find(e => e.value === etat);
+    return paiement?.label || etat;
+  }
+
+  getEtatPaiementColor(etat: string): string {
+    switch (etat) {
+      case 'non_paye':
+        return '#d32f2f';
+      case 'partiel':
+        return '#f57c00';
+      case 'paye':
+        return '#388e3c';
+      default:
+        return '#666';
+    }
+  }
+  onEtatPaiementChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.updateEtatPaiement(value);
+  }}
