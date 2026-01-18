@@ -33,6 +33,29 @@ export class JeuxList {
   private readonly editeursService = inject(EditeursService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly permissions = inject(PermissionsService);
+  private jeuModificationTimes = new Map<number, number>();
+  private readonly STORAGE_KEY = 'jeu_modification_times';
+
+  private loadModificationTimesFromStorage(): void {
+    try {
+      const stored = localStorage.getItem(this.STORAGE_KEY);
+      if (stored) {
+        const data = JSON.parse(stored);
+        this.jeuModificationTimes = new Map(Object.entries(data).map(([key, value]) => [Number(key), value as number]));
+      }
+    } catch (error) {
+      console.error('Errore nel caricamento dei timestamp da localStorage', error);
+    }
+  }
+
+  private saveModificationTimesToStorage(): void {
+    try {
+      const data = Object.fromEntries(this.jeuModificationTimes);
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+    } catch (error) {
+      console.error('Errore nel salvataggio dei timestamp in localStorage', error);
+    }
+  }
 
   jeux = signal<JeuSummary[]>([]);
   editeurs = signal<EditeurSummary[]>([]);
@@ -41,7 +64,7 @@ export class JeuxList {
   loadingList = signal(false);
   loadingEditeurs = signal(false);
   errorList = signal<string | null>(null);
-  sortBy = signal<'nom' | 'nom-desc'>('nom');
+  sortBy = signal<'nom' | 'nom-desc' | 'recent'>('nom');
 
   jeuxTries = computed(() => {
     const jeux = this.jeux();
@@ -56,6 +79,13 @@ export class JeuxList {
       case 'nom-desc':
         sorted.sort((a, b) => b.nom.localeCompare(a.nom));
         break;
+      case 'recent':
+        sorted.sort((a, b) => {
+          const timeA = this.jeuModificationTimes.get(a.id) || 0;
+          const timeB = this.jeuModificationTimes.get(b.id) || 0;
+          return timeB - timeA;
+        });
+        break;
     }
     
     return sorted;
@@ -66,6 +96,7 @@ export class JeuxList {
   canDelete = this.permissions.can('jeux', 'delete');
 
   constructor() {
+    this.loadModificationTimesFromStorage();
     this.loadJeux();
     this.loadEditeurs();
   }
@@ -104,15 +135,32 @@ export class JeuxList {
   }
 
   onJeuCreated(): void {
+    const jeusBefore = new Set(this.jeux().map(j => j.id));
     this.jeuToEdit.set(null);
     this.selectedJeu.set(null);
     this.loadJeux();
+    
+    // After loading, mark new jeux as just created
+    setTimeout(() => {
+      this.jeux().forEach(jeu => {
+        if (!jeusBefore.has(jeu.id) && !this.jeuModificationTimes.has(jeu.id)) {
+          this.jeuModificationTimes.set(jeu.id, Date.now());
+        }
+      });
+      this.saveModificationTimesToStorage();
+    }, 100);
+    
     this.snackBar.open('Jeu créé avec succès', 'Fermer', { duration: 3000 });
   }
 
   onJeuUpdated(): void {
+    const jeuId = this.jeuToEdit()?.id;
     this.jeuToEdit.set(null);
     this.selectedJeu.set(null);
+    if (jeuId) {
+      this.jeuModificationTimes.set(jeuId, Date.now());
+      this.saveModificationTimesToStorage();
+    }
     this.loadJeux();
     this.snackBar.open('Jeu modifié avec succès', 'Fermer', { duration: 3000 });
   }
@@ -147,7 +195,13 @@ export class JeuxList {
 
   onSortChange(event: Event): void {
     const value = (event.target as HTMLSelectElement).value;
-    this.sortBy.set(value === 'nom' ? 'nom' : 'nom-desc');
+    if (value === 'nom') {
+      this.sortBy.set('nom');
+    } else if (value === 'nom-desc') {
+      this.sortBy.set('nom-desc');
+    } else if (value === 'recent') {
+      this.sortBy.set('recent');
+    }
   }
 
   startCreateJeu(): void {

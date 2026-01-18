@@ -1,7 +1,7 @@
 .jeux-container {
   display: flex;
   gap: 20px;
-  height: calc(100vh - 300px);
+  height: calc(100vh - 80px);
   background-color: #f5f5f5;
   padding: 20px;
 }
