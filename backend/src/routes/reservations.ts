@@ -412,17 +412,43 @@ router.post('/:id/jeux',requireActivatedAccount(),requirePermission('reservation
     }
 
     try {
-      const result = await pool.query(`
+      // Insérer le jeu d'abord
+      const insertResult = await pool.query(`
         INSERT INTO jeux_festival (
           reservation_id,
           jeu_id,
           nombre_exemplaires,
           tables_allouees
         ) VALUES ($1, $2, $3, $4)
-        RETURNING *
+        RETURNING id
       `, [id, jeu_id, nombre_exemplaires, tables_allouees]);
 
-      res.status(201).json(result.rows[0]);
+      const jeuFestivalId = insertResult.rows[0].id;
+
+      // Retourner les données enrichies (avec noms)
+      const enrichedResult = await pool.query(`
+        SELECT 
+          jf.id,
+          jf.reservation_id,
+          jf.jeu_id,
+          j.nom as jeu_nom,
+          e.nom as editeur_nom,
+          jf.nombre_exemplaires,
+          jf.tables_allouees,
+          jf.zone_plan_id,
+          COALESCE(zp.nom, NULL) as zone_plan_nom,
+          jf.jeu_recu,
+          jf.est_place,
+          jf.created_at,
+          jf.updated_at
+        FROM jeux_festival jf
+        JOIN jeux j ON jf.jeu_id = j.id
+        JOIN editeurs e ON j.editeur_id = e.id
+        LEFT JOIN zones_plan zp ON jf.zone_plan_id = zp.id
+        WHERE jf.id = $1
+      `, [jeuFestivalId]);
+
+      res.status(201).json(enrichedResult.rows[0]);
     } catch (error: any) {
       console.error('Erreur ajout jeu:', error);
       

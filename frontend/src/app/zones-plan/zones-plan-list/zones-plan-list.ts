@@ -189,9 +189,10 @@ export class ZonesPlanList {
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.action === 'create') {
         this.zonesPlanService.create(this.festivalId(), result.data).subscribe({
-          next: () => {
+          next: (newZone: ZonePlanDto) => {
             this.snackBar.open('Zone du plan créée', 'OK', { duration: 2000 });
-            this.loadZones();
+            const current = this.zones();
+            this.zones.set([...current, newZone]);
           },
           error: (err) => {
             const errorMsg = err.error?.error || 'Erreur lors de la création';
@@ -212,9 +213,14 @@ export class ZonesPlanList {
     dialogRef.afterClosed().subscribe(result => {
       if (result && result.action === 'edit') {
         this.zonesPlanService.update(result.zoneId, result.data).subscribe({
-          next: () => {
+          next: (updatedZone: ZonePlanDto) => {
             this.snackBar.open('Zone du plan modifiée', 'OK', { duration: 2000 });
-            this.loadZones();
+            const current = this.zones();
+            const idx = current.findIndex(z => z.id === updatedZone.id);
+            if (idx !== -1) {
+              current[idx] = updatedZone;
+              this.zones.set([...current]);
+            }
           },
           error: (err) => {
             const errorMsg = err.error?.error || 'Erreur lors de la modification';
@@ -230,7 +236,8 @@ export class ZonesPlanList {
       this.zonesPlanService.delete(zoneId).subscribe({
         next: () => {
           this.snackBar.open('Zone supprimée', 'OK', { duration: 2000 });
-          this.loadZones();
+          const current = this.zones();
+          this.zones.set(current.filter(z => z.id !== zoneId));
         },
         error: (err) => {
           const errorMsg = err.error?.error || 'Erreur lors de la suppression';

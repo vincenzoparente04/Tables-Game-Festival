@@ -8,6 +8,8 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatSidenavModule } from '@angular/material/sidenav';
+import { MatDividerModule } from '@angular/material/divider';
 import { FestivalsDto } from './types/festivals-dto';
 
 
@@ -22,7 +24,9 @@ import { FestivalsDto } from './types/festivals-dto';
     MatButtonModule, 
     MatIconModule, 
     MatToolbarModule,
-    MatMenuModule
+    MatMenuModule,
+    MatSidenavModule,
+    MatDividerModule
   ],
   templateUrl: './app.html',
   styleUrl: './app.css'

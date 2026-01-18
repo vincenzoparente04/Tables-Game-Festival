@@ -151,7 +151,13 @@ router.patch('/:id',requireActivatedAccount(), requirePermission('festivals', 'u
           return res.status(404).json({ error: 'Festival non trouvé' });
         }
 
-        res.json(result.rows[0]);
+        // Retourner les données complètes de la vue dashboard
+        const dashboardResult = await pool.query(
+          `SELECT * FROM vue_festivals_dashboard WHERE id = $1`,
+          [id]
+        );
+
+        res.json(dashboardResult.rows[0] || result.rows[0]);
       } catch (error: any) {
         if (error.code === '23505') {
           return res.status(400).json({ error: 'Ce nom de festival existe déjà' });

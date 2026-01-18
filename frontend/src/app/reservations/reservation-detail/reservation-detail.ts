@@ -153,8 +153,13 @@ export class ReservationDetail {
   updateEtatContact(nouvelEtat: string) {
     this.reservationsService.updateEtatContact(this.reservationId(), nouvelEtat as any).subscribe({
       next: () => {
+        // Mise à jour locale du signal
+        const currentRes = this.reservation();
+        if (currentRes) {
+          currentRes.etat_contact = nouvelEtat as any;
+          this.reservation.set({...currentRes});
+        }
         this.snackBar.open('État de contact mis à jour', 'OK', { duration: 2000 });
-        this.loadReservation();
       },
       error: (err) => {
         const errorMsg = err.error?.error || 'Erreur lors de la mise à jour';
@@ -166,8 +171,13 @@ export class ReservationDetail {
   updateEtatPresence(nouvelEtat: string) {
     this.reservationsService.updateEtatPresence(this.reservationId(), nouvelEtat as any).subscribe({
       next: () => {
+        // Mise à jour locale du signal
+        const currentRes = this.reservation();
+        if (currentRes) {
+          currentRes.etat_presence = nouvelEtat as any;
+          this.reservation.set({...currentRes});
+        }
         this.snackBar.open('État de présence mis à jour', 'OK', { duration: 2000 });
-        this.loadReservation();
       },
       error: (err) => {
         const errorMsg = err.error?.error || 'Erreur lors de la mise à jour';
@@ -184,9 +194,14 @@ export class ReservationDetail {
     dialogRef.afterClosed().subscribe((contact: Partial<ContactReservation>) => {
       if (contact) {
         this.reservationsService.addContact(this.reservationId(), contact).subscribe({
-          next: () => {
+          next: (newContact: ContactReservation) => {
+            // Mise à jour locale du signal au lieu de recharger tout
+            const currentRes = this.reservation();
+            if (currentRes) {
+              currentRes.contacts = [...(currentRes.contacts || []), newContact];
+              this.reservation.set({...currentRes}); // Trigger signal update
+            }
             this.snackBar.open('Contact ajouté', 'OK', { duration: 2000 });
-            this.loadReservation();
           },
           error: (err) => {
             const errorMsg = err.error?.error || 'Erreur lors de l\'ajout';
@@ -217,9 +232,14 @@ export class ReservationDetail {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.reservationsService.addJeu(this.reservationId(), result).subscribe({
-          next: () => {
+          next: (newJeu) => {
+            // Mise à jour locale du signal au lieu de recharger tout
+            const currentRes = this.reservation();
+            if (currentRes) {
+              currentRes.jeux = [...(currentRes.jeux || []), newJeu];
+              this.reservation.set({...currentRes}); // Trigger signal update
+            }
             this.snackBar.open('Jeu ajouté', 'OK', { duration: 2000 });
-            this.loadReservation();
           },
           error: (err) => {
             const errorMsg = err.error?.error || 'Erreur lors de l\'ajout';
@@ -234,8 +254,13 @@ export class ReservationDetail {
     if (confirm(`Retirer "${jeuNom}" de la réservation ?`)) {
       this.reservationsService.removeJeu(this.reservationId(), jeuFestivalId).subscribe({
         next: () => {
+          // Mise à jour locale du signal au lieu de recharger tout
+          const currentRes = this.reservation();
+          if (currentRes) {
+            currentRes.jeux = currentRes.jeux.filter(j => j.id !== jeuFestivalId);
+            this.reservation.set({...currentRes}); // Trigger signal update
+          }
           this.snackBar.open('Jeu retiré', 'OK', { duration: 2000 });
-          this.loadReservation();
         },
         error: (err) => {
           const errorMsg = err.error?.error || 'Erreur';
@@ -248,8 +273,16 @@ export class ReservationDetail {
   toggleJeuRecu(jeuFestivalId: number, currentState: boolean) {
     this.reservationsService.marquerJeuRecu(this.reservationId(), jeuFestivalId, !currentState).subscribe({
       next: () => {
+        // Mise à jour locale du signal au lieu de recharger tout
+        const currentRes = this.reservation();
+        if (currentRes) {
+          const jeu = currentRes.jeux.find(j => j.id === jeuFestivalId);
+          if (jeu) {
+            jeu.jeu_recu = !currentState;
+            this.reservation.set({...currentRes}); // Trigger signal update
+          }
+        }
         this.snackBar.open(!currentState ? 'Jeu marqué comme reçu' : 'Jeu marqué comme non reçu', 'OK', { duration: 2000 });
-        this.loadReservation();
       },
       error: (err) => {
         const errorMsg = err.error?.error || 'Erreur';

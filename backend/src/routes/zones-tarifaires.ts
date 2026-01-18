@@ -120,6 +120,23 @@ router.patch('/:id', requireActivatedAccount(), requirePermission('zonesTarifair
       delete updates.id;
       delete updates.created_at;
 
+      // Vérifier si la zone a des réservations
+      try {
+        const reservationCheck = await pool.query(
+          `SELECT COUNT(*) as count FROM reservations_zones WHERE zone_tarifaire_id = $1`,
+          [id]
+        );
+
+        if (parseInt(reservationCheck.rows[0].count) > 0) {
+          return res.status(400).json({ 
+            error: 'Cette zone tarifaire est utilisée par des réservations existantes. Impossible de la modifier. Créez une nouvelle zone tarifaire avec les tarifs souhaités.' 
+          });
+        }
+      } catch (error) {
+        console.error('Erreur vérification réservations:', error);
+        return res.status(500).json({ error: 'Erreur serveur' });
+      }
+
       const fields: string[] = [];
       const values: any[] = [];
       let paramCount = 1;

@@ -71,6 +71,7 @@ export class ZonesTarifairesList {
         this.zonesTarifairesService.create(this.festivalId(), result.data).subscribe({
           next: () => {
             this.snackBar.open('Zone tarifaire créée', 'OK', { duration: 2000 });
+            // Recharger les zones pour avoir les données calculées à jour
             this.loadZones();
             this.zonesChanged.emit();
           },
@@ -96,6 +97,7 @@ export class ZonesTarifairesList {
         this.zonesTarifairesService.update(result.zoneId, result.data).subscribe({
           next: () => {
             this.snackBar.open('Zone tarifaire modifiée', 'OK', { duration: 2000 });
+            // Recharger les zones pour avoir les données calculées à jour
             this.loadZones();
             this.zonesChanged.emit();
           },
@@ -114,6 +116,7 @@ export class ZonesTarifairesList {
       this.zonesTarifairesService.delete(zoneId).subscribe({
         next: () => {
           this.snackBar.open('Zone tarifaire supprimée', 'OK', { duration: 2000 });
+          // Recharger les zones pour avoir les données calculées à jour
           this.loadZones();
           this.zonesChanged.emit();
         },

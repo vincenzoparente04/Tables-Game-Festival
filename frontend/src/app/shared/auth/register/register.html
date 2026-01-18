@@ -1,35 +1,38 @@
+<div class="register-header">
+  <h2>📝 Inscription</h2>
+  <p>Créez votre compte Festival Manager</p>
+</div>
 
-<form [formGroup]="RegisterForm" (ngSubmit)="onSubmit()" class="login-form" >
-    <div class="field">
-        <label for="nom">Nom</label>
-        <input id="nom" type="text" formControlName="nom" />
-
-    </div>
-    <div class="field">
-        <label for="prenom">Prénom</label>
-        <input id="prenom" type="text" formControlName="prenom" />
-    </div>
-    <div class="field">
-        <label for="email">Email</label>
-        <input id="email" type="email" formControlName="email" />
-    </div>
-    <div class="field">
-        <label for="login">Login</label>
-        <input id="login" type="text" formControlName="login" />
-    </div>
-    <div class="field">
-        <label for="password">Password</label>
-        <input id="password" type="password" formControlName="password" />
-    </div>
-    <button type="submit" [disabled]="RegisterForm.invalid">S'inscrire</button>
-
-    
-
+<form [formGroup]="RegisterForm" (ngSubmit)="onSubmit()" class="register-form">
+  <div class="field">
+    <label for="nom">Nom</label>
+    <input id="nom" type="text" formControlName="nom" placeholder="Votre nom" />
+  </div>
+  <div class="field">
+    <label for="prenom">Prénom</label>
+    <input id="prenom" type="text" formControlName="prenom" placeholder="Votre prénom" />
+  </div>
+  <div class="field">
+    <label for="email">Email</label>
+    <input id="email" type="email" formControlName="email" placeholder="votre@email.com" />
+  </div>
+  <div class="field">
+    <label for="login">Identifiant</label>
+    <input id="login" type="text" formControlName="login" placeholder="Votre login" />
+  </div>
+  <div class="field">
+    <label for="password">Mot de passe</label>
+    <input id="password" type="password" formControlName="password" placeholder="Votre mot de passe" />
+  </div>
+  <button type="submit" [disabled]="RegisterForm.invalid || loading">
+    {{ loading ? 'Inscription en cours...' : 'S\'inscrire' }}
+  </button>
 </form>
 
-@if (loading) {
-    <p class="info">Loading...</p>
+@if (error) {
+  <p class="error">❌ {{ error }}</p>
 }
-@if(error) {
-    <p class="error">An error occurred: {{error}}.message</p>
-}
+
+<div class="register-footer">
+  <p>Vous avez déjà un compte? <a (click)="backToLoginClick()">Se connecter</a></p>
+</div>

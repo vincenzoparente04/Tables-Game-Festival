@@ -121,7 +121,7 @@
 
     @if (!festival()?.est_courant && canSetCourant()) {
       <button mat-button color="primary" (click)="setCourant.emit(festival()!.id)">
-        Sélectionner
+        Set-Current
       </button>
     }
 

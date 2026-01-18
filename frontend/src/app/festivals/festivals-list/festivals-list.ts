@@ -108,9 +108,19 @@ export class FestivalsList {
     }
 
     this.festivalsService.setCourant(id).subscribe({
-      next: () => {
+      next: (updatedFestival: FestivalsDto) => {
+        const current = this.festivals();
+        const updatedList = current.map(f => 
+          f.id === id ? { ...f, est_courant: true } : { ...f, est_courant: false }
+        );
+        updatedList.sort((a, b) => {
+          if (a.est_courant !== b.est_courant) {
+            return b.est_courant ? 1 : -1;
+          }
+          return 0;
+        });
+        this.festivals.set(updatedList);
         this.snackBar.open('Festival défini comme courant', 'OK', { duration: 2000 });
-        this.loadFestivals();
       },
       error: (err) => {
         console.error(err);
@@ -130,9 +140,13 @@ export class FestivalsList {
       width: '500px',
       disableClose: true
     });
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === 'refresh') {
-        this.loadFestivals();
+    dialogRef.afterClosed().subscribe((result: FestivalsDto | undefined) => {
+      if (result) {
+        const current = this.festivals();
+        // Mettre le nouveau festival comme courant et les autres comme non courants
+        const updatedList = current.map(f => ({ ...f, est_courant: false }));
+        updatedList.push({ ...result, est_courant: true });
+        this.festivals.set(updatedList);
       }
     });
   }
@@ -148,9 +162,14 @@ export class FestivalsList {
       disableClose: true,
       data: { festival }
     });
-    dialogRef.afterClosed().subscribe(result => {
-      if (result === 'refresh') {
-        this.loadFestivals();
+    dialogRef.afterClosed().subscribe((result: FestivalsDto | undefined) => {
+      if (result) {
+        const current = this.festivals();
+        const idx = current.findIndex(f => f.id === result.id);
+        if (idx !== -1) {
+          current[idx] = result;
+          this.festivals.set([...current]);
+        }
       }
     });
   }
@@ -164,8 +183,9 @@ export class FestivalsList {
     if (confirm('Êtes-vous sûr de vouloir supprimer ce festival ? Cette action est irréversible.')) {
       this.festivalsService.deleteFestival(id).subscribe({
         next: () => {
+          const current = this.festivals();
+          this.festivals.set(current.filter(f => f.id !== id));
           this.snackBar.open('Festival supprimé', 'OK', { duration: 2000 });
-          this.loadFestivals();
         },
         error: (err : any) => {
           console.error(err);
@@ -177,11 +197,29 @@ export class FestivalsList {
   }
 
   onZonesChanged() {
-    if (this.canViewAll()) {
-      this.loadFestivals();
-    } else if (this.canViewCurrent()) {
-      this.loadCurrentFestival();
-    }
+    // Recharger les données du festival courant pour mettre à jour nb_zones_tarifaires et autres stats
+    const festivalId = this.canViewCurrent() 
+      ? this.festivals()[0]?.id 
+      : this.canViewAll() && this.festivals().length > 0 
+        ? this.festivals().find(f => f.est_courant)?.id 
+        : null;
+
+    if (!festivalId) return;
+
+    // Recharger le festival spécifique pour avoir les données complètes à jour
+    this.festivalsService.getAllFestivals().subscribe({
+      next: (festivals) => {
+        const current = this.festivals();
+        const updatedFestival = festivals.find(f => f.id === festivalId);
+        if (updatedFestival) {
+          const idx = current.findIndex(f => f.id === festivalId);
+          if (idx !== -1) {
+            current[idx] = updatedFestival;
+            this.festivals.set([...current]);
+          }
+        }
+      }
+    });
   }
 
 

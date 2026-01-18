@@ -1,13 +1,13 @@
 .editeurs-gestion-container {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 1.5rem;
+  padding: 12px;
 }
 
 .list-section {
-  margin-top: 1rem;
-  padding: 1rem;
-  border-radius: 8px;
+  margin-top: 12px;
+  padding: 10px;
+  border-radius: 6px;
   border: 1px solid #e0e0e0;
   background: #fff;
 }
@@ -15,36 +15,46 @@
 .sort-controls {
   display: flex;
   align-items: center;
-  gap: 0.8rem;
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e0e0e0;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 6px;
+  border-left: 3px solid #1976d2;
 }
 
 .sort-controls label {
-  font-weight: 500;
+  font-weight: 600;
   color: #333;
-  font-size: 0.95rem;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
 }
 
 .sort-select {
-  padding: 0.4rem 0.6rem;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
   background: #fff;
   color: #333;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: 12px;
+  font-weight: 500;
+  transition: all 0.2s;
+  flex: 1;
+  max-width: 200px;
 }
 
 .sort-select:hover {
-  border-color: #999;
+  border-color: #1976d2;
+  background: #f0f7ff;
+  box-shadow: 0 2px 6px rgba(25, 118, 210, 0.1);
 }
 
 .sort-select:focus {
   outline: none;
   border-color: #1976d2;
-  box-shadow: 0 0 0 2px rgba(25, 118, 210, 0.1);
+  box-shadow: 0 0 0 3px rgba(25, 118, 210, 0.15);
 }
 
 .error {

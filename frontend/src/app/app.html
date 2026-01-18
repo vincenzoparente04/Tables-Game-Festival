@@ -1,40 +1,97 @@
-<mat-toolbar color="primary" class="main-toolbar">
-  <span class="logo">🎲 Festival Manager</span>
-  <span class="spacer"></span>
-  @if(isLoggedIn()) {
-    <button mat-button routerLink="home"><mat-icon>home</mat-icon> Accueil</button>
-    
-    @if(!isPendingUser()){
-      <button mat-button routerLink="vues-publiques"><mat-icon>visibility</mat-icon> Vues publiques</button>
-      
-      @if(canViewFestivals()){
-        <button mat-button routerLink="festivals"><mat-icon>event</mat-icon> Festivals</button>
-      }
-      @else if (canViewCurrent()) {
-        <button mat-button routerLink="festivals/courant"><mat-icon>visibility</mat-icon> Festivals </button>
-      }
+<mat-sidenav-container class="app-container">
+  
+  <mat-sidenav #sidenav class="app-sidenav" mode="side" opened>
+    <div class="sidenav-header">
+      <span class="logo">🎲</span>
+      <span>Festival Manager</span>
+    </div>
 
-      @if ( canViewgames()) {
-        <button mat-button routerLink="jeux"><mat-icon>games</mat-icon> Jeux</button>
-      }
-      @if ( canviewEditeurs()) {
-        <button mat-button routerLink="editeurs"><mat-icon>people</mat-icon> Éditeurs</button>
-      }
-      @if ( canViewReservants()) {
-        <button mat-button routerLink="reservants"><mat-icon>person_search</mat-icon> Réservants</button>
-      }
-      
-    }
-    
-    @if(isAdmin()) {
-      <button mat-button routerLink="admin"><mat-icon>admin_panel_settings</mat-icon> Admin</button>
-    }
-    <button mat-button (click)="logoutApp()"><mat-icon>logout</mat-icon> Déconnexion</button>
-  } @else {
-    <button mat-button routerLink="home"><mat-icon>home</mat-icon> Accueil</button>
-    <button mat-button routerLink="login"><mat-icon>login</mat-icon> Connexion</button>
-    <button mat-button routerLink="register"><mat-icon>person_add</mat-icon> Inscription</button>
-  }
-</mat-toolbar>
+    <nav class="sidenav-nav">
+      @if(isLoggedIn()) {
+        <a mat-button routerLink="home" routerLinkActive="active">
+          <mat-icon>home</mat-icon>
+          <span>Accueil</span>
+        </a>
+        
+        @if(!isPendingUser()) {
+          <a mat-button routerLink="vues-publiques" routerLinkActive="active">
+            <mat-icon>visibility</mat-icon>
+            <span>Vues publiques</span>
+          </a>
+          
+          @if(canViewFestivals()) {
+            <a mat-button routerLink="festivals" routerLinkActive="active">
+              <mat-icon>event</mat-icon>
+              <span>Festivals</span>
+            </a>
+          } @else if (canViewCurrent()) {
+            <a mat-button routerLink="festivals/courant" routerLinkActive="active">
+              <mat-icon>event</mat-icon>
+              <span>Festival courant</span>
+            </a>
+          }
 
-<router-outlet/>
+          @if (canViewgames()) {
+            <a mat-button routerLink="jeux" routerLinkActive="active">
+              <mat-icon>games</mat-icon>
+              <span>Jeux</span>
+            </a>
+          }
+
+          @if (canviewEditeurs()) {
+            <a mat-button routerLink="editeurs" routerLinkActive="active">
+              <mat-icon>people</mat-icon>
+              <span>Éditeurs</span>
+            </a>
+          }
+
+          @if (canViewReservants()) {
+            <a mat-button routerLink="reservants" routerLinkActive="active">
+              <mat-icon>person_search</mat-icon>
+              <span>Réservants</span>
+            </a>
+          }
+        }
+        
+        @if(isAdmin()) {
+          <div style="margin-top: 12px;">
+            <a mat-button routerLink="admin" routerLinkActive="active">
+              <mat-icon>admin_panel_settings</mat-icon>
+              <span>Admin</span>
+            </a>
+          </div>
+        }
+      }
+    </nav>
+
+    <div class="sidenav-footer">
+      @if(isLoggedIn()) {
+        <button mat-button class="logout-btn" (click)="logoutApp()">
+          <mat-icon>logout</mat-icon>
+          <span>Déconnexion</span>
+        </button>
+      } @else {
+        <a mat-button routerLink="login" routerLinkActive="active">
+          <mat-icon>login</mat-icon>
+          <span>Connexion</span>
+        </a>
+        <a mat-button routerLink="register" routerLinkActive="active">
+          <mat-icon>person_add</mat-icon>
+          <span>Inscription</span>
+        </a>
+      }
+    </div>
+  </mat-sidenav>
+
+  <mat-sidenav-content class="app-content">
+    <mat-toolbar color="primary" class="main-toolbar">
+      <span class="toolbar-title">Festival Manager</span>
+      <span class="spacer"></span>
+    </mat-toolbar>
+    
+    <div class="router-container">
+      <router-outlet></router-outlet>
+    </div>
+  </mat-sidenav-content>
+
+</mat-sidenav-container>

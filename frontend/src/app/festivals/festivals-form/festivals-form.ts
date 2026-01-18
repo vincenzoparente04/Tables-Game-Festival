@@ -86,9 +86,9 @@ export class FestivalsForm {
     if (this.festivalId() == null) {
       // Création
       this.festivalsService.createFestival(data).subscribe({
-        next: () => {
+        next: (newFestival: FestivalsDto) => {
           this.snackBar.open('Festival créé', 'OK', { duration: 2000 });
-          if (this.dialogRef) this.dialogRef.close('refresh');
+          if (this.dialogRef) this.dialogRef.close(newFestival);
           else this.form.reset({
             nom: '',
             espace_tables_total: 1,
@@ -112,9 +112,9 @@ export class FestivalsForm {
     } else {
       // Edition
       this.festivalsService.update(this.festivalId()!, data).subscribe({
-        next: () => {
+        next: (updatedFestival: FestivalsDto) => {
           this.snackBar.open('Festival modifié', 'OK', { duration: 2000 });
-          if (this.dialogRef) this.dialogRef.close('refresh');
+          if (this.dialogRef) this.dialogRef.close(updatedFestival);
         },
         error: (err : any) => {
           this.snackBar.open('Erreur lors de la modification', 'Fermer', { duration: 3000 });

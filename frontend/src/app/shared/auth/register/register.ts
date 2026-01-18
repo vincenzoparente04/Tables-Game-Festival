@@ -13,6 +13,7 @@ export class Register {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   registered = output<void>();
+  backToLogin = output<void>();
 
   RegisterForm = new FormGroup({
     nom : new FormControl('', {nonNullable: true}),
@@ -32,6 +33,11 @@ export class Register {
       this.RegisterForm.value.password!
     );
     this.registered.emit();
+  }
+
+  backToLoginClick() {
+    this.backToLogin.emit();
+    this.router.navigate(['/login']);
   }
   
   get loading() { return this.auth.isLoading(); }

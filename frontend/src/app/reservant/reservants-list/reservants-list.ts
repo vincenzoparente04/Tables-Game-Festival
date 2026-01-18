@@ -145,7 +145,8 @@ export class ReservantsList {
           this.snackBar.open('Réservant supprimé', 'OK', { duration: 2000 });
           this.selectedReservant.set(null);
           this.reservantDetail.set(null);
-          this.loadReservants();
+          const current = this.reservants();
+          this.reservants.set(current.filter(r => r.id !== reservant.id));
         },
         error: (err) => {
           const errorMsg = err?.error?.error || 'Erreur lors de la suppression';

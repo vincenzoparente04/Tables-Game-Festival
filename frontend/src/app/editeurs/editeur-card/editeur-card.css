@@ -1,8 +1,8 @@
 .editeur-card {
-  padding: 0.6rem 0.8rem;
+  padding: 8px 10px;
   border-radius: 6px;
   border: 1px solid #ddd;
-  margin-bottom: 0.5rem;
+  margin-bottom: 6px;
   cursor: pointer;
   background: #fafafa;
 }

@@ -1,29 +1,40 @@
-@if(!showRegister){
-<div>
-  <form [formGroup]="LoginForm" (ngSubmit)="onSubmit()" class="login-form" >
-      <div class="field">
-          <label for="login">Login</label>
-          <input id="login" type="text" formControlName="login" />
+@if(!showRegister()) {
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-header">
+        <h1>🎲 Connexion</h1>
+        <p>Festival Manager</p>
       </div>
-      <div class="field">
-          <label for="password">Password</label>
-          <input id="password" type="password" formControlName="password" />
-      </div>
-      <button type="submit" [disabled]="LoginForm.invalid">Se connecter</button>
-  </form>
-  @if (loading) {
-      <p class="info">Loading...</p>
-  }
-  @if(error) {
-      <p class="error">An error occurred: {{error}}.message</p>
-  }
-</div>
 
+      <form [formGroup]="LoginForm" (ngSubmit)="onSubmit()" class="login-form">
+        <div class="field">
+          <label for="login">Identifiant</label>
+          <input id="login" type="text" formControlName="login" placeholder="Votre login" />
+        </div>
+        <div class="field">
+          <label for="password">Mot de passe</label>
+          <input id="password" type="password" formControlName="password" placeholder="Votre mot de passe" />
+        </div>
+        <button type="submit" [disabled]="LoginForm.invalid || loading">
+          {{ loading ? 'Connexion en cours...' : 'Se connecter' }}
+        </button>
+      </form>
+
+      @if (error) {
+        <p class="error">❌ {{ error }}</p>
+      }
+
+      <div class="login-footer">
+        <p>Pas encore de compte? <a (click)="displayRegister()">S'inscrire</a></p>
+      </div>
+    </div>
+  </div>
 }
 
-@else if (showRegister){
-<div>
-    <app-register (registered)="displayLogin()"></app-register>
-    <!--<button (click)="displayLogin()">Retour</button>-->
-</div>
+@else if (showRegister()) {
+  <div class="login-container">
+    <div class="login-card">
+      <app-register (registered)="displayLogin()" (backToLogin)="displayLogin()"></app-register>
+    </div>
+  </div>
 }

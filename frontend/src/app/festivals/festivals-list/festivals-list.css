@@ -1,5 +1,5 @@
     .container {
-      padding: 24px;
+      padding: 16px;
       max-width: 1400px;
       margin: 0 auto;
     }
@@ -8,18 +8,19 @@
       display: flex;
       justify-content: space-between;
       align-items: flex-start;
-      margin-bottom: 32px;
+      margin-bottom: 16px;
     }
 
     h1 {
       margin: 0;
-      font-size: 32px;
+      font-size: 24px;
       font-weight: 500;
     }
 
     .subtitle {
       color: #666;
-      margin: 4px 0 0 0;
+      margin: 2px 0 0 0;
+      font-size: 12px;
     }
 
     .loading {
@@ -60,8 +61,8 @@
 
     .festivals-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-      gap: 24px;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
     }
 
     @media (max-width: 768px) {

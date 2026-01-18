@@ -5,14 +5,14 @@
       transition: transform 0.2s, box-shadow 0.2s;
     }
     .zone-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     }
     .occupation-info {
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-top: 8px;
+      gap: 6px;
+      margin-top: 6px;
     }
     .occupation-chip {
       background: #4caf50;
@@ -25,89 +25,89 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 12px;
-      padding: 24px;
+      gap: 10px;
+      padding: 18px;
       text-align: center;
     }
     .jeux-list {
-      margin-top: 16px;
+      margin-top: 12px;
     }
     .jeux-title {
       display: flex;
       align-items: center;
-      gap: 8px;
-      margin-bottom: 12px;
+      gap: 6px;
+      margin-bottom: 10px;
       color: #1976d2;
     }
     
     /* Groupement par réservation */
     .reservation-group {
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       border: 1px solid #e0e0e0;
-      border-radius: 8px;
+      border-radius: 6px;
       background: #fafafa;
       overflow: hidden;
     }
     .reservation-header {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 12px;
+      gap: 10px;
+      padding: 10px;
       background: #f0f4c3;
       border-bottom: 1px solid #ddd;
       font-weight: 500;
     }
     .reservation-header mat-icon {
       color: #827717;
-      font-size: 20px;
-      width: 20px;
-      height: 20px;
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
     }
     .reservation-label {
       color: #827717;
       flex: 1;
     }
     .type-badge {
-      font-size: 11px;
+      font-size: 10px;
       background: rgba(131, 119, 23, 0.15);
-      padding: 2px 6px;
+      padding: 1px 4px;
       border-radius: 4px;
-      margin-left: 8px;
+      margin-left: 6px;
       font-weight: 600;
     }
     .reservation-tables {
       background: #827717;
       color: white;
-      padding: 4px 10px;
+      padding: 3px 8px;
       border-radius: 12px;
-      font-size: 12px;
+      font-size: 10px;
       font-weight: 600;
     }
     .reservation-jeux {
-      padding: 8px;
+      padding: 6px;
     }
     
     .jeu-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 12px;
+      padding: 10px;
       background: #fff;
       border-radius: 6px;
-      margin-bottom: 8px;
-      border-left: 4px solid #1976d2;
+      margin-bottom: 6px;
+      border-left: 3px solid #1976d2;
     }
     .jeu-info {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
       flex: 1;
     }
     .jeu-icon {
-      width: 40px;
-      height: 40px;
+      width: 32px;
+      height: 32px;
       background: #e3f2fd;
-      border-radius: 8px;
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -118,29 +118,29 @@
     .jeu-details {
       display: flex;
       flex-direction: column;
-      gap: 4px;
+      gap: 2px;
     }
     .jeu-editeur {
-      font-size: 12px;
+      font-size: 11px;
       color: #666;
     }
     .jeu-stats {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 8px;
     }
     .stat {
-      font-size: 13px;
+      font-size: 11px;
       color: #666;
     }
     .tables-types {
       display: flex;
-      gap: 4px;
+      gap: 3px;
     }
     .table-chip {
-      font-size: 11px;
-      padding: 4px 8px;
-      height: 24px;
+      font-size: 10px;
+      padding: 3px 6px;
+      height: 20px;
     }
     .table-chip.std {
       background: #c8e6c9;

@@ -130,9 +130,10 @@ export class ReservationsList {
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
         this.reservationsService.create(this.festivalId(), result).subscribe({
-          next: () => {
+          next: (newReservation: ReservationSummary) => {
+            const current = this.reservations();
+            this.reservations.set([...current, newReservation]);
             this.snackBar.open('Réservation créée', 'OK', { duration: 2000 });
-            this.loadReservations();
           },
           error: (err) => {
             const errorMsg = err.error?.error || 'Erreur lors de la création';
@@ -165,9 +166,14 @@ export class ReservationsList {
       this.reservationsService
         .update(reservation.id, result)
         .subscribe({
-          next: () => {
+          next: (updatedReservation: ReservationSummary) => {
+            const current = this.reservations();
+            const index = current.findIndex(r => r.id === reservation.id);
+            if (index !== -1) {
+              current[index] = updatedReservation;
+              this.reservations.set([...current]);
+            }
             this.snackBar.open('Réservation modifiée', 'OK', { duration: 2000 });
-            this.loadReservations();
           },
           error: () => {
             this.snackBar.open('Erreur modification', 'Fermer', { duration: 3000 });
@@ -180,8 +186,9 @@ export class ReservationsList {
     if (confirm(`⚠️ Supprimer la réservation de "${reservantNom}" ?\n\nCette action est irréversible.`)) {
       this.reservationsService.delete(reservationId).subscribe({
         next: () => {
+          const current = this.reservations();
+          this.reservations.set(current.filter(r => r.id !== reservationId));
           this.snackBar.open('Réservation supprimée', 'OK', { duration: 2000 });
-          this.loadReservations();
         },
         error: (err) => {
           const errorMsg = err.error?.error || 'Erreur lors de la suppression';

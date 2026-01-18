@@ -51,6 +51,20 @@ export class Admin {
     this.loadData();
   }
 
+  private loadAllUsers() {
+    this.userService.getAllUsers().subscribe({
+      next: (users) => this.allUsers.set(users),
+      error: (err) => console.error('Erreur:', err)
+    });
+  }
+
+  private loadPendingUsers() {
+    this.userService.getPendingUsers().subscribe({
+      next: (users) => this.pendingUsers.set(users),
+      error: (err) => console.error('Erreur:', err)
+    });
+  }
+
   loadData() {
     this.loading.set(true);
     
@@ -91,7 +105,8 @@ export class Admin {
       this.userService.changeUserRole(user.id, newRole).subscribe({
         next: () => {
           this.snackBar.open('Rôle mis à jour', 'OK', { duration: 2000 });
-          this.loadData();
+          // Recharger juste la liste des utilisateurs
+          this.loadAllUsers();
         },
         error: (err) => {
           console.error(err);
@@ -111,7 +126,9 @@ export class Admin {
     this.userService.validateUser(user.id, role).subscribe({
       next: () => {
         this.snackBar.open(`Compte de ${user.login} validé`, 'OK', { duration: 2000 });
-        this.loadData();
+        // Recharger les deux listes
+        this.loadPendingUsers();
+        this.loadAllUsers();
       },
       error: (err) => {
         console.error(err);
@@ -126,7 +143,9 @@ export class Admin {
       this.userService.deleteUser(user.id).subscribe({
         next: () => {
           this.snackBar.open('Utilisateur supprimé', 'OK', { duration: 2000 });
-          this.loadData();
+          // Recharger les deux listes
+          this.loadAllUsers();
+          this.loadPendingUsers();
         },
         error: (err) => {
           console.error(err);
@@ -159,7 +178,9 @@ export class Admin {
     this.userService.createUser(userData).subscribe({
       next: () => {
         this.snackBar.open(`Utilisateur ${userData.login} créé`, 'OK', { duration: 3000 });
-        this.loadData();
+        // Recharger les deux listes pour voir le nouvel utilisateur
+        this.loadAllUsers();
+        this.loadPendingUsers();
       },
       error: (err) => {
         console.error(err);

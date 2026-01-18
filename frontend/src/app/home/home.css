@@ -3,7 +3,7 @@
   justify-content: center;
   align-items: center;
   min-height: calc(100vh - 100px);
-  padding: 20px;
+  padding: 16px;
   background: linear-gradient(135deg, #b8c1e9 0%, #c5b7d3 100%);
 }
 
@@ -13,50 +13,50 @@
 }
 
 mat-card-header {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 mat-card-title {
   display: flex;
   align-items: center;
-  gap: 12px;
-  font-size: 24px;
+  gap: 10px;
+  font-size: 20px;
 }
 
 mat-card-title mat-icon {
-  font-size: 32px;
-  width: 32px;
-  height: 32px;
+  font-size: 26px;
+  width: 26px;
+  height: 26px;
 }
 
 mat-card-content {
-  padding: 24px 16px;
+  padding: 16px 12px;
 }
 
 mat-card-content h3 {
-  margin: 24px 0 16px;
+  margin: 16px 0 12px;
   color: #333;
 }
 
 .alert-box {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
-  padding: 16px;
-  border-radius: 8px;
-  margin-bottom: 24px;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 16px;
 }
 
 .alert-box mat-icon {
-  font-size: 32px;
-  width: 32px;
-  height: 32px;
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
   flex-shrink: 0;
 }
 
 .alert-box.warning {
   background-color: #fff3cd;
-  border-left: 4px solid #ff9800;
+  border-left: 3px solid #ff9800;
   color: #856404;
 }
 
@@ -66,7 +66,7 @@ mat-card-content h3 {
 
 .alert-box.success {
   background-color: #d4edda;
-  border-left: 4px solid #4caf50;
+  border-left: 3px solid #4caf50;
   color: #155724;
 }
 
@@ -75,37 +75,37 @@ mat-card-content h3 {
 }
 
 .alert-box h3 {
-  margin: 0 0 8px;
-  font-size: 18px;
+  margin: 0 0 6px;
+  font-size: 14px;
 }
 
 .alert-box p {
   margin: 0;
-  line-height: 1.5;
+  line-height: 1.4;
 }
 
 .quick-links {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 16px;
+  gap: 8px;
+  margin-top: 12px;
 }
 
 .quick-links a {
   flex: 1;
-  min-width: 200px;
+  min-width: 180px;
 }
 
 mat-card-actions {
-  padding: 16px;
+  padding: 12px;
   display: flex;
   justify-content: flex-start;
-  gap: 12px;
+  gap: 8px;
 }
 
 @media (max-width: 600px) {
   .home-container {
-    padding: 10px;
+    padding: 8px;
   }
 
   .quick-links a {

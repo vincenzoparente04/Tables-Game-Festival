@@ -1,5 +1,5 @@
-import { Component, effect, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component, effect, inject, signal } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../auth-service';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators} from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -14,8 +14,9 @@ import { Register } from "../register/register";
 export class Login {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
-  showRegister = false;
+  showRegister = signal(false);
 
   LoginForm = new FormGroup({
     login: new FormControl('', {nonNullable: true, validators: [Validators.required]}),
@@ -23,6 +24,12 @@ export class Login {
   });
 
   constructor() {
+    // Réinitialiser à la vue login quand on navigue vers cette route
+    effect(() => {
+      this.route.url;
+      this.showRegister.set(false);
+    });
+
     effect(() => {
       if (this.auth.isLoggedIn()) {
         this.router.navigate(['/home']);
@@ -31,11 +38,11 @@ export class Login {
   }
 
   displayRegister() {
-    this.showRegister = true;
+    this.showRegister.set(true);
   }
 
   displayLogin() {
-    this.showRegister = false;
+    this.showRegister.set(false);
   }
 
   onSubmit() {

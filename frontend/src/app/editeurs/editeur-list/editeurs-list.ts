@@ -204,8 +204,9 @@ export class EditeursList {
         next: () => {
           this.editeurToEdit.set(null);
           this.selectedEditeur.set(null);
+          const current = this.editeurs();
+          this.editeurs.set(current.filter(e => e.id !== editeur.id));
           this.snackBar.open('Éditeur supprimé avec succès', 'Fermer', { duration: 3000 });
-          this.loadEditeurs();
         },
         error: (err) => {
           console.error(err);

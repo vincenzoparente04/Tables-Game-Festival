@@ -181,7 +181,8 @@ export class JeuxList {
         next: () => {
           this.jeuToEdit.set(null);
           this.selectedJeu.set(null);
-          this.loadJeux();
+          const current = this.jeux();
+          this.jeux.set(current.filter(j => j.id !== jeu.id));
           this.snackBar.open('Jeu supprimé', 'Fermer', { duration: 3000 });
         },
         error: (err) => {
