@@ -11,9 +11,6 @@
       </div>
       <button type="submit" [disabled]="LoginForm.invalid">Se connecter</button>
   </form>
-  <div>pas de compte ? créez-en un 
-      <button (click)="displayRegister()">ici</button>
-  </div>
   @if (loading) {
       <p class="info">Loading...</p>
   }
