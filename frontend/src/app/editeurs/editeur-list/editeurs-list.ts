@@ -1,4 +1,4 @@
-import { Component, ChangeDetectionStrategy, inject, signal } from '@angular/core';
+import { Component, ChangeDetectionStrategy, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EditeursService, EditeurSummary, JeuEditeur, ContactEditeur} from '../../services/editeurs-service';
 import { EditeursForm } from '../editeurs-form/editeurs-form';
@@ -19,6 +19,29 @@ export class EditeursList {
   private readonly editeursService = inject(EditeursService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly permissions = inject(PermissionsService);
+  private editeurModificationTimes = new Map<number, number>();
+  private readonly STORAGE_KEY = 'editeur_modification_times';
+
+  private loadModificationTimesFromStorage(): void {
+    try {
+      const stored = localStorage.getItem(this.STORAGE_KEY);
+      if (stored) {
+        const data = JSON.parse(stored);
+        this.editeurModificationTimes = new Map(Object.entries(data).map(([key, value]) => [Number(key), value as number]));
+      }
+    } catch (error) {
+      console.error('Errore nel caricamento dei timestamp da localStorage', error);
+    }
+  }
+
+  private saveModificationTimesToStorage(): void {
+    try {
+      const data = Object.fromEntries(this.editeurModificationTimes);
+      localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+    } catch (error) {
+      console.error('Errore nel salvataggio dei timestamp in localStorage', error);
+    }
+  }
 
   editeurs = signal<EditeurSummary[]>([]);
   loadingList = signal(false);
@@ -30,12 +53,48 @@ export class EditeursList {
   errorDetail = signal<string | null>(null);
   editeurToEdit = signal<EditeurSummary | null>(null);
   contactsToEdit = signal<ContactEditeur[]>([]);
+  sortBy = signal<'nom' | 'nom-desc' | 'recent'>('nom');
+  filterBy = signal<'tous' | 'sans-contacts' | 'sans-jeux'>('tous');
+
+  editeursTries = computed(() => {
+    const editeurs = this.editeurs();
+    const sort = this.sortBy();
+    const filter = this.filterBy();
+
+    let filtered = editeurs;
+    if (filter === 'sans-contacts') {
+      filtered = editeurs.filter(e => Number(e.nb_contacts) === 0);
+    } else if (filter === 'sans-jeux') {
+      filtered = editeurs.filter(e => Number(e.nb_jeux) === 0);
+    }
+
+    const sorted = [...filtered];
+    
+    switch (sort) {
+      case 'nom':
+        sorted.sort((a, b) => a.nom.localeCompare(b.nom));
+        break;
+      case 'nom-desc':
+        sorted.sort((a, b) => b.nom.localeCompare(a.nom));
+        break;
+      case 'recent':
+        sorted.sort((a, b) => {
+          const timeA = this.editeurModificationTimes.get(a.id) || 0;
+          const timeB = this.editeurModificationTimes.get(b.id) || 0;
+          return timeB - timeA;
+        });
+        break;
+    }
+    
+    return sorted;
+  });
 
   readonly canCreate = this.permissions.can('editeurs', 'create');
   readonly canModify = this.permissions.can('editeurs', 'update');
   readonly canDelete = this.permissions.can('editeurs', 'delete');
 
   constructor() {
+    this.loadModificationTimesFromStorage();
     this.loadEditeurs();
   }
 
@@ -60,12 +119,28 @@ export class EditeursList {
 
   // Reset the list when a new editor is created 
   onEditeurCreated(): void {
+    const editeursBefore = new Set(this.editeurs().map(e => e.id));
     this.loadEditeurs();
+    
+    // After loading, mark new editors as just created
+    setTimeout(() => {
+      this.editeurs().forEach(editeur => {
+        if (!editeursBefore.has(editeur.id) && !this.editeurModificationTimes.has(editeur.id)) {
+          this.editeurModificationTimes.set(editeur.id, Date.now());
+        }
+      });
+      this.saveModificationTimesToStorage();
+    }, 100);
   }
 
   // Reset the list when a new editor is modified
   onEditeurUpdated(): void {
+    const editeurId = this.editeurToEdit()?.id;
     this.editeurToEdit.set(null);
+    if (editeurId) {
+      this.editeurModificationTimes.set(editeurId, Date.now());
+      this.saveModificationTimesToStorage();
+    }
     this.loadEditeurs();
     this.selectedEditeur.set(null);
   }
@@ -140,5 +215,17 @@ export class EditeursList {
         },
       });
     }
+  }
+
+  // Handle sort change
+  onSortChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.sortBy.set(value as 'nom' | 'nom-desc' | 'recent');
+  }
+
+  // Handle filter change
+  onFilterChange(event: Event): void {
+    const value = (event.target as HTMLSelectElement).value;
+    this.filterBy.set(value as 'tous' | 'sans-contacts' | 'sans-jeux');
   }
 }
