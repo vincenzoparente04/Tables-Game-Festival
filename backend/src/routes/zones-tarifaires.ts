@@ -76,12 +76,37 @@ router.post('/festival/:festivalId', requireActivatedAccount(), requirePermissio
 
       // Vérifier que le festival existe
       const festivalCheck = await pool.query(
-        'SELECT id FROM festivals WHERE id = $1',
+        'SELECT espace_tables_total FROM festivals WHERE id = $1',
         [festivalId]
       );
       
       if (festivalCheck.rows.length === 0) {
         return res.status(404).json({ error: 'Festival introuvable' });
+      }
+
+      const spaceTotalFestival = parseInt(festivalCheck.rows[0].espace_tables_total);
+      const tablesRequested = parseInt(nombre_tables_total);
+
+      // Vérifier que le nombre de tables ne dépasse pas le total du festival
+      if (tablesRequested > spaceTotalFestival) {
+        return res.status(400).json({ 
+          error: `Le nombre de tables (${tablesRequested}) dépasse le total du festival (${spaceTotalFestival})` 
+        });
+      }
+
+      // Vérifier que la somme totale de TOUTES les zones tarifaires ne dépassera pas le total
+      const sumZonesResult = await pool.query(
+        'SELECT COALESCE(SUM(nombre_tables_total), 0) as total FROM zones_tarifaires WHERE festival_id = $1',
+        [festivalId]
+      );
+
+      const currentTotalTables = parseInt(sumZonesResult.rows[0].total);
+      const futureTotal = currentTotalTables + tablesRequested;
+
+      if (futureTotal > spaceTotalFestival) {
+        return res.status(400).json({ 
+          error: `La somme des zones tarifaires (${futureTotal}) dépasserait le total du festival (${spaceTotalFestival}). Tables restantes disponibles: ${spaceTotalFestival - currentTotalTables}` 
+        });
       }
 
       const calculatedPrixM2 = prix_m2 !== undefined ? prix_m2 : (prix_table / 4.5);
@@ -135,6 +160,55 @@ router.patch('/:id', requireActivatedAccount(), requirePermission('zonesTarifair
       } catch (error) {
         console.error('Erreur vérification réservations:', error);
         return res.status(500).json({ error: 'Erreur serveur' });
+      }
+
+      // Si on modifie nombre_tables_total, vérifier les limites
+      if (updates.nombre_tables_total !== undefined) {
+        try {
+          // Récupérer la zone actuelle et le festival
+          const zoneResult = await pool.query(
+            'SELECT festival_id, nombre_tables_total FROM zones_tarifaires WHERE id = $1',
+            [id]
+          );
+
+          if (zoneResult.rows.length === 0) {
+            return res.status(404).json({ error: 'Zone tarifaire introuvable' });
+          }
+
+          const currentZone = zoneResult.rows[0];
+          const festivalResult = await pool.query(
+            'SELECT espace_tables_total FROM festivals WHERE id = $1',
+            [currentZone.festival_id]
+          );
+
+          const spaceTotalFestival = parseInt(festivalResult.rows[0].espace_tables_total);
+          const newTableCount = parseInt(updates.nombre_tables_total);
+
+          // Vérifier que le nouveau nombre de tables ne dépasse pas le total du festival
+          if (newTableCount > spaceTotalFestival) {
+            return res.status(400).json({ 
+              error: `Le nombre de tables (${newTableCount}) dépasse le total du festival (${spaceTotalFestival})` 
+            });
+          }
+
+          // Calculer la somme des autres zones + la nouvelle valeur
+          const sumZonesResult = await pool.query(
+            'SELECT COALESCE(SUM(nombre_tables_total), 0) as total FROM zones_tarifaires WHERE festival_id = $1 AND id != $2',
+            [currentZone.festival_id, id]
+          );
+
+          const otherZonesTotals = parseInt(sumZonesResult.rows[0].total);
+          const futureTotal = otherZonesTotals + newTableCount;
+
+          if (futureTotal > spaceTotalFestival) {
+            return res.status(400).json({ 
+              error: `La somme des zones tarifaires (${futureTotal}) dépasserait le total du festival (${spaceTotalFestival}). Maximum possible: ${spaceTotalFestival - otherZonesTotals}` 
+            });
+          }
+        } catch (error) {
+          console.error('Erreur validation tables:', error);
+          return res.status(500).json({ error: 'Erreur serveur' });
+        }
       }
 
       const fields: string[] = [];

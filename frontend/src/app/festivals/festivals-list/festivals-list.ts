@@ -181,20 +181,36 @@ export class FestivalsList {
       return;
     }
 
-    if (confirm('Êtes-vous sûr de vouloir supprimer ce festival ? Cette action est irréversible.')) {
-      this.festivalsService.deleteFestival(id).subscribe({
-        next: () => {
-          const current = this.festivals();
-          this.festivals.set(current.filter(f => f.id !== id));
-          this.snackBar.open('Festival supprimé', 'OK', { duration: 2000 });
-        },
-        error: (err : any) => {
-          console.error(err);
-          this.snackBar.open('Erreur lors de la suppression', 'Fermer', { duration: 3000 });
-          console.error(err as Error);
+    // Vérifier si le festival peut être supprimé
+    this.festivalsService.canDeleteFestival(id).subscribe({
+      next: (response) => {
+        if (!response.canDelete) {
+          const reasons = response.reason || 'Le festival contient des données associées';
+          this.snackBar.open(`Impossible de supprimer: ${reasons}`, 'Fermer', { duration: 5000 });
+          return;
         }
-      });
-    }
+
+        // Festival peut être supprimé, demander confirmation
+        if (confirm('Êtes-vous sûr de vouloir supprimer ce festival ? Cette action est irréversible.')) {
+          this.festivalsService.deleteFestival(id).subscribe({
+            next: () => {
+              const current = this.festivals();
+              this.festivals.set(current.filter(f => f.id !== id));
+              this.snackBar.open('Festival supprimé', 'OK', { duration: 2000 });
+            },
+            error: (err : any) => {
+              console.error(err);
+              this.snackBar.open('Erreur lors de la suppression', 'Fermer', { duration: 3000 });
+              console.error(err as Error);
+            }
+          });
+        }
+      },
+      error: (err : any) => {
+        console.error(err);
+        this.snackBar.open('Erreur lors de la vérification des contraintes', 'Fermer', { duration: 3000 });
+      }
+    });
   }
 
   onZonesChanged() {

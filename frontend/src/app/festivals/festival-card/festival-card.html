@@ -62,16 +62,6 @@
           </div>
         </div>
       </div>
-
-      <div class="stat-item">
-        <mat-icon>euro</mat-icon>
-        <div>
-          <div class="stat-label">Facturé</div>
-          <div class="stat-value">
-            {{ (festival()?.montant_total_factures ?? 0) | currency:'EUR' }}
-          </div>
-        </div>
-      </div>
     </div>
 
     @if (showZonesTarifaires() && festival()) {

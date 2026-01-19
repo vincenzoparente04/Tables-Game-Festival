@@ -45,4 +45,9 @@ export class FestivalsService {
   deleteFestival(id: number): Observable<any> {
         return this.http.delete(`${this.API}/${id}`);
   }
+
+  // Vérifier si un festival peut être supprimé (pas de zones plan, réservations, zones tarifaires)
+  canDeleteFestival(id: number): Observable<{ canDelete: boolean; reason?: string }> {
+    return this.http.get<{ canDelete: boolean; reason?: string }>(`${this.API}/${id}/can-delete`);
+  }
 }

@@ -383,6 +383,17 @@ GROUP BY f.id, f.nom, f.stock_chaises_standard, f.stock_chaises_mairie;
 
 -- Vue : Dashboard des festivals
 CREATE OR REPLACE VIEW vue_festivals_dashboard AS
+WITH factures_agg AS (
+    SELECT 
+        r.festival_id,
+        COUNT(DISTINCT fac.id) as nb_factures,
+        COALESCE(SUM(fac.montant_total), 0) as montant_total_factures,
+        COUNT(DISTINCT CASE WHEN fac.statut_paiement = 'paye' THEN fac.id END) as nb_factures_payees,
+        COALESCE(SUM(CASE WHEN fac.statut_paiement = 'paye' THEN fac.montant_total ELSE 0 END), 0) as montant_paye
+    FROM reservations r
+    LEFT JOIN factures fac ON r.id = fac.reservation_id
+    GROUP BY r.festival_id
+)
 SELECT 
     f.id,
     f.nom,
@@ -406,16 +417,16 @@ SELECT
     COUNT(DISTINCT CASE WHEN r.etat_contact IN ('liste_jeux_demandee', 'liste_jeux_obtenue', 'jeux_recus') THEN r.id END) as nb_reservations_avancees,
     COUNT(DISTINCT CASE WHEN r.etat_presence = 'present' THEN r.id END) as nb_presents,
     COUNT(DISTINCT CASE WHEN r.etat_presence = 'absent' THEN r.id END) as nb_absents,
-    COUNT(DISTINCT fac.id) as nb_factures,
-    COALESCE(SUM(fac.montant_total), 0) as montant_total_factures,
-    COUNT(DISTINCT CASE WHEN fac.statut_paiement = 'paye' THEN fac.id END) as nb_factures_payees,
-    COALESCE(SUM(CASE WHEN fac.statut_paiement = 'paye' THEN fac.montant_total ELSE 0 END), 0) as montant_paye
+    COALESCE(fa.nb_factures, 0) as nb_factures,
+    COALESCE(fa.montant_total_factures, 0) as montant_total_factures,
+    COALESCE(fa.nb_factures_payees, 0) as nb_factures_payees,
+    COALESCE(fa.montant_paye, 0) as montant_paye
 FROM festivals f
 LEFT JOIN zones_tarifaires zt ON f.id = zt.festival_id
 LEFT JOIN zones_plan zp ON f.id = zp.festival_id
 LEFT JOIN reservations r ON f.id = r.festival_id
-LEFT JOIN factures fac ON r.id = fac.reservation_id
-GROUP BY f.id, f.nom, f.est_actif, f.est_courant, f.espace_tables_total, f.date_debut, f.date_fin;
+LEFT JOIN factures_agg fa ON f.id = fa.festival_id
+GROUP BY f.id, f.nom, f.est_actif, f.est_courant, f.espace_tables_total, f.date_debut, f.date_fin, fa.nb_factures, fa.montant_total_factures, fa.nb_factures_payees, fa.montant_paye;
 
 -- Vue : Détail complet des réservations
 CREATE OR REPLACE VIEW vue_reservations_detail AS
