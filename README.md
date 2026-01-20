@@ -51,7 +51,7 @@ Mot de passe: admin
 
 Si vous etes à l'ecole (connecté avec le reseau de l'ecole) ou si vous êtes connecté au VPN de Polytech, vous pouvez y accéder directement :
 
-**Application** : https://162.38.111.34:8080
+**Application** : https://162.38.111.34:8080/login
 
 **Gérer la base de données** : http://162.38.111.34:8081 (mêmes identifiants)
 
