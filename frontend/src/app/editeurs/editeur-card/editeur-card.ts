@@ -11,6 +11,7 @@ import { EditeurSummary } from '../../services/editeurs-service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class EditeurCard {
+  // Inputs and Outputs for parent component interaction
   editeur = input.required<EditeurSummary>();
   selected = input(false);
 

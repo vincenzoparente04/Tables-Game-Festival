@@ -57,7 +57,7 @@ export class ReservationDetail {
   factureExistante = signal<any>(null);
   loadingFacture = signal(false);
 
-  // Signaux computed pour la facture
+  // signal computed for facture existence
   factureExiste = computed(() => !!this.factureExistante());
   texteBoutonFacture = computed(() => 
     this.factureExiste() ? ' Modifier facture' : ' Générer facture'
@@ -95,6 +95,7 @@ export class ReservationDetail {
     return (res.montant_brut || 0) - (res.remise_montant || 0) - montantRemiseTables;
   });
 
+  // recap facture
   recapFacture = computed<RecapFacture | null>(() => {
     const res = this.reservation();
     if (!res) return null;
@@ -147,6 +148,7 @@ export class ReservationDetail {
     });
   }
 
+  // Load invoice if exists
   private loadFacture() {
     this.loadingFacture.set(true);
     this.facturesService.getByReservation(this.reservationId()).subscribe({
@@ -404,6 +406,7 @@ export class ReservationDetail {
     });
   }
 
+  // workflow facture
   updateEtatPaiement(nouvelEtat: string) {
     const facture = this.factureExistante();
     if (!facture) return;
@@ -518,6 +521,7 @@ export class ReservationDetail {
     { value: 'absent', label: 'Absent' }
   ];
 
+  // payment state helpers
   etatsPaiement = [
     { value: 'non_paye', label: 'Non payé' },
     { value: 'partiel', label: 'Partiellement payé' },

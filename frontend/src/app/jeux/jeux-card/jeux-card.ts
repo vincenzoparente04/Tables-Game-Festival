@@ -11,6 +11,7 @@ import { JeuSummary } from '../../services/jeux-service';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class JeuxCard {
+  // Inputs and Outputs for parent component interaction
   jeu = input.required<JeuSummary>();
   isSelected = input(false);
   isEditing = input(false);

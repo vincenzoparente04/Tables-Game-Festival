@@ -55,6 +55,7 @@ export class VuesPubliques{
     });
   }
 
+  // load current festival info
   private loadFestivalCourant(): void {
     this.vuesService.getFestivalCourant().subscribe({
       next: (festival) => {
@@ -68,7 +69,7 @@ export class VuesPubliques{
 
 
   // set view - good practice is to use the two if to avoid uploading everything from backend at every change
-  // like this you only upload the first time you access this window (no double calls)
+  // like this we only upload the first time you access this window (no double calls)
   setViewMode(mode: 'jeux' | 'editeurs'): void {
     this.viewMode = mode;
 

@@ -36,6 +36,7 @@ export class JeuxForm {
   loading = signal(false);
   submitLabel = signal('Créer le jeu');
 
+  // Reactive form for jeu
   form = new FormGroup({
     nom: new FormControl('', { validators: [Validators.required], nonNullable: true }),
     editeur_id: new FormControl<number | null>(null, { validators: [Validators.required] }),
@@ -65,6 +66,7 @@ export class JeuxForm {
     });
   }
 
+  // Load form in edit mode
   private loadEditMode(jeu: JeuSummary): void {
     this.submitLabel.set('Modifier le jeu');
     this.form.patchValue({
@@ -107,6 +109,7 @@ export class JeuxForm {
     return this.auteurs.controls as FormGroup[];
   }
 
+  // Add or remove auteur fields with form group
   addAuteur(): void {
     this.auteurs.push(
       new FormGroup({
@@ -116,6 +119,7 @@ export class JeuxForm {
     );
   }
 
+  // Remove auteur field at index
   removeAuteur(index: number): void {
     // Toujours garder au moins un auteur
     if (this.auteurs.length > 1) {
@@ -126,6 +130,7 @@ export class JeuxForm {
     }
   }
 
+  // Submit the form to create or update a jeu
   submit(): void {
     if (this.form.invalid) return;
 
@@ -172,6 +177,7 @@ export class JeuxForm {
     });
   }
 
+  // Reset the form to initial state after submission or cancellation
   resetForm(): void {
     this.submitLabel.set('Créer le jeu');
     this.form.reset({

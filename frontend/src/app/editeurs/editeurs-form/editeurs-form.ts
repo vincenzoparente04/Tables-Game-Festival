@@ -24,6 +24,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
   styleUrl: './editeurs-form.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class EditeursForm {
   private readonly editeursService = inject(EditeursService);
   private readonly fb = inject(FormBuilder);
@@ -42,7 +43,7 @@ export class EditeursForm {
   error = signal<string | null>(null);
   submitLabel = signal('Créer l\'éditeur');
 
-  // Form
+  // Form Group
   form = new FormGroup({
     nom: new FormControl('', [Validators.required, Validators.minLength(1)]),
     contacts: new FormArray([]),
@@ -60,6 +61,7 @@ export class EditeursForm {
     });
   }
 
+  // Load form in edit mode
   private loadEditMode(editeur: EditeurSummary, contacts: ContactEditeur[]): void {
     this.form.get('nom')?.setValue(editeur.nom);
     this.submitLabel.set('Modifier l\'éditeur');
@@ -80,6 +82,7 @@ export class EditeursForm {
     });
   }
 
+  // Reset the form to initial state if submission is successful or cancelled
   private resetForm(): void {
     this.form.get('nom')?.setValue('');
     this.submitLabel.set('Créer l\'éditeur');
@@ -93,6 +96,7 @@ export class EditeursForm {
     return this.form.get('contacts') as FormArray;
   }
 
+  // Add a new contact field
   addContact(): void {
     this.contacts.push(
       new FormGroup({
@@ -104,14 +108,17 @@ export class EditeursForm {
     );
   }
 
+  // Remove a contact field
   removeContact(index: number): void {
     this.contacts.removeAt(index);
   }
 
+  // Cancel the form and reset
   cancel(): void {
     this.resetForm();
   }
 
+  // Submit the form to create or update an editeur
   submit(): void {
     this.error.set(null);
 
@@ -129,6 +136,7 @@ export class EditeursForm {
       return;
     }
 
+    // Prepare contacts data
     const contactsData = (this.form.get('contacts') as FormArray).value
       .filter((c: any) => c.nom && c.nom.trim() !== '')
       .map((c: any) => ({

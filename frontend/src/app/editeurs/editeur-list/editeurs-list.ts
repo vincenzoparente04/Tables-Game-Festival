@@ -7,6 +7,22 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { PermissionsService } from '../../services/permissions-service'
 
+
+/**
+ * Local Store for the editors list.
+ *
+ * why
+ * - avoid repeated HTTP calls for a large and low-volatility dataset
+ * - improve performance and UI responsiveness
+ * - preserve the list state across navigation and page refresh
+ *
+ * Important note:
+ * - the backend REST API remains the single source of truth
+ * - localStorage is used only as a temporary cache
+ * - this can be replaced later by a proper application-level cache
+ */
+
+
 @Component({
   selector: 'app-editeurs-list',
   standalone: true,
@@ -21,7 +37,8 @@ export class EditeursList {
   private readonly permissions = inject(PermissionsService);
   private editeurModificationTimes = new Map<number, number>();
   private readonly STORAGE_KEY = 'editeur_modification_times';
-
+  
+// Load modification times from localStorage
   private loadModificationTimesFromStorage(): void {
     try {
       const stored = localStorage.getItem(this.STORAGE_KEY);
@@ -34,6 +51,7 @@ export class EditeursList {
     }
   }
 
+  // Save modification times to localStorage
   private saveModificationTimesToStorage(): void {
     try {
       const data = Object.fromEntries(this.editeurModificationTimes);
@@ -43,6 +61,7 @@ export class EditeursList {
     }
   }
 
+  // State signals
   editeurs = signal<EditeurSummary[]>([]);
   loadingList = signal(false);
   errorList = signal<string | null>(null);
@@ -56,6 +75,7 @@ export class EditeursList {
   sortBy = signal<'nom' | 'nom-desc' | 'recent'>('nom');
   filterBy = signal<'tous' | 'sans-contacts' | 'sans-jeux'>('tous');
 
+  // Computed to sort and filter editors
   editeursTries = computed(() => {
     const editeurs = this.editeurs();
     const sort = this.sortBy();

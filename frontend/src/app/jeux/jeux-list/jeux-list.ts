@@ -11,6 +11,20 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { ReactiveFormsModule } from '@angular/forms';
 import { PermissionsService } from '../../services/permissions-service'
 
+/**
+ * Local Store for the games list.
+ *
+ * why
+ * - avoid repeated HTTP calls for a large and low-volatility dataset
+ * - improve performance and UI responsiveness
+ * - preserve the list state across navigation and page refresh
+ *
+ * Important note:
+ * - the backend REST API remains the single source of truth
+ * - localStorage is used only as a temporary cache
+ * - this can be replaced later by a proper application-level cache
+ */
+
 @Component({
   selector: 'app-jeux-list',
   standalone: true,
@@ -28,6 +42,7 @@ import { PermissionsService } from '../../services/permissions-service'
   styleUrl: './jeux-list.css',
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class JeuxList {
   private readonly jeuxService = inject(JeuxService);
   private readonly editeursService = inject(EditeursService);
@@ -36,6 +51,7 @@ export class JeuxList {
   private jeuModificationTimes = new Map<number, number>();
   private readonly STORAGE_KEY = 'jeu_modification_times';
 
+  // Load modification times from localStorage
   private loadModificationTimesFromStorage(): void {
     try {
       const stored = localStorage.getItem(this.STORAGE_KEY);
@@ -44,16 +60,17 @@ export class JeuxList {
         this.jeuModificationTimes = new Map(Object.entries(data).map(([key, value]) => [Number(key), value as number]));
       }
     } catch (error) {
-      console.error('Errore nel caricamento dei timestamp da localStorage', error);
+      console.error('Error loading modification times from localStorage', error);
     }
   }
 
+  // Save modification times to localStorage
   private saveModificationTimesToStorage(): void {
     try {
       const data = Object.fromEntries(this.jeuModificationTimes);
       localStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
     } catch (error) {
-      console.error('Errore nel salvataggio dei timestamp in localStorage', error);
+      console.error('Error saving modification times to localStorage', error);
     }
   }
 
@@ -101,6 +118,7 @@ export class JeuxList {
     this.loadEditeurs();
   }
 
+// Load jeux from the service
   private loadJeux(): void {
     this.loadingList.set(true);
     this.errorList.set(null);
@@ -118,6 +136,7 @@ export class JeuxList {
     });
   }
 
+  // Load editeurs from the service
   private loadEditeurs(): void {
     this.loadingEditeurs.set(true);
 
@@ -134,6 +153,7 @@ export class JeuxList {
     });
   }
 
+  // Handlers for jeu creation, update, selection, editing, deletion, and sorting
   onJeuCreated(): void {
     const jeusBefore = new Set(this.jeux().map(j => j.id));
     this.jeuToEdit.set(null);
@@ -153,6 +173,7 @@ export class JeuxList {
     this.snackBar.open('Jeu créé avec succès', 'Fermer', { duration: 3000 });
   }
 
+  // Handler for jeu update
   onJeuUpdated(): void {
     const jeuId = this.jeuToEdit()?.id;
     this.jeuToEdit.set(null);
@@ -165,16 +186,19 @@ export class JeuxList {
     this.snackBar.open('Jeu modifié avec succès', 'Fermer', { duration: 3000 });
   }
 
+  // Handler for selecting a jeu
   selectJeu(jeu: JeuSummary): void {
     this.selectedJeu.set(jeu);
     this.jeuToEdit.set(null);
   }
 
+  // Handler for editing a jeu
   onEditJeu(jeu: JeuSummary): void {
     this.jeuToEdit.set(jeu);
     this.selectedJeu.set(null);
   }
 
+  // Handler for deleting a jeu
   onDeleteJeu(jeu: JeuSummary): void {
     if (confirm(`Êtes-vous sûr de vouloir supprimer le jeu "${jeu.nom}" ?`)) {
       this.jeuxService.deleteJeu(jeu.id).subscribe({
@@ -194,6 +218,7 @@ export class JeuxList {
     }
   }
 
+  // Handler for sort change
   onSortChange(event: Event): void {
     const value = (event.target as HTMLSelectElement).value;
     if (value === 'nom') {
@@ -205,6 +230,7 @@ export class JeuxList {
     }
   }
 
+  // Start creating a new jeu
   startCreateJeu(): void {
     this.jeuToEdit.set({
       id: 0,
