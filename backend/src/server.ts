@@ -73,13 +73,21 @@ res.json({ message: 'Bienvenue admin' });
 })
 
 
-// Chargement du certificat et clé générés par mkcert (étape 0)
-const key = fs.readFileSync('./certs/localhost-key.pem')
-const cert = fs.readFileSync('./certs/localhost.pem')
+const port = Number(process.env.PORT) || 4000
 
-// Lancement du serveur HTTPS
-https.createServer({ key, cert }, app).listen(4000, () => {
-    console.log('👍 Serveur API démarré sur https://localhost:4000')
-})
+if (process.env.NODE_ENV === 'production') {
+  // In production, let the platform (Render/Railway) handle HTTPS.
+  app.listen(port, () => {
+    console.log(`👍 API server running on http://0.0.0.0:${port}`)
+  })
+} else {
+  // Local dev HTTPS with mkcert
+  const key = fs.readFileSync('./certs/localhost-key.pem')
+  const cert = fs.readFileSync('./certs/localhost.pem')
+
+  https.createServer({ key, cert }, app).listen(port, () => {
+    console.log(`👍 Serveur API démarré sur https://localhost:${port}`)
+  })
+}
 
 await ensureAdmin()
