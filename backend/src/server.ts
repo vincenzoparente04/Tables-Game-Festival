@@ -55,6 +55,8 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }))
 
+app.get("/health", (req, res) => res.json({ ok: true }));
+
 // Routes publiques
 app.use('/api/public', publicRouter)
 app.use('/api/auth', authRouter);
