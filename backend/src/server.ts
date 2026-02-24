@@ -48,12 +48,28 @@ app.use(express.json())
 app.use(cookieParser())
 
 // Configuration CORS : autoriser le front Angular en HTTPS local
-app.use(cors({
+/*app.use(cors({
     origin: process.env.FRONTEND_URL || 'https://localhost:8080',
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
     allowedHeaders: ['Content-Type', 'Authorization']
-}))
+}))*/
+
+const allowedOrigins = new Set([
+  process.env.FRONTEND_URL,
+  "https://localhost:8080",
+  "http://localhost:8080",
+].filter(Boolean) as string[]);
+
+app.use(cors({
+  origin: (origin, callback) => {
+    // allow no-origin requests (curl, server-to-server)
+    if (!origin) return callback(null, true);
+    return allowedOrigins.has(origin) ? callback(null, true) : callback(new Error("Not allowed by CORS"));
+  },
+  credentials: true
+}));
+
 
 app.get("/health", (req, res) => res.json({ ok: true }));
 
