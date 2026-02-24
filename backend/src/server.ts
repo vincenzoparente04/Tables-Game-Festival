@@ -26,6 +26,9 @@ import facturasRouter from './routes/factures.js'
 
 // Création de l’application Express
 const app = express()
+
+app.set('trust proxy', 1);
+
 // Ajout manuel des principaux en-têtes HTTP de sécurité
 app.use((req, res, next) => {
     // Empêche le navigateur d’interpréter un fichier d’un autre type MIME -> attaque : XSS via upload malveillant

@@ -2,76 +2,93 @@ import { Router } from 'express'
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import pool from '../db/database.js'
-import { verifyToken, createAccessToken, createRefreshToken } from '../middleware/token-management.js';
-import { JWT_SECRET } from '../config/en.js';
-import type { TokenPayload } from '../types/token-payload.ts';
+import { verifyToken, createAccessToken, createRefreshToken } from '../middleware/token-management.js'
+import { JWT_SECRET } from '../config/en.js'
+import type { TokenPayload } from '../types/token-payload.ts'
+
 const router = Router()
 
+// ✅ Cookie config per cross-site (Netlify -> Render)
+const isProd = process.env.NODE_ENV === 'production'
 
-router.post('/login', async (req, res) => { // --- LOGIN ---
-    const { login, password } = req.body
-    if (!login || !password) 
-        return res.status(400).json({ error: 'Identifiants manquants' })
-    const { rows } = await pool.query('SELECT * FROM users WHERE login=$1', [login])
-    const user = rows[0]
-    if (!user) return res.status(401).json({ error: 'Utilisateur inconnu' }) 
-    const match = await bcrypt.compare(password, user.password_hash) 
-    if (!match) return res.status(401).json({ error: 'Mot de passe incorrect' })
-    const accessToken = createAccessToken({ id: user.id, role: user.role }) 
-    const refreshToken = createRefreshToken({ id: user.id, role: user.role }) 
-    res.cookie('access_token', accessToken, { 
-        httpOnly: true, secure: true, sameSite: 'strict', maxAge: 15 * 60 * 1000,
-    })
-    res.cookie('refresh_token', refreshToken, { 
-        httpOnly: true, secure: true, sameSite: 'strict', maxAge: 7 * 24 * 60 * 60 * 1000,
-    })
-    res.json({ message: 'Authentification réussie', user: { login: user.login, role: user.role } })
+const cookieBase = {
+  httpOnly: true,
+  secure: isProd, // in prod (Render) deve essere true (HTTPS)
+  sameSite: (isProd ? 'none' : 'lax') as 'none' | 'lax', // ✅ fondamentale
+  path: '/',
+}
+
+const accessCookie = { ...cookieBase, maxAge: 15 * 60 * 1000 } // 15 min
+const refreshCookie = { ...cookieBase, maxAge: 7 * 24 * 60 * 60 * 1000 } // 7 giorni
+
+router.post('/login', async (req, res) => {
+  const { login, password } = req.body
+  if (!login || !password) return res.status(400).json({ error: 'Identifiants manquants' })
+
+  const { rows } = await pool.query('SELECT * FROM users WHERE login=$1', [login])
+  const user = rows[0]
+  if (!user) return res.status(401).json({ error: 'Utilisateur inconnu' })
+
+  const match = await bcrypt.compare(password, user.password_hash)
+  if (!match) return res.status(401).json({ error: 'Mot de passe incorrect' })
+
+  const accessToken = createAccessToken({ id: user.id, role: user.role })
+  const refreshToken = createRefreshToken({ id: user.id, role: user.role })
+
+  // ✅ usa la config cross-site corretta
+  res.cookie('access_token', accessToken, accessCookie)
+  res.cookie('refresh_token', refreshToken, refreshCookie)
+
+  res.json({ message: 'Authentification réussie', user: { login: user.login, role: user.role } })
 })
 
-router.post('/logout', (_req, res) => { // --- LOGOUT ---
-    res.clearCookie('access_token')
-    res.clearCookie('refresh_token')
-    res.json({ message: 'Déconnexion réussie' })
+router.post('/logout', (_req, res) => {
+  // ✅ clearCookie deve usare la stessa config (path/samesite/secure)
+  res.clearCookie('access_token', cookieBase)
+  res.clearCookie('refresh_token', cookieBase)
+  res.json({ message: 'Déconnexion réussie' })
 })
 
 router.post('/register', async (req, res) => {
-    const { nom , prenom , email , login, password } = req.body
-    if (!login || !password || !email)
-        return res.status(400).json({ error: 'Champs manquants' })
-    const hashed = await bcrypt.hash(password, 10)
-    try {
-        const { rows } = await pool.query(
-            `INSERT INTO users (nom, prenom, email, login, password_hash, role)
-            VALUES ($1, $2, $3, $4, $5, 'user')
-            RETURNING id, login, role`,
-            [nom, prenom, email, login, hashed]
-        )
-        res.status(201).json({ message: 'Utilisateur créé', user: rows[0] })
-    } catch (err: any) {
-        if (err.code === '23505') // doublon PostgreSQL
-            return res.status(409).json({ error: 'Login déjà utilisé' })
-        console.error(err)
-        res.status(500).json({ error: 'Erreur serveur' })
-    }
+  const { nom, prenom, email, login, password } = req.body
+  if (!login || !password || !email) return res.status(400).json({ error: 'Champs manquants' })
+
+  const hashed = await bcrypt.hash(password, 10)
+
+  try {
+    const { rows } = await pool.query(
+      `INSERT INTO users (nom, prenom, email, login, password_hash, role)
+       VALUES ($1, $2, $3, $4, $5, 'user')
+       RETURNING id, login, role`,
+      [nom, prenom, email, login, hashed],
+    )
+    res.status(201).json({ message: 'Utilisateur créé', user: rows[0] })
+  } catch (err: any) {
+    if (err.code === '23505') return res.status(409).json({ error: 'Login déjà utilisé' })
+    console.error(err)
+    res.status(500).json({ error: 'Erreur serveur' })
+  }
 })
 
-
 router.post('/refresh', (req, res) => {
-    const refresh = req.cookies?.refresh_token
-    if (!refresh) return res.status(401).json({ error: 'Refresh token manquant' })
-    try {
-        const decoded = jwt.verify(refresh, JWT_SECRET) as TokenPayload
-        const newAccess = createAccessToken({ id: decoded.id, role: decoded.role })
-        res.cookie('access_token', newAccess, {
-            httpOnly: true, secure: true, sameSite: 'strict', maxAge: 15 * 60 * 1000,
-        })
-        res.json({ message: 'Token renouvelé' })
-    } catch {
-        res.status(403).json({ error: 'Refresh token invalide ou expiré' })
-    }
+  const refresh = req.cookies?.refresh_token
+  if (!refresh) return res.status(401).json({ error: 'Refresh token manquant' })
+
+  try {
+    const decoded = jwt.verify(refresh, JWT_SECRET) as TokenPayload
+    const newAccess = createAccessToken({ id: decoded.id, role: decoded.role })
+
+    // ✅ stesso cookie config cross-site
+    res.cookie('access_token', newAccess, accessCookie)
+
+    res.json({ message: 'Token renouvelé' })
+  } catch {
+    res.status(403).json({ error: 'Refresh token invalide ou expiré' })
+  }
 })
 
 router.get('/whoami', verifyToken, (req, res) => {
-    res.json({ user: req.user })
+  res.json({ user: req.user })
 })
+
 export default router
