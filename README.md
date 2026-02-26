@@ -1,297 +1,298 @@
-#  Festivals de Jeux - Application de Gestion
+# Festivals de Jeux — Festival Management Platform
 
-## C'est quoi cette application?
+## Project Overview
 
-Une plateforme complète pour organiser et gérer un festival de jeux de société. Depuis la création du festival, la mise en place des tarifs, jusqu'à la gestion des réservations des éditeurs et la génération des factures. C'est l'outil idéal pour un organisateur de festival qui a besoin de tout gérer au même endroit.
+This application was developed as a **team project** during an academic program at a French engineering university.
 
----
+The goal was to design and build a complete platform to manage board game festivals, covering everything from festival creation to reservations, placement planning, and invoicing.
 
-##  Lancer l'application en local
+The interface is in English to ensure accessibility for an international audience.
 
-### Prérequis
-- Docker et Docker Compose installés sur votre ordinateur
-- Les ports 8080, 4000, 5432 doivent être libres
+👉 The **latest stable version** of the project is available online (deployment version).
 
-### Étapes pour démarrer
+🔗 Live application: https://lively-rabanadas-2ae5d7.netlify.app/
+🔗 Backend API: https://tables-game-festival.onrender.com/
+🔗 GitHub repository: https://github.com/vincenzoparente04/Tables-Game-Festival
 
-**1. Préparer le projet**
-```bash
-git checkout ahmed
-```
-
-**2. Lancer l'application**
-```bash
-docker compose -f docker-compose.dev.yml down -v
-
-docker compose -f docker-compose.dev.yml up --build
-```
-
-### Accéder à l'application
-
-Une fois lancée, ouvrez dans votre navigateur :
-- **L'application** : https://localhost:8080
-- **Les API** : https://localhost:4000/api
-- **Gérer la base de données** : http://localhost:8081 (Adminer)
-- identifiants pour adminer : 
-Utilisateur	 : secureapp
-Mot de passe : secureapp
-Base de données : secureapp
-
-### Se connecter
-
-Utilisez ces identifiants par défaut :
-```
-Login: admin
-Mot de passe: admin
-```
+> Note: The deployment version includes the latest fixes and improvements beyond the academic submission.
 
 ---
 
-## Accéder à l'application déployée (sur le serveur de l'école)
+## What is this application?
 
-Si vous etes à l'ecole (connecté avec le reseau de l'ecole) ou si vous êtes connecté au VPN de Polytech, vous pouvez y accéder directement :
+A complete platform for organizing and managing a board game festival.
 
-**Application** : https://162.38.111.34:8080/login
+From festival creation and pricing setup to publisher reservations and invoice generation, it provides organizers with a single tool to manage the entire event.
 
-**Gérer la base de données** : http://162.38.111.34:8081 (mêmes identifiants)
+## How does it work?
 
+### 1. Home Page
+
+When you log in, you arrive on the home page.
+
+On the left, there is a **sidebar menu** with access to all sections of the application.
 
 ---
 
-## Comment ça marche? 
+### 2. Create a Festival
 
-### 1. La page d'accueil
+**Where to go**: Sidebar → Festivals → Click **"Create"**
 
-Quand vous vous connectez, vous arrivez sur la page d'accueil. Vous voyez:
+**What you do**:
+- Give the festival a **name** (e.g., "Festival Ludis 2026")
+- Specify the **total number of available tables** (e.g., 100)
+- Define the **start date** and **end date**
+- Add a **description** (optional)
+- Fill in the **furniture stock**:
+  - Standard tables, large tables, municipal tables
+  - Standard chairs, municipal chairs
+- Set the **price per electrical outlet** (e.g., €5)
 
-À gauche, il y a un **menu latéral** avec tous les accès aux différentes sections de l'app.
+**After creation**:
+- The festival automatically appears first (marked with a ⭐ "current")
+- Previous festivals are no longer current
+- The new festival appears in the public view (for visitors or volunteers)
 
-### 2. Créer un festival
+**Trying to delete a festival**:  
+If you create reservations or zones, you will no longer be able to delete it (the app prevents deletion to avoid data loss).
 
-**Où aller** : Sidebar → Festivals → Cliquer sur "Créer"
-
-**Ce qu'on fait** :
-- Vous donnez un **nom** au festival (ex: "Festival Ludis 2026")
-- Vous indiquez le **nombre total de tables disponibles** (ex: 100)
-- Vous définissez la **date de début** et la **date de fin** du festival
-- Vous ajoutez une **description** (optionnelle)
-- Vous remplissez les **stocks de mobilier** :
-  - Tables standard, Tables grandes, Tables mairie
-  - Chaises standard, Chaises mairie
-- Vous indiquez le **prix d'une prise électrique** (ex: 5€)
-
-**Après la création** :
-- Le festival apparaît automatiquement en premier (marqué avec une étoile ⭐ "courant")
-- Les anciens festivals ne sont plus "courants"
-- Vous voyez le nouveau festival sur la page vue publique (si vous etes visiteur ou benevole)
-
-**Essayer de supprimer un festival** : Si vous créez d'autres réservations ou zones, vous ne pourrez plus le supprimer (l'app refuse pour éviter de perdre des données)
-
-### 3. Créer des zones tarifaires (les différents prix)
-
-**Où aller** : Dans le détail d'un festival → Bouton "Créer zone tarifaires"
-
-**Ce qu'on fait** :
-- Vous donnez un **nom** à la zone (ex: "Premium", "Standard", "Budget", ...)
-- Vous dites **combien de tables** cette zone contient
-- Vous mettez le **prix par table** (ex: 50€ par table)
-- Le **prix au m²** se calcule automatiquement
-
-**Important** : La somme de toutes les zones ne peut pas dépasser le total du festival!
-- Si le festival a 100 tables et vous créez une zone avec 50 tables, vous pouvez créer une autre avec max 50 tables.
-- Si vous essayez de créer plus, l'app refuse et dit combien il reste disponible.
-
-### 4. Créer une réservation 
-
-**Où aller** : Cliquez sur "Festivals" dans la Sidebar → Trouvez le festival qui vous intéresse → Cliquez sur le bouton "Réservations" de la carte → Cliquez sur le bouton "Nouvelle Réservation"
-
-**Ce qu'on remplit dans le formulaire** :
-- **Réservant** : Sélectionnez qui réserve (un éditeur, association, etc.)
-- **Nombre de prises électriques** : Combien de prises électriques ils veulent (chacune coûte le prix du festival)
-- **Viendra animer** : Cochez si le réservant va venir animer ses jeux sur place
-- **Notes** : Vous pouvez ajouter des notes internes (optionnel)
-- **Tables réservées par zone** : Pour chaque zone tarifaire (Premium, Standard, etc.), indiquez combien de tables ils veulent
-- Le prix se **calcule automatiquement**
-Vous pouvez ajouter plusieurs zones pour la même réservation.
-
-**Après création** :
-- La réservation apparaît avec l'état "pas contacté"
-- Vous pouvez maintenant ajouter ou modifier les informations de la réservation
-
-
-### 5. Appliquer des remises (optionnel)
-
-**Dans la réservation** : Deux champs pour les remises
-
-Vous pouvez appliquer jusqu'à deux types de réductions :
-
-**Remise montant** : Une réduction fixe en euros
-
-**Remise tables** : Un pourcentage sur les tables seulement
-
-
-### 6. Ajouter des jeux à la réservation
-
-**Dans le détail** : Bouton "Ajouter un jeu"
-
-**Ce qu'on fait** :
-- Vous **choisissez un jeu** dans la liste (ex: Catan, Ticket to Ride)
-- Le jeu s'ajoute à la réservation
-- Vous voyez le **statut du jeu** : "Jeux non reçus" et vous pouvez le cocher pour qu'il soit recu par ex 
-
-
-### 7. Générer la facture 
-
-**Dans le détail de la réservation** : Bouton "Générer facture"
-
-**Qu'il se passe** :
-- vous voyez : Tables + Prises - Remises = Montant final
-- vous cliquez sur "Générer"
-
-**Après génération** :
-- Une **facture unique** est créée avec un numéro (FAC-20260120-00001)
-- La facture est marquée "non payé"
-- **Important** : Tu ne peux pas créer deux factures pour la même réservation! par contre on peut la modifier si on modifie les lignes de paiement
-
-
-### 10. Marquer la facture comme payée
-
-**Dans le détail de la réservation** : Section "Workflow" → Bouton "Payer"
-
-**Qu'on fait** :
-- Vous cliquez pour dire que le client a payé
-- La facture passe de "non payé" à "payé" et donc on peut ni la modifier ou la supprimer (sauf si on reviens a l'etat non payé )
-- La date de paiement est enregistrée
-
-### 11. Organiser le plan et placer les jeux (zones du plan)
-
-**Où aller** : Cliquez sur "Festivals" dans la Sidebar → Trouvez votre festival → Cliquez sur le bouton "Plan & Placement" → Vous arrivez sur la page de gestion des zones du plan
-
-**Créer une zone du plan** :
-- Cliquez sur le bouton "Nouvelle Zone Plan" en haut de la page
-- Vous donnez un **nom** à la zone (ex: "Allée A", "Espace Jeunesse", "Zone VIP")
-- Vous indiquez le **nombre de tables disponibles** dans cette zone 
-- Cliquez "Créer"
-
-**Placer les jeux dans les zones** :
-- Sur chaque zone, vous voyez un bouton "Placer un jeu"
-- Cliquez dessus → sélectionnez le jeu que vous voulez placer
-- Le jeu s'ajoute à la zone et vous voyez le **taux d'occupation** (% de tables utilisées)
-- Les jeux sont groupés par **réservation** pour voir qui a posé quoi
-- on peut placer les jeux de l'onglet placer jeux egalement.
-
-**Vue d'ensemble** :
-- L'onglet "Vue d'ensemble" montre toutes les zones avec les jeux placés
-- L'onglet "Stocks de matériel" affiche les tables et chaises restantes du festival
-
-### 12. Gérer les éditeurs
-
-**Où aller** : Cliquez sur "Éditeurs" dans la Sidebar
-
-**Créer un éditeur** :
-- Vous donnez le **nom** de l'éditeur 
-- Vous pouvez ajouter des **contacts** pour l'éditeur:
-  - **Nom** du contact
-  - **Email** (optionnel)
-  - **Téléphone** (optionnel)
-  - **Rôle / fonction** (ex: "Responsable commercial")
-- Vous pouvez ajouter plusieurs contacts
-
-**Voir et modifier un éditeur** :
-- Cliquez sur un éditeur dans la liste
-- Vous voyez ses **jeux** et ses **contacts**
-- Vous pouvez modifier ou supprimer l'éditeur
-
-### 12B. Gérer les jeux
-
-**Où aller** : Cliquez sur "Jeux" dans la Sidebar
-
-**Créer un jeu** :
-- Cliquez sur "+ Ajouter un jeu"
-- Vous remplissez:
-  - **Nom du jeu** 
-  - **Éditeur** - **obligatoire**
-  - **Type de jeu** (ex: "Stratégie", "Coopératif")
-  - **Âge minimum et maximum**
-  - **Nombre minimum et maximum de joueurs**
-  - **Durée moyenne** (en minutes)
-  - **Taille de table** (petite, grande)
-  - **Auteurs**
-- Vous pouvez modifier ou supprimer un jeu en cliquant dessus puis le bouton correspondant
-
-### 13. Gérer les réservants
-
-**Où aller** : Cliquez sur "Réservants" dans la Sidebar
-
-**Créer un réservant** :
-- Vous donnez le **nom** du réservant (ex: "Association des Jeux", "Distributeur XYZ")
-- Vous choisissez le **type**:
-  - **Éditeur** : Une maison d'édition
-  - **Distributeur** : Un distributeur de jeux
-  - **Association** : Une association de joueurs
-  - **Autre** : Autre type
-- Si c'est un éditeur, vous pouvez le **lier à un éditeur existant** (optionnel)
-- Vous pouvez ajouter des **contacts**:
-  - **Nom** du contact
-  - **Email**
-  - **Téléphone**
-  - **Rôle / fonction**
-
-### Données initiales (CSV import)
-
-À la première installation, la base de données est remplie avec les données provenant des fichiers CSV:
-- **editeur.csv** → Liste des éditeurs
-- **jeu.csv** → Liste des jeux avec leurs propriétés
-- **typeJeu.csv** → Types de jeux disponibles
-
-Ces données sont importées automatiquement via le script **02_seed.sql** lors de l'initialisation Docker. Cela vous permet de commencer avec un catalogue de jeux et d'éditeurs pré-existants.
-
-### 14. Vue publique (pour les visiteurs et bénévoles)
-
-**Où aller** : Cliquez sur "Vues publiques" dans la Sidebar
-
-**Qu'on voit** :
-- Les jeux du **festival courant** avec tous leurs détails:
-  - Nom, type, âges recommandés, nombre de joueurs
-  - Durée, éditeur, auteurs
-  - Zone du plan (où le jeu est placé)
-- Les **éditeurs** du festival courant
-- Vous pouvez basculer entre la vue "Jeux" et la vue "Éditeurs"
-
-**Qui peut voir** : tous les roles , mais puisque les autres roles sauf visiteurs et benevoles peuvent voir les festivals et festival courant dasn festivals , on mets le noms du festival courant et quelques infos limitées pour que les visiteurs et benevoles voient 
-
-### 15. Les rôles et permissions
-
-**Admin** : Peut tout faire
-- Créer et gérer festivals, zones tarifaires, réservations
-- Générer toutes les factures
-- Voir toutes les réservations
-- Gérer les utilisateurs
-- Gérer les jeux et éditeurs
-- Accéder à la vue publique
-
-**Super Organisateur** : Presque Admin (sauf gestion des utilisateurs)
-- Créer et gérer festivals, zones tarifaires, réservations
-- Générer toutes les factures
-- Voir toutes les réservations
-- Gérer les jeux et éditeurs
-- Accéder à la vue publique
-- **Ne peut pas** : Gérer les utilisateurs (création, modification, suppression)
-
-**Organisateur** : Peut gérer son festival
-- Créer zones tarifaires
-- Créer et gérer ses réservations
-- Générer ses factures
-- Voir uniquement ses réservations
-- Accéder à la vue publique
-
-**Bénévole et visiteurs** : Peut regarder
-- Voir le festival courant
-- Voir le plan du festival (zones et jeux placés)
-- Voir la vue publique (jeux et éditeurs)
-- Rien créer
-
-**user** : 
-- attends la validation de son compte par l'admin donc il ne voit rien 
 ---
 
+### 3. Create Pricing Zones (different price tiers)
+
+**Where to go**: Festival details → **"Create pricing zone"**
+
+**What you do**:
+- Give the zone a **name** (e.g., Premium, Standard, Budget…)
+- Specify **how many tables** the zone contains
+- Set the **price per table** (e.g., €50 per table)
+- The **price per m²** is calculated automatically
+
+**Important**: The sum of all zones cannot exceed the festival total.
+
+- If the festival has 100 tables and you create a zone with 50 tables, you can create another with a maximum of 50 tables.
+- If you try to exceed the total, the app refuses and shows how many remain available.
+
+---
+
+### 4. Create a Reservation
+
+**Where to go**:  
+Sidebar → Festivals → select a festival → click **Reservations** → click **New Reservation**
+
+**What you fill in**:
+- **Reservant**: Select who is reserving (publisher, association, etc.)
+- **Number of electrical outlets**: how many outlets they need (each costs the festival price)
+- **Will host activities**: check if they will animate activities on site
+- **Notes**: internal notes (optional)
+- **Tables reserved by zone**: for each pricing zone (Premium, Standard, etc.), specify how many tables they want
+
+The price is **calculated automatically**.  
+You can add multiple zones for the same reservation.
+
+**After creation**:
+- The reservation appears with the status **"not contacted"**
+- You can now add or modify the reservation information
+
+---
+
+### 5. Apply Discounts (optional)
+
+Inside the reservation, there are two discount fields.
+
+You can apply up to two types of reductions:
+
+**Fixed discount**: a fixed reduction in euros  
+**Table discount**: a percentage applied to tables only
+
+---
+
+### 6. Add Games to the Reservation
+
+**In the reservation detail** → click **"Add a game"**
+
+**What you do**:
+- Select a game from the list (e.g., Catan, Ticket to Ride)
+- The game is added to the reservation
+- You see the game status: **"Game not received"**, which you can check once received
+
+---
+
+### 7. Generate the Invoice
+
+**Reservation detail** → click **"Generate invoice"**
+
+**What happens**:
+- You see: Tables + Outlets − Discounts = Final amount
+- Click **Generate**
+
+**After generation**:
+- A **unique invoice** is created with a number (FAC-20260120-00001)
+- The invoice is marked **unpaid**
+- **Important**: You cannot create two invoices for the same reservation.  
+  However, it can be modified if payment lines are changed.
+
+---
+
+### 10. Mark the Invoice as Paid
+
+**Reservation detail → Workflow section → "Pay"**
+
+**What you do**:
+- Click to confirm the client has paid
+- The invoice changes from **unpaid** to **paid**
+- Once paid, it cannot be modified or deleted (unless reverted to unpaid)
+- The payment date is recorded
+
+---
+
+### 11. Organze the Layout & Place Games (plan zones)
+
+**Where to go**:  
+Sidebar → Festivals → select festival → **Plan & Placement**
+
+You arrive at the plan zone management page.
+
+**Create a plan zone**:
+- Click **"New Plan Zone"**
+- Give the zone a **name** (e.g., Aisle A, Youth Area, VIP Zone)
+- Specify the **number of available tables**
+- Click **Create**
+
+**Place games in zones**:
+- Each zone has a **"Place a game"** button
+- Select the game you want to place
+- The game is added and the **occupancy rate** is displayed (% of tables used)
+- Games are grouped by **reservation**
+- Games can also be placed from the “place games” tab.
+
+**Overview**:
+- The **Overview** tab shows all zones with placed games
+- The **Equipment stock** tab displays remaining tables and chairs
+
+---
+
+### 12. Manage Publishers
+
+**Where to go**: Sidebar → **Publishers**
+
+**Create a publisher**:
+- Enter the publisher **name**
+- Add **contacts**:
+  - Name
+  - Email (optional)
+  - Phone (optional)
+  - Role/function (e.g., Sales Manager)
+- You can add multiple contacts
+
+**View & edit**:
+- Click a publisher
+- See their **games** and **contacts**
+- Modify or delete the publisher
+
+---
+
+### 12B. Manage Games
+
+**Where to go**: Sidebar → **Games**
+
+**Create a game**:
+- Click **+ Add game**
+- Fill in:
+  - Game name
+  - Publisher (**required**)
+  - Game type (e.g., Strategy, Cooperative)
+  - Minimum & maximum age
+  - Minimum & maximum players
+  - Average duration (minutes)
+  - Table size (small, large)
+  - Authors
+
+You can modify or delete a game later.
+
+---
+
+### 13. Manage Reservants
+
+**Where to go**: Sidebar → **Reservants**
+
+**Create a reservant**:
+- Enter the reservant name (e.g., Game Association, Distributor XYZ)
+- Choose the type:
+  - Publisher
+  - Distributor
+  - Association
+  - Other
+- If it is a publisher, you can link an existing publisher (optional)
+- Add contacts:
+  - Name
+  - Email
+  - Phone
+  - Role/function
+
+---
+
+### Initial Data (CSV import)
+
+At first installation, the database is populated using CSV files:
+
+- **editeur.csv** → list of publishers  
+- **jeu.csv** → list of games and properties  
+- **typeJeu.csv** → available game types  
+
+These data are automatically imported via **02_seed.sql** during Docker initialization, allowing you to start with a pre-existing catalog.
+
+---
+
+### 14. Public View (for visitors & volunteers)
+
+**Where to go**: Sidebar → **Public Views**
+
+**What is displayed**:
+- Games from the **current festival** with details:
+  - Name, type, recommended ages, number of players
+  - Duration, publisher, authors
+  - Plan zone (where the game is placed)
+- Publishers of the current festival
+- Toggle between **Games view** and **Publishers view**
+
+**Who can see it**: all roles.  
+Since other roles can access festivals, limited festival information is shown here so visitors and volunteers can view essential details.
+
+---
+
+### 15. Roles & Permissions
+
+**Admin** — full access
+- Manage festivals, pricing zones, reservations
+- Generate invoices
+- View all reservations
+- Manage users
+- Manage games & publishers
+- Access public view
+
+**Super Organizer** — almost Admin (except user management)
+- Manage festivals, pricing zones, reservations
+- Generate invoices
+- View reservations
+- Manage games & publishers
+- Access public view
+- Cannot manage users
+
+**Organizer**
+- Manage their festival
+- Create pricing zones
+- Manage their reservations
+- Generate invoices
+- View only their reservations
+- Access public view
+
+**Volunteer & Visitor**
+- View the current festival
+- View the festival layout (zones & placed games)
+- Access public view
+- Cannot create anything
+
+**User**
+- Waits for admin approval
+- Cannot access content until validated
