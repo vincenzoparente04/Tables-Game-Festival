@@ -12,7 +12,7 @@ The **latest stable version** of the project is available online (deployment ver
 
 Live application: https://lively-rabanadas-2ae5d7.netlify.app/
 
-Backend API: https://tables-game-festival.onrender.com/
+Backend API: deployed on render
 
 GitHub repository: https://github.com/vincenzoparente04/Tables-Game-Festival
 
