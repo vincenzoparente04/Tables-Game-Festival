@@ -11,7 +11,9 @@ The interface is in English to ensure accessibility for an international audienc
 The **latest stable version** of the project is available online (deployment version).
 
 Live application: https://lively-rabanadas-2ae5d7.netlify.app/
+
 Backend API: https://tables-game-festival.onrender.com/
+
 GitHub repository: https://github.com/vincenzoparente04/Tables-Game-Festival
 
 > Note: The deployment version includes the latest fixes and improvements beyond the academic submission.
