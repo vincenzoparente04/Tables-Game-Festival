@@ -5,12 +5,28 @@ import pool from '../db/database.js'
 import { verifyToken, createAccessToken, createRefreshToken } from '../middleware/token-management.js'
 import { JWT_SECRET } from '../config/en.js'
 import type { TokenPayload } from '../types/token-payload.ts'
+import { authLimiter } from '../middleware/rate-limit.js'
+import { validateBody } from '../middleware/validate.js'
+import { z } from 'zod'
 
 const router = Router()
 
 // Pre-computed hash used to equalize bcrypt timing when a login does not exist,
 // preventing user-enumeration via response time.
 const DUMMY_PASSWORD_HASH = bcrypt.hashSync('invalid-password-placeholder', 10)
+
+const loginSchema = z.object({
+  login: z.string().min(1),
+  password: z.string().min(1),
+})
+
+const registerSchema = z.object({
+  nom: z.string().max(50).optional(),
+  prenom: z.string().max(50).optional(),
+  email: z.email(),
+  login: z.string().min(3).max(255),
+  password: z.string().min(8),
+})
 
 // ✅ Cookie config per cross-site (Netlify -> Render)
 const isProd = process.env.NODE_ENV === 'production'
@@ -25,7 +41,7 @@ const cookieBase = {
 const accessCookie = { ...cookieBase, maxAge: 15 * 60 * 1000 } // 15 min
 const refreshCookie = { ...cookieBase, maxAge: 7 * 24 * 60 * 60 * 1000 } // 7 giorni
 
-router.post('/login', async (req, res) => {
+router.post('/login', authLimiter, validateBody(loginSchema), async (req, res) => {
   const { login, password } = req.body
   if (!login || !password) return res.status(400).json({ error: 'Missing credentials' })
 
@@ -54,7 +70,7 @@ router.post('/logout', (_req, res) => {
   res.json({ message: 'Déconnexion réussie' })
 })
 
-router.post('/register', async (req, res) => {
+router.post('/register', authLimiter, validateBody(registerSchema), async (req, res) => {
   const { nom, prenom, email, login, password } = req.body
   if (!login || !password || !email) return res.status(400).json({ error: 'Champs manquants' })
 
@@ -75,7 +91,7 @@ router.post('/register', async (req, res) => {
   }
 })
 
-router.post('/refresh', (req, res) => {
+router.post('/refresh', authLimiter, (req, res) => {
   const refresh = req.cookies?.refresh_token
   if (!refresh) return res.status(401).json({ error: 'Refresh token required' })
 

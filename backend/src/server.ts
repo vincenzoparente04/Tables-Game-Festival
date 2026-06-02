@@ -2,6 +2,7 @@ import fs from 'fs'
 import https from 'https'
 import express from 'express'
 import cors from 'cors'
+import helmet from 'helmet'
 import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
 import publicRouter from './routes/public.js'
@@ -20,6 +21,7 @@ import viewPublicRouter from './routes/viewPublic.js'
 import reservantsRouter from './routes/reservants.js'
 import reservationsRouter from './routes/reservations.js'
 import facturasRouter from './routes/factures.js'
+import { notFound, errorHandler } from './middleware/error-handler.js'
 
 
 
@@ -29,25 +31,16 @@ const app = express()
 
 app.set('trust proxy', 1);
 
-// Ajout manuel des principaux en-têtes HTTP de sécurité
-app.use((req, res, next) => {
-    // Empêche le navigateur d’interpréter un fichier d’un autre type MIME -> attaque : XSS via upload malveillant
-    res.setHeader('X-Content-Type-Options', 'nosniff')
-    // Interdit l'intégration du site dans des iframes externes -> attaque : Clickjacking
-    res.setHeader('X-Frame-Options', 'SAMEORIGIN')
-    // Évite que les URL avec paramètres sensibles apparaissent dans les en-têtes "Referer" -> attaque : Token ou paramètres dans l’URL
-    res.setHeader('Referrer-Policy', 'no-referrer')
-    // Politique de ressources : seules les ressources du même site peuvent être chargées -> attaque : Fuite de données statiques
-    res.setHeader('Cross-Origin-Resource-Policy', 'same-origin')
-    // Politique d'ouverture inter-origine (Empêche le partage de contexte entre onglets) -> attaque : de type Spectre - isolation des fenêtres
-    res.setHeader('Cross-Origin-Opener-Policy', 'same-origin')
-    // Politique d'intégration inter-origine (empêche les inclusions non sûres : force l’isolation complète des ressources intégrées) -> Attaques par chargement de scripts
-    res.setHeader('Cross-Origin-Embedder-Policy', 'require-corp')
-    next();
-})
+// Security headers (replaces the previous manual block).
+// CSP is disabled because this is a JSON API (the frontend manages its own CSP);
+// CORP is 'cross-origin' so the cross-site frontend can read API responses.
+app.use(helmet({
+    contentSecurityPolicy: false,
+    crossOriginResourcePolicy: { policy: 'cross-origin' },
+}))
 
 app.use(morgan('dev')) // Log des requêtes : Visualiser le flux de requêtes entre Angular et Express
-app.use(express.json())
+app.use(express.json({ limit: '1mb' }))
 app.use(cookieParser())
 
 // Configuration CORS : autoriser le front Angular en HTTPS local
@@ -90,8 +83,12 @@ app.use('/api/reservations', verifyToken, reservationsRouter);
 app.use('/api/factures', verifyToken, facturasRouter);
 app.use('/api/users', verifyToken, usersRouter); 
 app.use('/api/admin', verifyToken, requireAdmin, (req, res) => {
-res.json({ message: 'Bienvenue admin' });
+res.json({ message: 'Welcome admin' });
 })
+
+// 404 + central error handler (must be registered after all routes)
+app.use(notFound)
+app.use(errorHandler)
 
 
 const port = Number(process.env.PORT) || 4000
