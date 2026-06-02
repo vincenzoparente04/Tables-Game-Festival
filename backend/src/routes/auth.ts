@@ -8,6 +8,10 @@ import type { TokenPayload } from '../types/token-payload.ts'
 
 const router = Router()
 
+// Pre-computed hash used to equalize bcrypt timing when a login does not exist,
+// preventing user-enumeration via response time.
+const DUMMY_PASSWORD_HASH = bcrypt.hashSync('invalid-password-placeholder', 10)
+
 // ✅ Cookie config per cross-site (Netlify -> Render)
 const isProd = process.env.NODE_ENV === 'production'
 
@@ -23,14 +27,15 @@ const refreshCookie = { ...cookieBase, maxAge: 7 * 24 * 60 * 60 * 1000 } // 7 gi
 
 router.post('/login', async (req, res) => {
   const { login, password } = req.body
-  if (!login || !password) return res.status(400).json({ error: 'Identifiants manquants' })
+  if (!login || !password) return res.status(400).json({ error: 'Missing credentials' })
 
   const { rows } = await pool.query('SELECT * FROM users WHERE login=$1', [login])
   const user = rows[0]
-  if (!user) return res.status(401).json({ error: 'Utilisateur inconnu' })
 
-  const match = await bcrypt.compare(password, user.password_hash)
-  if (!match) return res.status(401).json({ error: 'Mot de passe incorrect' })
+  // Always run a bcrypt comparison (even when the user does not exist) and return
+  // a single generic error, to avoid leaking account existence.
+  const match = await bcrypt.compare(password, user?.password_hash ?? DUMMY_PASSWORD_HASH)
+  if (!user || !match) return res.status(401).json({ error: 'Invalid credentials' })
 
   const accessToken = createAccessToken({ id: user.id, role: user.role })
   const refreshToken = createRefreshToken({ id: user.id, role: user.role })
@@ -72,18 +77,20 @@ router.post('/register', async (req, res) => {
 
 router.post('/refresh', (req, res) => {
   const refresh = req.cookies?.refresh_token
-  if (!refresh) return res.status(401).json({ error: 'Refresh token manquant' })
+  if (!refresh) return res.status(401).json({ error: 'Refresh token required' })
 
   try {
     const decoded = jwt.verify(refresh, JWT_SECRET) as TokenPayload
+    if (decoded.type !== 'refresh') {
+      return res.status(403).json({ error: 'Invalid token type' })
+    }
     const newAccess = createAccessToken({ id: decoded.id, role: decoded.role })
 
-    // ✅ stesso cookie config cross-site
     res.cookie('access_token', newAccess, accessCookie)
 
-    res.json({ message: 'Token renouvelé' })
+    res.json({ message: 'Token refreshed' })
   } catch {
-    res.status(403).json({ error: 'Refresh token invalide ou expiré' })
+    res.status(403).json({ error: 'Invalid or expired refresh token' })
   }
 })
 

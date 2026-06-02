@@ -1,8 +1,7 @@
 import { Router } from 'express'
 import pool from '../db/database.js'
 import bcrypt from 'bcryptjs'
-import { requireAdmin } from '../middleware/auth-admin.js'
-import { requireRole, requireActivatedAccount, requirePermission } from '../middleware/roles.js';
+import { requireActivatedAccount, requirePermission } from '../middleware/roles.js';
 import { Role } from '../config/roles.config.js';
 
 const router = Router()
@@ -244,40 +243,5 @@ router.get('/roles/available',
 
 
 
-
-// tout ce qui est en dessous etait dans le tp , a voir si on les garde ou pas 
-
-router.get('/:id', async (req, res) => {
-  const { id } = req.params
-  try {
-    const { rows } = await pool.query(
-      'SELECT id, login, role FROM users WHERE id = $1',
-      [id]
-    )
-    if (rows.length === 0) {
-      return res.status(404).json({ error: 'Utilisateur non trouvé' })
-    }
-    res.json(rows[0])
-  } catch (err: any) {
-    console.error(err)
-    res.status(500).json({ error: 'Erreur serveur' })
-  }
-})
-
-router.get('/me', async (req, res) => {
-  const user = req.user
-  const { rows } = await pool.query(
-    'SELECT id, login, role FROM users WHERE id=$1',
-    [user?.id]
-  )
-  res.json(rows[0]);
-})
-
-router.get('/', requireAdmin, async (_req, res) => {
-  const { rows } = await pool.query(
-    'SELECT id, login, role FROM users ORDER BY id'
-  )
-  res.json(rows)
-})
 
 export default router

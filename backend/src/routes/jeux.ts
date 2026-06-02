@@ -5,7 +5,7 @@ import { requireRole, requireActivatedAccount, requirePermission } from '../midd
 const router = Router();
 
 // GET /api/jeux - Get all games with authors
-router.get('/', requireActivatedAccount(), requirePermission('festivals', 'viewAll'), async (_req, res) => {
+router.get('/', requireActivatedAccount(), requirePermission('jeux', 'viewAll'), async (_req, res) => {
   try {
     const result = await pool.query(`
       SELECT
@@ -41,7 +41,7 @@ router.get('/', requireActivatedAccount(), requirePermission('festivals', 'viewA
 });
 
 // GET /api/jeux/:id - Get a specific game with authors
-router.get('/:id', requireActivatedAccount(), requirePermission('festivals', 'viewAll'), async (req, res) => {
+router.get('/:id', requireActivatedAccount(), requirePermission('jeux', 'viewAll'), async (req, res) => {
   const jeuId = req.params.id;
   try {
     const result = await pool.query(`
@@ -82,7 +82,7 @@ router.get('/:id', requireActivatedAccount(), requirePermission('festivals', 'vi
 });
 
 // POST /api/jeux - Create a new game
-router.post('/', requireActivatedAccount(), requirePermission('festivals', 'viewAll'), async (req, res) => {
+router.post('/', requireActivatedAccount(), requirePermission('jeux', 'create'), async (req, res) => {
   const {
     nom,
     editeur_id,
@@ -223,7 +223,7 @@ router.post('/', requireActivatedAccount(), requirePermission('festivals', 'view
 });
 
 // PUT /api/jeux/:id - Update a game
-router.put('/:id', requireActivatedAccount(), requirePermission('festivals', 'viewAll'), async (req, res) => {
+router.put('/:id', requireActivatedAccount(), requirePermission('jeux', 'update'), async (req, res) => {
   const jeuId = req.params.id;
   const {
     nom,
@@ -372,7 +372,7 @@ router.put('/:id', requireActivatedAccount(), requirePermission('festivals', 'vi
 });
 
 // DELETE /api/jeux/:id - Delete a game
-router.delete('/:id', requireActivatedAccount(), requirePermission('festivals', 'viewAll'), async (req, res) => {
+router.delete('/:id', requireActivatedAccount(), requirePermission('jeux', 'delete'), async (req, res) => {
   const jeuId = req.params.id;
   const client = await pool.connect();
 
