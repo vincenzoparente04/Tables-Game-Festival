@@ -21,6 +21,28 @@ export interface Quote {
   lines: QuoteLine[]
 }
 
+export interface PricedItem {
+  label: string
+  unit: string
+  quantity: number
+  unit_price: number
+}
+
+const round2 = (n: number) => Math.round(n * 100) / 100
+
+// Pure pricing math (no I/O) — unit-tested independently of the database.
+export function calculateQuote(items: PricedItem[], discount: number): Omit<Quote, 'booking_id'> {
+  const lines: QuoteLine[] = items.map((item) => ({
+    description: `${item.label} (${item.unit})`,
+    quantity: item.quantity,
+    unit_price: item.unit_price,
+    line_total: round2(item.unit_price * item.quantity),
+  }))
+  const subtotal = round2(lines.reduce((sum, line) => sum + line.line_total, 0))
+  const total = Math.max(0, round2(subtotal - discount))
+  return { subtotal, discount: round2(discount), total, lines }
+}
+
 interface BookedResourceJoin {
   label: string
   unit: string
@@ -41,19 +63,12 @@ export async function computeBookingQuote(bookingId: number): Promise<Quote> {
     [bookingId],
   )
 
-  const lines: QuoteLine[] = rows.map((r) => {
-    const unit_price = Number(r.unit_price)
-    return {
-      description: `${r.label} (${r.unit})`,
-      quantity: r.quantity,
-      unit_price,
-      line_total: Math.round(unit_price * r.quantity * 100) / 100,
-    }
-  })
+  const items: PricedItem[] = rows.map((r) => ({
+    label: r.label,
+    unit: r.unit,
+    quantity: r.quantity,
+    unit_price: Number(r.unit_price),
+  }))
 
-  const subtotal = Math.round(lines.reduce((sum, l) => sum + l.line_total, 0) * 100) / 100
-  const discount = Number(booking.discount_amount)
-  const total = Math.max(0, Math.round((subtotal - discount) * 100) / 100)
-
-  return { booking_id: bookingId, subtotal, discount, total, lines }
+  return { booking_id: bookingId, ...calculateQuote(items, Number(booking.discount_amount)) }
 }

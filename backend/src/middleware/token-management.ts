@@ -1,3 +1,4 @@
+import crypto from 'node:crypto'
 import type { Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import type { TokenPayload } from '../types/token-payload.ts'
@@ -8,10 +9,12 @@ import { JWT_SECRET, JWT_EXPIRATION, REFRESH_EXPIRATION } from '../config/env.js
 // never be accepted in place of an access token (and vice versa), even though
 // they are signed with the same secret.
 export function createAccessToken(user: TokenPayload) {
-    return jwt.sign({ id: user.id, role: user.role, type: 'access' }, JWT_SECRET, { expiresIn: JWT_EXPIRATION })
+    return jwt.sign({ id: user.id, role: user.role, type: 'access', jti: crypto.randomUUID() }, JWT_SECRET, { expiresIn: JWT_EXPIRATION })
 }
 export function createRefreshToken(user: TokenPayload) {
-    return jwt.sign({ id: user.id, role: user.role, type: 'refresh' }, JWT_SECRET, { expiresIn: REFRESH_EXPIRATION })
+    // A unique jti guarantees each refresh token (and its stored hash) is distinct,
+    // even when the same user logs in twice within the same second.
+    return jwt.sign({ id: user.id, role: user.role, type: 'refresh', jti: crypto.randomUUID() }, JWT_SECRET, { expiresIn: REFRESH_EXPIRATION })
 }
 export function verifyToken(req: Express.Request, res: Response, next: NextFunction) {
     const token = req.cookies?.access_token
