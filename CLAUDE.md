@@ -20,11 +20,18 @@ Full-stack TypeScript app for managing events held in rooms with tables/resource
 npm install            # install deps (package-lock.json is source of truth)
 npm run dev            # tsx watch src/server.ts  — local HTTPS via ./certs (mkcert)
 npm start              # tsx src/server.ts        — production (NODE_ENV=production, HTTP)
-npx tsc --noEmit       # typecheck (passes today)
-# TODO (add in Fase 1): npm run build | typecheck | lint | test | migrate
+npm run build          # tsc -> dist/  (production runs `node dist/server.js`)
+npm run typecheck      # tsc --noEmit
+npm run lint           # eslint .  (Prettier via npm run format)
+npm test               # vitest run
+npm run migrate        # node-pg-migrate up  (DB schema; needs DATABASE_URL)
+npm run admin:rotate   # rotate the admin password (ADMIN_LOGIN/ADMIN_PASSWORD env)
 ```
 Requires env vars: `DATABASE_URL`, `JWT_SECRET`, `JWT_EXPIRATION`, `REFRESH_EXPIRATION`,
-`FRONTEND_URL`, `PORT`, `NODE_ENV`. Local certs live in `backend/certs/*.pem` (gitignored).
+`FRONTEND_URL`, `PORT`, `NODE_ENV`, and `ADMIN_LOGIN`/`ADMIN_PASSWORD`/`ADMIN_EMAIL`
+(admin bootstrap — see `.env.example`). Local certs live in `backend/certs/*.pem` (gitignored).
+DB schema is managed by versioned migrations in `backend/migrations/` (no business data →
+reset & re-migrate on a clean DB). Local Postgres for testing: `docker compose -f docker-compose.dev.yml up -d db`.
 
 ### Frontend (`/frontend`)
 ```bash
@@ -67,11 +74,21 @@ npm test               # ng test (karma/jasmine)
 
 ## Refactor roadmap
 - **Fase 0 — Git cleanup** ✅ done. `main` = single source of truth, linear; obsolete branches pruned;
-  backups in tags `backup/pre-refactor-deploy`, `archive/*`.
-- **Fase 1 — Security hardening** 🚧 in progress. Remove default admin/admin, separate access/refresh
-  tokens, rate limiting, fix RBAC enforcement, central error handler, zod validation, ESLint/Prettier,
-  test scaffold, dependency audit (`npm audit`: 2 high + 2 moderate to resolve).
-- **Fase 2 — i18n EN + schema redesign + generalization** (combined; no production data → clean redesign).
+  backups in tags `backup/pre-refactor-deploy`, `backup/pre-fase1-deploy`, `archive/*`.
+- **Fase 1 — Security hardening** ✅ done & deployed (live on Render). admin from env, access/refresh
+  token `type` claim, revocable+rotating refresh tokens, rate limiting, helmet, zod, central error
+  handler, ESLint/Prettier, vitest+supertest, 0 npm audit vulns.
+- **Fase 2 — Generic English schema + backend** 🚧 in progress (branch `feat/generic-schema`).
+  - **2.A ✅** generic extensible schema via node-pg-migrate (events/areas/resource_types/resources/
+    pricing_tiers/participants/bookings/booked_resources/booking_items/invoices/custom_fields +
+    optional `games` module; JSONB attributes; event types & pipelines as data).
+  - **2.B ✅** backend rebuilt on the generic schema: route → service → repository layers, English
+    REST API (`/api/events|areas|resource-types|resources|pricing-tiers|participants|bookings|invoices|publishers|authors|games|users`),
+    pricing/invoicing in the service layer. Legacy FR routes removed.
+  - **2.C** automated tests for the new domains (pending). **2.D** Angular frontend cutover (pending).
+  - ⚠️ **Not deployed**: backend-first breaks the current frontend → prod stays on Fase 1 until the
+    frontend is migrated (coordinated BE+FE cutover).
+- **Fase 3 — further generalization & UI** (configurable pipelines UI, custom-fields UI, Claude Design).
 
 ## Git
 - `main` = single source of truth & integration branch. `deploy` tracks releases (kept aligned with main).
