@@ -16,6 +16,7 @@ import invoicesRouter from './routes/invoices.js'
 import publishersRouter from './routes/publishers.js'
 import authorsRouter from './routes/authors.js'
 import gamesRouter from './routes/games.js'
+import usersRouter from './routes/users.js'
 import { verifyToken } from './middleware/token-management.js'
 import { requireAdmin } from './middleware/auth-admin.js'
 import { notFound, errorHandler } from './middleware/error-handler.js'
@@ -73,6 +74,7 @@ app.use('/api/invoices', verifyToken, invoicesRouter)
 app.use('/api/publishers', verifyToken, publishersRouter)
 app.use('/api/authors', verifyToken, authorsRouter)
 app.use('/api/games', verifyToken, gamesRouter)
+app.use('/api/users', verifyToken, usersRouter)
 app.use('/api/admin', verifyToken, requireAdmin, (_req, res) => {
     res.json({ message: 'Welcome admin' })
 })
