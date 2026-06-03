@@ -16,7 +16,7 @@ export async function ensureAdmin() {
     const email = process.env.ADMIN_EMAIL || `${login}@local`
     const hash = await bcrypt.hash(password, 10)
     await pool.query(
-        `INSERT INTO users (nom, prenom, email, login, password_hash, role)
+        `INSERT INTO users (first_name, last_name, email, login, password_hash, role)
         VALUES ('Admin', 'Admin', $1, $2, $3, 'admin')
         ON CONFLICT (login) DO NOTHING`,
         [email, login, hash]

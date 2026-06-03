@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import pool from '../db/database.js'
 import { verifyToken, createAccessToken, createRefreshToken } from '../middleware/token-management.js'
-import { JWT_SECRET } from '../config/en.js'
+import { JWT_SECRET } from '../config/env.js'
 import type { TokenPayload } from '../types/token-payload.ts'
 import { authLimiter } from '../middleware/rate-limit.js'
 import { validateBody } from '../middleware/validate.js'
@@ -27,8 +27,8 @@ const loginSchema = z.object({
 })
 
 const registerSchema = z.object({
-  nom: z.string().max(50).optional(),
-  prenom: z.string().max(50).optional(),
+  first_name: z.string().max(50).optional(),
+  last_name: z.string().max(50).optional(),
   email: z.email(),
   login: z.string().min(3).max(255),
   password: z.string().min(8),
@@ -87,23 +87,23 @@ router.post('/logout', async (req, res) => {
 })
 
 router.post('/register', authLimiter, validateBody(registerSchema), async (req, res) => {
-  const { nom, prenom, email, login, password } = req.body
-  if (!login || !password || !email) return res.status(400).json({ error: 'Champs manquants' })
-
+  const { first_name, last_name, email, login, password } = req.body
   const hashed = await bcrypt.hash(password, 10)
 
   try {
     const { rows } = await pool.query(
-      `INSERT INTO users (nom, prenom, email, login, password_hash, role)
+      `INSERT INTO users (first_name, last_name, email, login, password_hash, role)
        VALUES ($1, $2, $3, $4, $5, 'user')
        RETURNING id, login, role`,
-      [nom, prenom, email, login, hashed],
+      [first_name ?? null, last_name ?? null, email, login, hashed],
     )
-    res.status(201).json({ message: 'Utilisateur créé', user: rows[0] })
-  } catch (err: any) {
-    if (err.code === '23505') return res.status(409).json({ error: 'Login déjà utilisé' })
+    res.status(201).json({ message: 'User created', user: rows[0] })
+  } catch (err: unknown) {
+    if (err && typeof err === 'object' && 'code' in err && (err as { code?: string }).code === '23505') {
+      return res.status(409).json({ error: 'Login or email already in use' })
+    }
     console.error(err)
-    res.status(500).json({ error: 'Erreur serveur' })
+    res.status(500).json({ error: 'Internal server error' })
   }
 })
 

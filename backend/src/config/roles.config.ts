@@ -1,136 +1,131 @@
-
+// Roles and the RBAC permission matrix (English).
+// Role values match the `users.role` CHECK constraint in the database.
 
 export enum Role {
   ADMIN = 'admin',
-  SUPER_ORGANISATEUR = 'super organisateur',
-  ORGANISATEUR = 'organisateur',
-  BENEVOLE = 'benevole',
-  VISITEUR = 'visiteur',
-  USER = 'user'
+  SUPER_ORGANIZER = 'super_organizer',
+  ORGANIZER = 'organizer',
+  VOLUNTEER = 'volunteer',
+  VISITOR = 'visitor',
+  USER = 'user',
 }
 
-// Hiérarchie des rôles (du plus élevé au moins élevé)
+// Hierarchy from highest to lowest privilege.
 export const ROLE_HIERARCHY: Role[] = [
   Role.ADMIN,
-  Role.SUPER_ORGANISATEUR,
-  Role.ORGANISATEUR,
-  Role.BENEVOLE,
-  Role.VISITEUR,
-  Role.USER
-];
+  Role.SUPER_ORGANIZER,
+  Role.ORGANIZER,
+  Role.VOLUNTEER,
+  Role.VISITOR,
+  Role.USER,
+]
 
-// Permissions par ressource
-export const PERMISSIONS = {
-  // FESTIVALS
-  festivals: {
-    viewAll: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR],
-    viewCurrent: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR, Role.BENEVOLE, Role.VISITEUR],
-    create: [Role.ADMIN, Role.SUPER_ORGANISATEUR],
-    update: [Role.ADMIN, Role.SUPER_ORGANISATEUR],
-    delete: [Role.ADMIN, Role.SUPER_ORGANISATEUR],
-    setCourant: [Role.ADMIN, Role.SUPER_ORGANISATEUR],
-    viewStocks: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR]
+export type PermissionMatrix = Record<string, Record<string, Role[]>>
+
+const ALL_STAFF = [Role.ADMIN, Role.SUPER_ORGANIZER, Role.ORGANIZER]
+const ADMINS = [Role.ADMIN, Role.SUPER_ORGANIZER]
+const EVERYONE = [Role.ADMIN, Role.SUPER_ORGANIZER, Role.ORGANIZER, Role.VOLUNTEER, Role.VISITOR]
+
+// Permissions per resource. Each route declares requirePermission(resource, action).
+export const PERMISSIONS: PermissionMatrix = {
+  events: {
+    viewAll: ALL_STAFF,
+    viewCurrent: EVERYONE,
+    create: ADMINS,
+    update: ADMINS,
+    delete: ADMINS,
+    setCurrent: ADMINS,
   },
-
-  // ZONES TARIFAIRES
-  zonesTarifaires: {
-    view: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR],
-    create: [Role.ADMIN, Role.SUPER_ORGANISATEUR],
-    update: [Role.ADMIN, Role.SUPER_ORGANISATEUR],
-    delete: [Role.ADMIN, Role.SUPER_ORGANISATEUR]
+  eventTypes: {
+    view: EVERYONE,
+    create: [Role.ADMIN],
+    update: [Role.ADMIN],
+    delete: [Role.ADMIN],
   },
-
-  // ZONES PLAN
-  zonesPlan: {
-    view: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR, Role.BENEVOLE, Role.VISITEUR],
-    create: [Role.ADMIN, Role.SUPER_ORGANISATEUR],
-    update: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR],
-    delete: [Role.ADMIN, Role.SUPER_ORGANISATEUR]
+  areas: {
+    view: EVERYONE,
+    create: ADMINS,
+    update: ALL_STAFF,
+    delete: ADMINS,
   },
-
-  // RÉSERVATIONS
-  reservations: {
-    view: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR],
-    create: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR],
-    update: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR],
-    delete: [Role.ADMIN, Role.SUPER_ORGANISATEUR],
-    updateWorkflow: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR]
+  resourceTypes: {
+    view: ALL_STAFF,
+    create: ADMINS,
+    update: ADMINS,
+    delete: ADMINS,
   },
-
-  // JEUX
-  jeux: {
-    viewPublic: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR, Role.BENEVOLE, Role.VISITEUR],
-    viewAll: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR],
-    create: [Role.ADMIN, Role.SUPER_ORGANISATEUR],
-    update: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR],
-    delete: [Role.ADMIN, Role.SUPER_ORGANISATEUR],
-    place: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR] // Placer dans zones
+  resources: {
+    view: ALL_STAFF,
+    create: ADMINS,
+    update: ALL_STAFF,
+    delete: ADMINS,
   },
-
-  // ÉDITEURS
-  editeurs: {
-    viewPublic: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR, Role.BENEVOLE, Role.VISITEUR],
-    viewAll: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR],
-    create: [Role.ADMIN, Role.SUPER_ORGANISATEUR],
-    update: [Role.ADMIN, Role.SUPER_ORGANISATEUR],
-    delete: [Role.ADMIN, Role.SUPER_ORGANISATEUR]
+  pricingTiers: {
+    view: ALL_STAFF,
+    create: ADMINS,
+    update: ADMINS,
+    delete: ADMINS,
   },
-
-  // RÉSERVANTS
-  reservants: {
-    view: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR],
-    create: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR],
-    update: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR],
-    delete: [Role.ADMIN, Role.SUPER_ORGANISATEUR]
+  participants: {
+    view: ALL_STAFF,
+    create: ALL_STAFF,
+    update: ALL_STAFF,
+    delete: ADMINS,
   },
-
-  // FACTURATION
-  factures: {
-    view: [Role.ADMIN, Role.SUPER_ORGANISATEUR, Role.ORGANISATEUR],
-    create: [Role.ADMIN, Role.SUPER_ORGANISATEUR],
-    update: [Role.ADMIN, Role.SUPER_ORGANISATEUR],
-    delete: [Role.ADMIN, Role.SUPER_ORGANISATEUR],
-    markPaid: [Role.ADMIN, Role.SUPER_ORGANISATEUR]
+  bookings: {
+    view: ALL_STAFF,
+    create: ALL_STAFF,
+    update: ALL_STAFF,
+    delete: ADMINS,
+    updateWorkflow: ALL_STAFF,
   },
-
-  // UTILISATEURS
+  invoices: {
+    view: ALL_STAFF,
+    create: ADMINS,
+    update: ADMINS,
+    delete: ADMINS,
+    markPaid: ADMINS,
+  },
+  games: {
+    viewPublic: EVERYONE,
+    viewAll: ALL_STAFF,
+    create: ADMINS,
+    update: ALL_STAFF,
+    delete: ADMINS,
+  },
   users: {
     view: [Role.ADMIN],
     create: [Role.ADMIN],
     update: [Role.ADMIN],
     delete: [Role.ADMIN],
     validatePending: [Role.ADMIN],
-    changeRole: [Role.ADMIN]
-  }
-};
+    changeRole: [Role.ADMIN],
+  },
+}
 
-// Fonction helper pour vérifier les permissions
+// True if the role is among the allowed roles for a permission.
 export function hasPermission(userRole: string, permission: Role[]): boolean {
-  return permission.includes(userRole as Role);
+  return permission.includes(userRole as Role)
 }
 
-// Fonction pour vérifier si un rôle a au moins le niveau d'un autre
+// True if userRole is at least as privileged as minimumRole.
 export function hasMinimumRole(userRole: string, minimumRole: Role): boolean {
-  const userIndex = ROLE_HIERARCHY.indexOf(userRole as Role);
-  const minIndex = ROLE_HIERARCHY.indexOf(minimumRole);
-  
-  if (userIndex === -1 || minIndex === -1) return false;
-  
-  return userIndex <= minIndex; // Plus petit index = rôle plus élevé
+  const userIndex = ROLE_HIERARCHY.indexOf(userRole as Role)
+  const minIndex = ROLE_HIERARCHY.indexOf(minimumRole)
+  if (userIndex === -1 || minIndex === -1) return false
+  return userIndex <= minIndex // lower index = higher privilege
 }
 
-// Helper pour obtenir toutes les permissions d'un rôle
-export function getRolePermissions(role: string) {
-  const perms: { [key: string]: string[] } = {};
-  
+// All granted permissions for a role, grouped by resource.
+export function getRolePermissions(role: string): Record<string, string[]> {
+  const perms: Record<string, string[]> = {}
   for (const [resource, actions] of Object.entries(PERMISSIONS)) {
-    perms[resource] = [];
+    perms[resource] = []
     for (const [action, allowedRoles] of Object.entries(actions)) {
       if (hasPermission(role, allowedRoles)) {
-        perms[resource].push(action);
+        perms[resource]!.push(action)
       }
     }
   }
-  
-  return perms;
+  return perms
 }

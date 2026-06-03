@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import jwt from 'jsonwebtoken'
 import type { Response } from 'express'
 import { createAccessToken, createRefreshToken, verifyToken } from './token-management.js'
-import { JWT_SECRET } from '../config/en.js'
+import { JWT_SECRET } from '../config/env.js'
 
 function mockRes() {
     const res: Record<string, unknown> = { statusCode: 200 }

@@ -1,7 +1,7 @@
 import type { Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
 import type { TokenPayload } from '../types/token-payload.ts'
-import { JWT_SECRET, JWT_EXPIRATION, REFRESH_EXPIRATION } from '../config/en.js';
+import { JWT_SECRET, JWT_EXPIRATION, REFRESH_EXPIRATION } from '../config/env.js';
 
 // --- Token creation & verification ---
 // Access and refresh tokens carry a `type` claim so that a refresh token can

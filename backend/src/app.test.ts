@@ -28,7 +28,7 @@ describe('app (integration)', () => {
     })
 
     it('blocks a protected route without a token (401)', async () => {
-        const res = await request(app).get('/api/festivals')
+        const res = await request(app).get('/api/events')
         expect(res.status).toBe(401)
     })
 })
