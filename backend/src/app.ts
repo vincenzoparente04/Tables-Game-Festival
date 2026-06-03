@@ -12,6 +12,7 @@ import resourcesRouter from './routes/resources.js'
 import pricingTiersRouter from './routes/pricing-tiers.js'
 import participantsRouter from './routes/participants.js'
 import bookingsRouter from './routes/bookings.js'
+import invoicesRouter from './routes/invoices.js'
 import { verifyToken } from './middleware/token-management.js'
 import { requireAdmin } from './middleware/auth-admin.js'
 import { notFound, errorHandler } from './middleware/error-handler.js'
@@ -64,6 +65,7 @@ app.use('/api/resources', verifyToken, resourcesRouter)
 app.use('/api/pricing-tiers', verifyToken, pricingTiersRouter)
 app.use('/api/participants', verifyToken, participantsRouter)
 app.use('/api/bookings', verifyToken, bookingsRouter)
+app.use('/api/invoices', verifyToken, invoicesRouter)
 app.use('/api/admin', verifyToken, requireAdmin, (_req, res) => {
     res.json({ message: 'Welcome admin' })
 })
