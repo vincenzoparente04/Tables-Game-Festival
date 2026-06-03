@@ -6,6 +6,10 @@ import cookieParser from 'cookie-parser'
 import 'dotenv/config'
 import authRouter from './routes/auth.js'
 import eventsRouter from './routes/events.js'
+import areasRouter from './routes/areas.js'
+import resourceTypesRouter from './routes/resource-types.js'
+import resourcesRouter from './routes/resources.js'
+import pricingTiersRouter from './routes/pricing-tiers.js'
 import { verifyToken } from './middleware/token-management.js'
 import { requireAdmin } from './middleware/auth-admin.js'
 import { notFound, errorHandler } from './middleware/error-handler.js'
@@ -52,6 +56,10 @@ app.get('/health', (_req, res) => res.json({ ok: true }))
 app.use('/api/auth', authRouter)
 // Authenticated routes (migrated to the generic schema)
 app.use('/api/events', verifyToken, eventsRouter)
+app.use('/api/areas', verifyToken, areasRouter)
+app.use('/api/resource-types', verifyToken, resourceTypesRouter)
+app.use('/api/resources', verifyToken, resourcesRouter)
+app.use('/api/pricing-tiers', verifyToken, pricingTiersRouter)
 app.use('/api/admin', verifyToken, requireAdmin, (_req, res) => {
     res.json({ message: 'Welcome admin' })
 })
