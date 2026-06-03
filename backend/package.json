@@ -15,6 +15,10 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --write \"src/**/*.ts\"",
     "format:check": "prettier --check \"src/**/*.ts\"",
+    "migrate": "node-pg-migrate up -m migrations -j sql",
+    "migrate:down": "node-pg-migrate down -m migrations -j sql",
+    "migrate:redo": "node-pg-migrate redo -m migrations -j sql",
+    "migrate:create": "node-pg-migrate create -m migrations -j sql",
     "admin:rotate": "tsx scripts/rotate-admin.ts"
   },
   "keywords": [],
@@ -30,6 +34,7 @@
     "helmet": "^8.2.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.1",
+    "node-pg-migrate": "^8.0.4",
     "pg": "^8.16.3",
     "zod": "^4.4.3"
   },
