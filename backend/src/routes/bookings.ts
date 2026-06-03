@@ -25,6 +25,13 @@ const resourceSchema = z.object({
   quantity: z.number().int().positive(),
   unit_price: z.number().nonnegative().optional(),
 })
+const itemSchema = z.object({
+  item_type: z.string().min(1).max(50),
+  item_ref: z.number().int().positive().optional(),
+  area_id: z.number().int().positive().optional(),
+  quantity: z.number().int().positive().optional(),
+  attributes: jsonObject.optional(),
+})
 
 router.get('/', requireActivatedAccount(), requirePermission('bookings', 'view'), async (req, res) => {
   res.json(await service.listBookings(parseOptionalIntQuery(req.query.event_id)))
@@ -55,6 +62,16 @@ router.post('/:id/resources', requireActivatedAccount(), requirePermission('book
 router.delete('/:id/resources/:resourceId', requireActivatedAccount(), requirePermission('bookings', 'update'), async (req, res) => {
   await service.removeResource(parseId(req.params.id), parseId(req.params.resourceId))
   res.json({ message: 'Booked resource removed' })
+})
+
+// --- Booking items (catalog items presented in a booking, e.g. games) ---
+router.post('/:id/items', requireActivatedAccount(), requirePermission('bookings', 'update'), validateBody(itemSchema), async (req, res) => {
+  res.status(201).json(await service.addItem(parseId(req.params.id), req.body))
+})
+
+router.delete('/:id/items/:itemId', requireActivatedAccount(), requirePermission('bookings', 'update'), async (req, res) => {
+  await service.removeItem(parseId(req.params.id), parseId(req.params.itemId))
+  res.json({ message: 'Booking item removed' })
 })
 
 export default router

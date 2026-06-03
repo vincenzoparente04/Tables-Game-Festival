@@ -13,6 +13,14 @@ export async function findById<Row extends QueryResultRow>(
     return rows[0] ?? null
 }
 
+export async function listAll<Row extends QueryResultRow>(
+    table: string,
+    orderBy = 'id',
+): Promise<Row[]> {
+    const { rows } = await pool.query<Row>(`SELECT * FROM ${table} ORDER BY ${orderBy}`)
+    return rows
+}
+
 export async function listByEvent<Row extends QueryResultRow>(
     table: string,
     eventId: number | undefined,

@@ -1,7 +1,7 @@
 import { AppError } from '../middleware/error-handler.js'
 import * as repo from '../repositories/bookings.repo.js'
 import type {
-  BookedResourceInput, BookingRow, CreateBookingInput, UpdateBookingInput,
+  BookedResourceInput, BookingItemInput, BookingRow, CreateBookingInput, UpdateBookingInput,
 } from '../repositories/bookings.repo.js'
 import { getParticipant } from '../repositories/participants.repo.js'
 
@@ -9,10 +9,14 @@ export function listBookings(eventId?: number) {
   return repo.listBookings(eventId)
 }
 
-export async function getBooking(id: number): Promise<BookingRow & { resources: unknown[] }> {
+export async function getBooking(id: number) {
   const booking = await repo.getBookingById(id)
   if (!booking) throw new AppError(404, 'Booking not found')
-  return { ...booking, resources: await repo.listBookedResources(id) }
+  const [resources, items] = await Promise.all([
+    repo.listBookedResources(id),
+    repo.listBookingItems(id),
+  ])
+  return { ...booking, resources, items }
 }
 
 export async function createBooking(input: CreateBookingInput): Promise<BookingRow> {
@@ -41,5 +45,16 @@ export async function addResource(bookingId: number, input: BookedResourceInput)
 export async function removeResource(bookingId: number, resourceId: number): Promise<void> {
   if (!(await repo.deleteBookedResource(bookingId, resourceId))) {
     throw new AppError(404, 'Booked resource not found')
+  }
+}
+
+export async function addItem(bookingId: number, input: BookingItemInput) {
+  if (!(await repo.getBookingById(bookingId))) throw new AppError(404, 'Booking not found')
+  return repo.addBookingItem(bookingId, input)
+}
+
+export async function removeItem(bookingId: number, itemId: number): Promise<void> {
+  if (!(await repo.deleteBookingItem(bookingId, itemId))) {
+    throw new AppError(404, 'Booking item not found')
   }
 }

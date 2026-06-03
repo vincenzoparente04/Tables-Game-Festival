@@ -110,3 +110,50 @@ export async function deleteBookedResource(bookingId: number, id: number): Promi
   )
   return (rowCount ?? 0) > 0
 }
+
+// --- Booking items (catalog items presented in a booking, e.g. games) ---
+
+export interface BookingItemRow {
+  id: number
+  booking_id: number
+  item_type: string
+  item_ref: number | null
+  area_id: number | null
+  quantity: number
+  attributes: Record<string, unknown>
+  created_at: string
+}
+
+export interface BookingItemInput {
+  item_type: string
+  item_ref?: number
+  area_id?: number
+  quantity?: number
+  attributes?: Record<string, unknown>
+}
+
+export async function listBookingItems(bookingId: number): Promise<BookingItemRow[]> {
+  const { rows } = await pool.query<BookingItemRow>(
+    'SELECT * FROM booking_items WHERE booking_id = $1 ORDER BY id',
+    [bookingId],
+  )
+  return rows
+}
+
+export async function addBookingItem(bookingId: number, input: BookingItemInput): Promise<BookingItemRow> {
+  const { rows } = await pool.query<BookingItemRow>(
+    `INSERT INTO booking_items (booking_id, item_type, item_ref, area_id, quantity, attributes)
+     VALUES ($1, $2, $3, $4, COALESCE($5,1), COALESCE($6,'{}'::jsonb))
+     RETURNING *`,
+    [bookingId, input.item_type, input.item_ref ?? null, input.area_id ?? null, input.quantity ?? null, input.attributes ?? null],
+  )
+  return rows[0]!
+}
+
+export async function deleteBookingItem(bookingId: number, id: number): Promise<boolean> {
+  const { rowCount } = await pool.query(
+    'DELETE FROM booking_items WHERE id = $1 AND booking_id = $2',
+    [id, bookingId],
+  )
+  return (rowCount ?? 0) > 0
+}
