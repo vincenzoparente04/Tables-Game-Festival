@@ -2,6 +2,7 @@ import fs from 'fs'
 import https from 'https'
 import 'dotenv/config'
 import app from './app.js'
+import { ensureSchema } from './db/schema.js'
 import { ensureAdmin } from './db/initAdmin.js'
 
 const port = Number(process.env.PORT) || 4000
@@ -21,4 +22,11 @@ if (process.env.NODE_ENV === 'production') {
   })
 }
 
-await ensureAdmin()
+// Best-effort startup DB initialization (don't crash the listening server if
+// the database is briefly unavailable).
+try {
+  await ensureSchema()
+  await ensureAdmin()
+} catch (err) {
+  console.error('Startup DB initialization failed:', err)
+}

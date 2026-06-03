@@ -8,6 +8,12 @@ import type { TokenPayload } from '../types/token-payload.ts'
 import { authLimiter } from '../middleware/rate-limit.js'
 import { validateBody } from '../middleware/validate.js'
 import { z } from 'zod'
+import {
+  storeRefreshToken,
+  findRefreshToken,
+  revokeRefreshToken,
+  revokeAllUserRefreshTokens,
+} from '../db/refresh-token-store.js'
 
 const router = Router()
 
@@ -39,7 +45,15 @@ const cookieBase = {
 }
 
 const accessCookie = { ...cookieBase, maxAge: 15 * 60 * 1000 } // 15 min
-const refreshCookie = { ...cookieBase, maxAge: 7 * 24 * 60 * 60 * 1000 } // 7 giorni
+const refreshCookie = { ...cookieBase, maxAge: 7 * 24 * 60 * 60 * 1000 } // 7 days
+
+// Derives the absolute expiry of a signed refresh token from its `exp` claim.
+function refreshExpiry(token: string): Date {
+  const decoded = jwt.decode(token) as { exp?: number } | null
+  return decoded?.exp
+    ? new Date(decoded.exp * 1000)
+    : new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+}
 
 router.post('/login', authLimiter, validateBody(loginSchema), async (req, res) => {
   const { login, password } = req.body
@@ -55,19 +69,21 @@ router.post('/login', authLimiter, validateBody(loginSchema), async (req, res) =
 
   const accessToken = createAccessToken({ id: user.id, role: user.role })
   const refreshToken = createRefreshToken({ id: user.id, role: user.role })
+  await storeRefreshToken(user.id, refreshToken, refreshExpiry(refreshToken))
 
-  // ✅ usa la config cross-site corretta
   res.cookie('access_token', accessToken, accessCookie)
   res.cookie('refresh_token', refreshToken, refreshCookie)
 
-  res.json({ message: 'Authentification réussie', user: { login: user.login, role: user.role } })
+  res.json({ message: 'Login successful', user: { login: user.login, role: user.role } })
 })
 
-router.post('/logout', (_req, res) => {
-  // ✅ clearCookie deve usare la stessa config (path/samesite/secure)
+router.post('/logout', async (req, res) => {
+  const refresh = req.cookies?.refresh_token
+  if (refresh) await revokeRefreshToken(refresh)
+  // clearCookie must use the same options (path/sameSite/secure) as when set.
   res.clearCookie('access_token', cookieBase)
   res.clearCookie('refresh_token', cookieBase)
-  res.json({ message: 'Déconnexion réussie' })
+  res.json({ message: 'Logged out' })
 })
 
 router.post('/register', authLimiter, validateBody(registerSchema), async (req, res) => {
@@ -91,23 +107,38 @@ router.post('/register', authLimiter, validateBody(registerSchema), async (req, 
   }
 })
 
-router.post('/refresh', authLimiter, (req, res) => {
+router.post('/refresh', authLimiter, async (req, res) => {
   const refresh = req.cookies?.refresh_token
   if (!refresh) return res.status(401).json({ error: 'Refresh token required' })
 
+  let decoded: TokenPayload
   try {
-    const decoded = jwt.verify(refresh, JWT_SECRET) as TokenPayload
-    if (decoded.type !== 'refresh') {
-      return res.status(403).json({ error: 'Invalid token type' })
-    }
-    const newAccess = createAccessToken({ id: decoded.id, role: decoded.role })
-
-    res.cookie('access_token', newAccess, accessCookie)
-
-    res.json({ message: 'Token refreshed' })
+    decoded = jwt.verify(refresh, JWT_SECRET) as TokenPayload
   } catch {
-    res.status(403).json({ error: 'Invalid or expired refresh token' })
+    return res.status(403).json({ error: 'Invalid or expired refresh token' })
   }
+  if (decoded.type !== 'refresh') {
+    return res.status(403).json({ error: 'Invalid token type' })
+  }
+
+  const stored = await findRefreshToken(refresh)
+  // Reuse / theft detection: a syntactically valid refresh token that is absent
+  // from the store, already revoked, or expired indicates it was rotated away or
+  // forged — revoke every token for this user as a precaution.
+  if (!stored || stored.revoked_at || new Date(stored.expires_at) < new Date()) {
+    await revokeAllUserRefreshTokens(decoded.id)
+    return res.status(403).json({ error: 'Invalid or expired refresh token' })
+  }
+
+  // Rotate: revoke the used token and issue a fresh access + refresh pair.
+  await revokeRefreshToken(refresh)
+  const newAccess = createAccessToken({ id: decoded.id, role: decoded.role })
+  const newRefresh = createRefreshToken({ id: decoded.id, role: decoded.role })
+  await storeRefreshToken(decoded.id, newRefresh, refreshExpiry(newRefresh))
+
+  res.cookie('access_token', newAccess, accessCookie)
+  res.cookie('refresh_token', newRefresh, refreshCookie)
+  res.json({ message: 'Token refreshed' })
 })
 
 router.get('/whoami', verifyToken, (req, res) => {
