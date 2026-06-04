@@ -5,7 +5,9 @@ import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
 import 'dotenv/config'
 import authRouter from './routes/auth.js'
+import publicRouter from './routes/public.js'
 import eventsRouter from './routes/events.js'
+import eventTypesRouter from './routes/event-types.js'
 import areasRouter from './routes/areas.js'
 import resourceTypesRouter from './routes/resource-types.js'
 import resourcesRouter from './routes/resources.js'
@@ -59,10 +61,12 @@ app.use(cors({
 
 app.get('/health', (_req, res) => res.json({ ok: true }))
 
-// Public routes
+// Public routes (no authentication)
 app.use('/api/auth', authRouter)
+app.use('/api/public', publicRouter)
 // Authenticated routes (migrated to the generic schema)
 app.use('/api/events', verifyToken, eventsRouter)
+app.use('/api/event-types', verifyToken, eventTypesRouter)
 app.use('/api/areas', verifyToken, areasRouter)
 app.use('/api/resource-types', verifyToken, resourceTypesRouter)
 app.use('/api/resources', verifyToken, resourcesRouter)

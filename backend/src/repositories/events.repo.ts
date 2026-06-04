@@ -60,6 +60,32 @@ export async function eventTypeExists(id: number): Promise<boolean> {
   return rows.length > 0
 }
 
+export async function getEventTypeKey(id: number): Promise<string | null> {
+  const { rows } = await pool.query<{ key: string }>('SELECT key FROM event_types WHERE id = $1', [id])
+  return rows[0]?.key ?? null
+}
+
+export interface PipelineStageRow {
+  id: number
+  key: string
+  label: string
+  position: number
+  is_terminal: boolean
+}
+
+// Workflow stages available for a given event (resolved via its event type).
+export async function getPipelineStagesForEvent(eventId: number): Promise<PipelineStageRow[]> {
+  const { rows } = await pool.query<PipelineStageRow>(
+    `SELECT ps.id, ps.key, ps.label, ps.position, ps.is_terminal
+       FROM pipeline_stages ps
+       JOIN events e ON e.event_type_id = ps.event_type_id
+      WHERE e.id = $1
+      ORDER BY ps.position`,
+    [eventId],
+  )
+  return rows
+}
+
 export async function createEvent(input: CreateEventInput): Promise<EventRow> {
   const { rows } = await pool.query<EventRow>(
     `INSERT INTO events

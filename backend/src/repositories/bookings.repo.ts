@@ -18,6 +18,7 @@ export interface BookingListRow extends BookingRow {
   participant_name: string
   stage_key: string | null
   stage_label: string | null
+  invoice_status: string // 'none' | 'draft' | 'issued' | 'paid' | 'cancelled'
 }
 
 export interface BookedResourceRow {
@@ -55,10 +56,12 @@ const UPDATABLE = ['stage_id', 'attendance_status', 'notes', 'discount_amount', 
 
 export async function listBookings(eventId?: number): Promise<BookingListRow[]> {
   const { rows } = await pool.query<BookingListRow>(
-    `SELECT b.*, p.name AS participant_name, ps.key AS stage_key, ps.label AS stage_label
+    `SELECT b.*, p.name AS participant_name, ps.key AS stage_key, ps.label AS stage_label,
+            COALESCE(i.status, 'none') AS invoice_status
        FROM bookings b
        JOIN participants p ON p.id = b.participant_id
        LEFT JOIN pipeline_stages ps ON ps.id = b.stage_id
+       LEFT JOIN invoices i ON i.booking_id = b.id
       WHERE ($1::int IS NULL OR b.event_id = $1)
       ORDER BY b.id`,
     [eventId ?? null],

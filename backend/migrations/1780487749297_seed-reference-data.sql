@@ -8,18 +8,18 @@ INSERT INTO event_types (key, label, config) VALUES
   ('conference', 'Conference', '{"modules": [], "resource_unit": "seat"}'),
   ('dinner',     'Seated dinner', '{"modules": [], "resource_unit": "seat"}');
 
--- Rich outreach pipeline for board-game festivals
+-- Commercial outreach pipeline for festivals (invoiced/paid are derived from
+-- the invoice, not pipeline stages).
 INSERT INTO pipeline_stages (event_type_id, key, label, position, is_terminal)
 SELECT et.id, s.key, s.label, s.position, s.is_terminal
 FROM event_types et
 CROSS JOIN (VALUES
-  ('not_contacted',        'Not contacted',        0, false),
-  ('contacted',            'Contacted',            1, false),
-  ('in_discussion',        'In discussion',        2, false),
-  ('reserved',             'Reserved',             3, false),
-  ('games_list_requested', 'Games list requested', 4, false),
-  ('games_list_received',  'Games list received',  5, false),
-  ('games_received',       'Games received',       6, true)
+  ('not_contacted', 'Not contacted', 0, false),
+  ('contacted',     'Contacted',     1, false),
+  ('in_discussion', 'In discussion', 2, false),
+  ('reserved',      'Reserved',      3, false),
+  ('confirmed',     'Confirmed',     4, false),
+  ('cancelled',     'Cancelled',     5, true)
 ) AS s(key, label, position, is_terminal)
 WHERE et.key = 'festival';
 

@@ -20,6 +20,7 @@ const createSchema = z.object({
   end_date: dateString.optional(),
   is_active: z.boolean().optional(),
   settings: z.record(z.string(), z.unknown()).optional(),
+  apply_template: z.boolean().optional(), // provision default resource types/pricing (default true)
 })
 
 const updateSchema = createSchema.partial()
@@ -36,6 +37,14 @@ router.get('/', requireActivatedAccount(), requirePermission('events', 'viewAll'
 
 router.get('/current', requireActivatedAccount(), requirePermission('events', 'viewCurrent'), async (_req, res) => {
   res.json(await service.getCurrentEvent())
+})
+
+router.get('/:id/stats', requireActivatedAccount(), requirePermission('events', 'viewAll'), async (req, res) => {
+  res.json(await service.getEventStats(parseId(req.params.id)))
+})
+
+router.get('/:id/pipeline', requireActivatedAccount(), requirePermission('events', 'viewCurrent'), async (req, res) => {
+  res.json(await service.getPipelineStages(parseId(req.params.id)))
 })
 
 router.get('/:id', requireActivatedAccount(), requirePermission('events', 'viewAll'), async (req, res) => {
