@@ -7,6 +7,7 @@ import { ComingSoon } from './pages/coming-soon'
 import { EventsList } from './features/events/events-list'
 import { EventForm } from './features/events/event-form'
 import { EventDetail } from './features/events/event-detail'
+import { ParticipantsList } from './features/participants/participants-list'
 
 const staff = [authGuard, notPendingGuard]
 
@@ -17,7 +18,7 @@ export const routes: Routes = [
   { path: 'events', component: EventsList, canActivate: [...staff, requirePermission('events', 'viewAll')] },
   { path: 'events/new', component: EventForm, canActivate: [...staff, requirePermission('events', 'create')] },
   { path: 'events/:id', component: EventDetail, canActivate: [...staff, requirePermission('events', 'viewAll')] },
-  { path: 'participants', component: ComingSoon, data: { title: 'Participants' }, canActivate: [...staff, requirePermission('participants', 'view')] },
+  { path: 'participants', component: ParticipantsList, canActivate: [...staff, requirePermission('participants', 'view')] },
   { path: 'bookings', component: ComingSoon, data: { title: 'Bookings' }, canActivate: [...staff, requirePermission('bookings', 'view')] },
   { path: 'invoices', component: ComingSoon, data: { title: 'Invoices' }, canActivate: [...staff, requirePermission('invoices', 'view')] },
   { path: 'resources', component: ComingSoon, data: { title: 'Resources & areas' }, canActivate: [...staff, requirePermission('resources', 'view')] },
