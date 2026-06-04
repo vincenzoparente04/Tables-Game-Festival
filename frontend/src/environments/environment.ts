@@ -1,3 +1,4 @@
 export const environment = {
-  apiUrl: 'https://tables-game-festival.onrender.com/api'
+  // Local dev points to the locally-running new backend (npm run dev).
+  apiUrl: 'https://localhost:4000/api',
 }

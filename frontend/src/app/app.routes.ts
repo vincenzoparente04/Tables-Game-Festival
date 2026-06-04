@@ -1,38 +1,23 @@
-import { Routes } from '@angular/router';
-import { Login } from './shared/auth/login/login';
-import { Home } from './home/home';
-import { Admin } from './admin/admin/admin';
-import { authGuard } from './shared/auth/auth-guard';
-import { adminGuard } from './admin/admin-guard';
-import { Register } from './shared/auth/register/register';
-import { FestivalsList } from './festivals/festivals-list/festivals-list';
-import { notPendingUserGuard, hasPermission } from './guards/permission-guard';
-import { ZonesPlanList } from './zones-plan/zones-plan-list/zones-plan-list';
-import { VuesPubliques } from './vues-publiques/vues-publiques';
-import { EditeursList } from './editeurs/editeur-list/editeurs-list';
-import { JeuxList } from './jeux/jeux-list/jeux-list';
-import { ReservantsList } from './reservant/reservants-list/reservants-list';
-import { ReservationsList } from './reservations/reservations-list/reservations-list';
-import { ReservationDetail } from './reservations/reservation-detail/reservation-detail';
+import { Routes } from '@angular/router'
+import { authGuard, notPendingGuard, requirePermission } from './core/guards'
+import { Login } from './pages/login'
+import { Dashboard } from './pages/dashboard'
+import { Showcase } from './pages/showcase'
+import { ComingSoon } from './pages/coming-soon'
 
-
-
-
+const staff = [authGuard, notPendingGuard]
 
 export const routes: Routes = [
-    { path: 'login', component: Login },
-    { path: 'register', component: Register},
-    { path: 'festivals', component: FestivalsList , canActivate: [authGuard, notPendingUserGuard, hasPermission('festivals', 'viewAll')] },
-    { path: 'festivals/courant', component: FestivalsList , canActivate: [authGuard, notPendingUserGuard, hasPermission('festivals', 'viewCurrent')] },
-    { path: 'festivals/:id/zones-plan', component: ZonesPlanList, canActivate: [authGuard, notPendingUserGuard, hasPermission('zonesPlan', 'view')] },
-    { path: 'festivals/:id/reservations', component: ReservationsList, canActivate: [authGuard, notPendingUserGuard, hasPermission('reservations', 'view')] },
-    { path: 'reservations/:id', component: ReservationDetail, canActivate: [authGuard, notPendingUserGuard, hasPermission('reservations', 'view')] },
-    { path: 'home', component: Home },
-    { path: 'vues-publiques', component: VuesPubliques, canActivate: [authGuard, notPendingUserGuard] },
-    { path: 'editeurs', component: EditeursList, canActivate: [authGuard, notPendingUserGuard, hasPermission('festivals', 'viewAll')]},
-    { path: 'jeux', component: JeuxList, canActivate: [authGuard, notPendingUserGuard, hasPermission('festivals', 'viewAll')]},
-    { path: 'reservants', component: ReservantsList, canActivate: [authGuard, notPendingUserGuard, hasPermission('reservants', 'view')]},
-    { path: 'admin', component: Admin, canActivate: [authGuard, adminGuard] },
-    { path: '', pathMatch: 'full', redirectTo: 'home' },
-    { path: '**', redirectTo: 'home' },
+  { path: 'login', component: Login },
+  { path: 'showcase', component: Showcase },
+  { path: 'dashboard', component: Dashboard, canActivate: staff },
+  { path: 'events', component: ComingSoon, data: { title: 'Events' }, canActivate: [...staff, requirePermission('events', 'viewAll')] },
+  { path: 'participants', component: ComingSoon, data: { title: 'Participants' }, canActivate: [...staff, requirePermission('participants', 'view')] },
+  { path: 'bookings', component: ComingSoon, data: { title: 'Bookings' }, canActivate: [...staff, requirePermission('bookings', 'view')] },
+  { path: 'invoices', component: ComingSoon, data: { title: 'Invoices' }, canActivate: [...staff, requirePermission('invoices', 'view')] },
+  { path: 'resources', component: ComingSoon, data: { title: 'Resources & areas' }, canActivate: [...staff, requirePermission('resources', 'view')] },
+  { path: 'games', component: ComingSoon, data: { title: 'Games' }, canActivate: [...staff, requirePermission('games', 'viewAll')] },
+  { path: 'users', component: ComingSoon, data: { title: 'Users' }, canActivate: [authGuard, requirePermission('users', 'view')] },
+  { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
+  { path: '**', redirectTo: 'dashboard' },
 ]

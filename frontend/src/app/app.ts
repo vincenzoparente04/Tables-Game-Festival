@@ -1,88 +1,84 @@
-import { Component, signal, inject, computed, effect } from '@angular/core';
-import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router';
-import { AuthService } from './shared/auth/auth-service';
-import { PermissionsService } from './services/permissions-service';
-import { FestivalsService } from './shared/festivals-service';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatToolbarModule } from '@angular/material/toolbar';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatDividerModule } from '@angular/material/divider';
-import { FestivalsDto } from './types/festivals-dto';
-
-
+import { Component, inject } from '@angular/core'
+import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router'
+import { AuthService } from './core/auth.service'
+import { PermissionsService } from './core/permissions'
 
 @Component({
   selector: 'app-root',
-  imports: [
-    RouterOutlet, 
-    RouterLink, 
-    RouterLinkActive, 
-    MatCardModule, 
-    MatButtonModule, 
-    MatIconModule, 
-    MatToolbarModule,
-    MatMenuModule,
-    MatSidenavModule,
-    MatDividerModule
-  ],
-  templateUrl: './app.html',
-  styleUrl: './app.css'
+  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  template: `
+    @if (isLoggedIn()) {
+      <div class="shell">
+        <aside class="sidebar">
+          <div class="brand"><span class="logo">◆</span> Festival Manager</div>
+          <nav>
+            <a routerLink="/dashboard" routerLinkActive="active">Dashboard</a>
+            @if (canEvents()) { <a routerLink="/events" routerLinkActive="active">Events</a> }
+            @if (canParticipants()) { <a routerLink="/participants" routerLinkActive="active">Participants</a> }
+            @if (canBookings()) { <a routerLink="/bookings" routerLinkActive="active">Bookings</a> }
+            @if (canResources()) { <a routerLink="/resources" routerLinkActive="active">Resources &amp; areas</a> }
+            @if (canInvoices()) { <a routerLink="/invoices" routerLinkActive="active">Invoices</a> }
+            @if (canGames()) { <a routerLink="/games" routerLinkActive="active">Games</a> }
+            @if (canUsers()) { <a routerLink="/users" routerLinkActive="active">Users</a> }
+          </nav>
+          <div class="sidebar-foot">
+            <a routerLink="/showcase" routerLinkActive="active">Public showcase</a>
+          </div>
+        </aside>
+        <div class="main">
+          <header class="topbar">
+            <div class="spacer"></div>
+            <div class="user">
+              <div class="user-meta">
+                <span class="user-name">{{ user()?.login }}</span>
+                <span class="badge badge-primary">{{ user()?.role }}</span>
+              </div>
+              <button class="btn btn-sm" (click)="logout()">Log out</button>
+            </div>
+          </header>
+          <main class="content"><router-outlet /></main>
+        </div>
+      </div>
+    } @else {
+      <router-outlet />
+    }
+  `,
+  styles: `
+    .shell { display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: 100vh; }
+    .sidebar { background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 18px 14px; gap: 6px; position: sticky; top: 0; height: 100vh; }
+    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; padding: 6px 10px 16px; }
+    .brand .logo { color: var(--primary); font-size: 18px; }
+    nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+    nav a, .sidebar-foot a { display: block; padding: 9px 12px; border-radius: var(--radius-sm); color: var(--text-muted); font-weight: 600; transition: background 0.15s, color 0.15s; }
+    nav a:hover, .sidebar-foot a:hover { background: var(--surface-2); color: var(--text); }
+    nav a.active, .sidebar-foot a.active { background: var(--primary-50); color: var(--primary-600); }
+    .sidebar-foot { border-top: 1px solid var(--border); padding-top: 8px; margin-top: 8px; }
+    .main { display: flex; flex-direction: column; min-width: 0; }
+    .topbar { height: var(--header-h); display: flex; align-items: center; gap: 16px; padding: 0 28px; border-bottom: 1px solid var(--border); background: var(--surface); position: sticky; top: 0; z-index: 5; }
+    .spacer { flex: 1; }
+    .user { display: flex; align-items: center; gap: 14px; }
+    .user-meta { display: flex; align-items: center; gap: 8px; }
+    .user-name { font-weight: 600; }
+    .content { padding: 28px; max-width: 1200px; width: 100%; }
+  `,
 })
 export class App {
-  protected readonly title = signal('frontend');
+  private auth = inject(AuthService)
+  private perms = inject(PermissionsService)
+  private router = inject(Router)
 
-  private auth = inject(AuthService);
-  private router = inject(Router);
-  private permissions = inject(PermissionsService);
-  private festivalsService = inject(FestivalsService);
+  readonly user = this.auth.currentUser
+  readonly isLoggedIn = this.auth.isLoggedIn
 
-  // Festival courant pour la navigation zone plan
-  currentFestival = signal<FestivalsDto | null>(null);
+  readonly canEvents = this.perms.can('events', 'viewAll')
+  readonly canParticipants = this.perms.can('participants', 'view')
+  readonly canBookings = this.perms.can('bookings', 'view')
+  readonly canResources = this.perms.can('resources', 'view')
+  readonly canInvoices = this.perms.can('invoices', 'view')
+  readonly canGames = this.perms.can('games', 'viewAll')
+  readonly canUsers = this.perms.can('users', 'view')
 
-  isLoggedIn = this.auth.isLoggedIn;
-  isAdmin = this.auth.isAdmin;
-
-  constructor() {
-    // Load current festival whenever user logs in
-    effect(() => {
-      if (this.isLoggedIn()) {
-        this.loadCurrentFestival();
-      }
-    });
-  }
-
-  private loadCurrentFestival(): void {
-    this.festivalsService.getCurrent().subscribe({
-      next: (festival) => {
-        this.currentFestival.set(festival);
-      },
-      error: (err) => {
-        console.error('Erreur chargement festival courant:', err);
-      }
-    });
-  }
-  
-  logoutApp(){
-    this.auth.logout();
-    this.router.navigate(['/home']);
-  } 
-
-  
-  
-  canViewFestivals = this.permissions.can('festivals', 'viewAll');
-  canViewCurrent = this.permissions.can('festivals', 'viewCurrent');
-  canAccessAdmin = this.permissions.isAdmin;
-  isPendingUser = this.permissions.isPendingUser;
-  isOrganisateur = this.permissions.isAdminOrSuperOrgaOrOrga;
-  canViewgames = this.permissions.can('jeux', 'viewAll');
-  canviewEditeurs = this.permissions.can('editeurs', 'viewAll');
-  canViewReservants = this.permissions.can('reservants', 'view');
-
-  isVisitorOrBenevole(): boolean {
-    const role = this.permissions.currentRole();
-    return role === 'visiteur' || role === 'benevole';
+  logout() {
+    this.auth.logout().subscribe(() => this.router.navigate(['/login']))
   }
 }
