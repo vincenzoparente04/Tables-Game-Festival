@@ -64,6 +64,7 @@ export async function getGame(id: number): Promise<GameWithAuthors | null> {
 
 export async function createGame(input: CreateGameInput): Promise<GameWithAuthors> {
   const client = await pool.connect()
+  let game!: GameRow
   try {
     await client.query('BEGIN')
     const { rows } = await client.query<GameRow>(
@@ -78,7 +79,7 @@ export async function createGame(input: CreateGameInput): Promise<GameWithAuthor
         input.average_duration ?? null, input.attributes ?? null,
       ],
     )
-    const game = rows[0]!
+    game = rows[0]!
     for (const authorId of input.author_ids ?? []) {
       await client.query(
         'INSERT INTO game_authors (game_id, author_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
@@ -86,13 +87,16 @@ export async function createGame(input: CreateGameInput): Promise<GameWithAuthor
       )
     }
     await client.query('COMMIT')
-    return { ...game, authors: await getGameAuthors(game.id) }
   } catch (err) {
     await client.query('ROLLBACK')
     throw err
   } finally {
     client.release()
   }
+  // Fetch authors AFTER releasing the transaction client — calling another
+  // pooled query while still holding the client deadlocks the pool under
+  // concurrent creates (e.g. Promise.all).
+  return { ...game, authors: await getGameAuthors(game.id) }
 }
 
 export async function updateGame(id: number, input: UpdateGameInput): Promise<GameWithAuthors | null> {

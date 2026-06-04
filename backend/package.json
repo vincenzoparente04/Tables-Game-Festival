@@ -20,7 +20,8 @@
     "migrate:down": "node-pg-migrate down -m migrations -j sql",
     "migrate:redo": "node-pg-migrate redo -m migrations -j sql",
     "migrate:create": "node-pg-migrate create -m migrations -j sql",
-    "admin:rotate": "tsx scripts/rotate-admin.ts"
+    "admin:rotate": "tsx scripts/rotate-admin.ts",
+    "seed:demo": "tsx scripts/seed-demo.ts"
   },
   "keywords": [],
   "author": "",

@@ -2,11 +2,14 @@
 -- Reference data: event types + their default configurable pipelines.
 
 INSERT INTO event_types (key, label, config) VALUES
-  ('festival',   'Festival',   '{"modules": ["games"], "resource_unit": "table"}'),
-  ('fair',       'Fair',       '{"modules": [], "resource_unit": "stand"}'),
-  ('concert',    'Concert',    '{"modules": [], "resource_unit": "seat"}'),
-  ('conference', 'Conference', '{"modules": [], "resource_unit": "seat"}'),
-  ('dinner',     'Seated dinner', '{"modules": [], "resource_unit": "seat"}');
+  ('festival',       'Festival',         '{"modules": ["games"], "resource_unit": "table"}'),
+  ('fair',           'Fair',             '{"modules": [], "resource_unit": "stand"}'),
+  ('concert',        'Concert',          '{"modules": [], "resource_unit": "seat"}'),
+  ('conference',     'Conference',       '{"modules": [], "resource_unit": "seat"}'),
+  ('dinner',         'Seated dinner',    '{"modules": [], "resource_unit": "seat"}'),
+  ('art_exhibition', 'Art exhibition',   '{"modules": [], "resource_unit": "sqm"}'),
+  ('sports',         'Sports tournament','{"modules": [], "resource_unit": "court"}'),
+  ('party',          'Party / nightlife','{"modules": [], "resource_unit": "table"}');
 
 -- Commercial outreach pipeline for festivals (invoiced/paid are derived from
 -- the invoice, not pipeline stages).
@@ -32,7 +35,7 @@ CROSS JOIN (VALUES
   ('confirmed', 'Confirmed', 1, false),
   ('cancelled', 'Cancelled', 2, true)
 ) AS s(key, label, position, is_terminal)
-WHERE et.key IN ('fair', 'concert', 'conference', 'dinner');
+WHERE et.key IN ('fair', 'concert', 'conference', 'dinner', 'art_exhibition', 'sports', 'party');
 
 -- Down Migration
 -- Removing the event types cascades to their pipeline_stages.

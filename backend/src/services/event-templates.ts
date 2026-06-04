@@ -38,6 +38,17 @@ const TEMPLATES: Record<string, EventTemplate> = {
   concert: { resource_types: [{ key: 'seat', label: 'Seat', unit: 'seat' }] },
   conference: { resource_types: [{ key: 'seat', label: 'Seat', unit: 'seat' }] },
   dinner: { resource_types: [{ key: 'seat', label: 'Seat', unit: 'seat' }] },
+  art_exhibition: {
+    resource_types: [{ key: 'booth', label: 'Booth', unit: 'sqm' }],
+    pricing_tiers: [{ name: 'Booth (per m²)', resource_type_key: 'booth', price_per_sqm: 0 }],
+  },
+  sports: { resource_types: [{ key: 'court', label: 'Court', unit: 'court' }] },
+  party: {
+    resource_types: [
+      { key: 'table', label: 'Table', unit: 'table' },
+      { key: 'standing', label: 'Standing spot', unit: 'spot' },
+    ],
+  },
 }
 
 export function getEventTemplate(typeKey: string): EventTemplate | null {
