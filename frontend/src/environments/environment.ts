@@ -1,4 +1,5 @@
 export const environment = {
-  // Local dev points to the locally-running new backend (npm run dev).
-  apiUrl: 'https://localhost:4000/api',
+  // Dev: relative path proxied by `ng serve` to the local backend
+  // (see proxy.conf.json) — avoids CORS and self-signed cert prompts on XHR.
+  apiUrl: '/api',
 }
