@@ -4,6 +4,8 @@ import { Login } from './pages/login'
 import { Dashboard } from './pages/dashboard'
 import { Showcase } from './pages/showcase'
 import { ComingSoon } from './pages/coming-soon'
+import { EventsList } from './features/events/events-list'
+import { EventForm } from './features/events/event-form'
 
 const staff = [authGuard, notPendingGuard]
 
@@ -11,7 +13,8 @@ export const routes: Routes = [
   { path: 'login', component: Login },
   { path: 'showcase', component: Showcase },
   { path: 'dashboard', component: Dashboard, canActivate: staff },
-  { path: 'events', component: ComingSoon, data: { title: 'Events' }, canActivate: [...staff, requirePermission('events', 'viewAll')] },
+  { path: 'events', component: EventsList, canActivate: [...staff, requirePermission('events', 'viewAll')] },
+  { path: 'events/new', component: EventForm, canActivate: [...staff, requirePermission('events', 'create')] },
   { path: 'participants', component: ComingSoon, data: { title: 'Participants' }, canActivate: [...staff, requirePermission('participants', 'view')] },
   { path: 'bookings', component: ComingSoon, data: { title: 'Bookings' }, canActivate: [...staff, requirePermission('bookings', 'view')] },
   { path: 'invoices', component: ComingSoon, data: { title: 'Invoices' }, canActivate: [...staff, requirePermission('invoices', 'view')] },
