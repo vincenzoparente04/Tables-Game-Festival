@@ -9,39 +9,50 @@ import type { EventModel } from '../../core/models'
   imports: [RouterLink],
   template: `
     <div class="page-head">
-      <div><h1>Events</h1><p class="muted">Manage all your events.</p></div>
+      <div><h1>Events</h1><p class="muted">{{ events().length }} event(s)</p></div>
       @if (canCreate()) { <a routerLink="/events/new" class="btn btn-primary">+ New event</a> }
     </div>
 
     @if (loading()) {
       <div class="card empty">Loading…</div>
     } @else {
-      <div class="card">
-        <table class="table">
-          <thead><tr><th>Name</th><th>Type</th><th>Dates</th><th>Status</th><th></th></tr></thead>
-          <tbody>
-            @for (e of events(); track e.id) {
-              <tr>
-                <td><strong>{{ e.name }}</strong></td>
-                <td><span class="badge">{{ typeLabels()[e.event_type_id] || '—' }}</span></td>
-                <td class="muted">{{ e.start_date ? (e.start_date + ' → ' + e.end_date) : '—' }}</td>
-                <td>
-                  @if (e.is_current) { <span class="badge badge-success">Current</span> }
-                  @else if (e.is_active) { <span class="badge">Active</span> }
-                  @else { <span class="badge badge-warning">Inactive</span> }
-                </td>
-                <td><div class="actions">
-                  @if (canSetCurrent() && !e.is_current) { <button class="btn btn-sm" (click)="setCurrent(e.id)">Set current</button> }
-                  @if (canDelete()) { <button class="btn btn-sm" (click)="remove(e.id)">Delete</button> }
-                </div></td>
-              </tr>
-            } @empty {
-              <tr><td colspan="5" class="empty">No events yet.</td></tr>
-            }
-          </tbody>
-        </table>
+      <div class="cards">
+        @for (e of events(); track e.id) {
+          <div class="card clickable ev" [routerLink]="['/events', e.id]">
+            <div class="ev-top">
+              <span class="badge badge-primary">{{ typeLabels()[e.event_type_id] || 'Event' }}</span>
+              @if (e.is_current) { <span class="badge badge-success">Current</span> }
+              @else if (!e.is_active) { <span class="badge badge-warning">Inactive</span> }
+            </div>
+            <h3 class="ev-name">{{ e.name }}</h3>
+            @if (e.venue) { <div class="muted ev-line">📍 {{ e.venue }}</div> }
+            <div class="muted ev-line">🗓 {{ e.start_date ? (e.start_date + ' → ' + e.end_date) : 'No dates set' }}</div>
+            <div class="ev-actions">
+              @if (canSetCurrent() && !e.is_current) {
+                <button class="btn btn-sm" (click)="$event.stopPropagation(); setCurrent(e.id)">Set current</button>
+              }
+              @if (canDelete()) {
+                <button class="btn btn-sm btn-danger" (click)="$event.stopPropagation(); remove(e.id)">Delete</button>
+              }
+              <span class="spacer"></span>
+              <span class="open">Open →</span>
+            </div>
+          </div>
+        } @empty {
+          <div class="card empty">No events yet. Create your first one.</div>
+        }
       </div>
     }
+  `,
+  styles: `
+    .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 18px; }
+    .ev { padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+    .ev-top { display: flex; align-items: center; gap: 8px; }
+    .ev-name { margin-top: 4px; }
+    .ev-line { font-size: 13px; }
+    .ev-actions { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
+    .ev-actions .spacer { flex: 1; }
+    .open { color: var(--primary-600); font-weight: 600; font-size: 13px; }
   `,
 })
 export class EventsList implements OnInit {
