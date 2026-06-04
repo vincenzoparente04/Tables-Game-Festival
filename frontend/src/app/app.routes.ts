@@ -3,7 +3,9 @@ import { authGuard, notPendingGuard, requirePermission } from './core/guards'
 import { Login } from './pages/login'
 import { Dashboard } from './pages/dashboard'
 import { Showcase } from './pages/showcase'
-import { ComingSoon } from './pages/coming-soon'
+import { InvoicesPage } from './features/invoices/invoices-page'
+import { GamesPage } from './features/games/games-page'
+import { UsersPage } from './features/users/users-page'
 import { EventsList } from './features/events/events-list'
 import { EventForm } from './features/events/event-form'
 import { EventDetail } from './features/events/event-detail'
@@ -24,10 +26,10 @@ export const routes: Routes = [
   { path: 'participants', component: ParticipantsList, canActivate: [...staff, requirePermission('participants', 'view')] },
   { path: 'bookings', component: BookingsList, canActivate: [...staff, requirePermission('bookings', 'view')] },
   { path: 'bookings/:id', component: BookingDetail, canActivate: [...staff, requirePermission('bookings', 'view')] },
-  { path: 'invoices', component: ComingSoon, data: { title: 'Invoices' }, canActivate: [...staff, requirePermission('invoices', 'view')] },
+  { path: 'invoices', component: InvoicesPage, canActivate: [...staff, requirePermission('invoices', 'view')] },
   { path: 'resources', component: ResourcesPage, canActivate: [...staff, requirePermission('resources', 'view')] },
-  { path: 'games', component: ComingSoon, data: { title: 'Games' }, canActivate: [...staff, requirePermission('games', 'viewAll')] },
-  { path: 'users', component: ComingSoon, data: { title: 'Users' }, canActivate: [authGuard, requirePermission('users', 'view')] },
+  { path: 'games', component: GamesPage, canActivate: [...staff, requirePermission('games', 'viewAll')] },
+  { path: 'users', component: UsersPage, canActivate: [authGuard, requirePermission('users', 'view')] },
   { path: '', pathMatch: 'full', redirectTo: 'dashboard' },
   { path: '**', redirectTo: 'dashboard' },
 ]
