@@ -8,8 +8,8 @@ services:
       POSTGRES_USER: secureapp
       POSTGRES_PASSWORD: secureapp
       POSTGRES_DB: secureapp
+    # Schema is managed by node-pg-migrate (`npm run migrate`), not init scripts.
     volumes:
-      - ./backend/db:/docker-entrypoint-initdb.d
       - db_data_dev:/var/lib/postgresql/data
 
     ports:
@@ -28,9 +28,12 @@ services:
     environment:
       NODE_ENV: development
       DATABASE_URL: postgresql://secureapp:secureapp@db:5432/secureapp
-      JWT_SECRET: "mon_secret_jwt_super_long_et_complexe"
+      JWT_SECRET: "dev_jwt_secret_change_me"
       JWT_EXPIRATION: "15m"
       REFRESH_EXPIRATION: "7d"
+      ADMIN_LOGIN: admin
+      ADMIN_PASSWORD: admin
+      ADMIN_EMAIL: admin@local
     volumes:
       - ./backend/certs:/app/certs:ro
     ports:
