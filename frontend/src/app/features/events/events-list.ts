@@ -10,7 +10,7 @@ import type { EventModel } from '../../core/models'
   template: `
     <div class="page-head">
       <div><h1>Events</h1><p class="muted">{{ events().length }} event(s)</p></div>
-      @if (canCreate()) { <a routerLink="/events/new" class="btn btn-primary">+ New event</a> }
+      @if (canCreate()) { <a routerLink="/admin/events/new" class="btn btn-primary">+ New event</a> }
     </div>
 
     @if (loading()) {
@@ -18,7 +18,7 @@ import type { EventModel } from '../../core/models'
     } @else {
       <div class="cards">
         @for (e of events(); track e.id) {
-          <div class="card clickable ev" [routerLink]="['/events', e.id]">
+          <div class="card clickable ev" [routerLink]="['/admin/events', e.id]">
             <div class="ev-top">
               <span class="badge badge-primary">{{ typeLabels()[e.event_type_id] || 'Event' }}</span>
               @if (e.is_current) { <span class="badge badge-success">Current</span> }

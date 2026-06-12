@@ -22,7 +22,7 @@ import { AuthService } from '../core/auth.service'
             {{ loading() ? 'Signing in…' : 'Sign in' }}
           </button>
         </form>
-        <a routerLink="/showcase" class="muted sc-link">Browse public events →</a>
+        <a routerLink="/" class="muted sc-link">Browse public events →</a>
       </div>
     </div>
   `,
@@ -52,7 +52,7 @@ export class Login {
   submit() {
     this.auth.login(this.login, this.password).subscribe((ok) => {
       if (ok) {
-        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/dashboard'
+        const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/admin/dashboard'
         this.router.navigateByUrl(returnUrl)
       }
     })

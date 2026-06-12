@@ -57,7 +57,7 @@ import type { Booking, Participant, PipelineStage } from '../../core/models'
                 <td>@if (b.stage_label) { <span class="badge badge-primary">{{ b.stage_label }}</span> } @else { <span class="muted">—</span> }</td>
                 <td><span class="badge" [class]="invClass(b.invoice_status)">{{ b.invoice_status }}</span></td>
                 <td><div class="actions">
-                  <a class="btn btn-sm" [routerLink]="['/bookings', b.id]">Open</a>
+                  <a class="btn btn-sm" [routerLink]="['/admin/bookings', b.id]">Open</a>
                   @if (canDelete()) { <button class="btn btn-sm btn-danger" (click)="remove(b.id)">Delete</button> }
                 </div></td>
               </tr>

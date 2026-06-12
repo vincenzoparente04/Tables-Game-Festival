@@ -8,7 +8,7 @@ import type { EventModel, EventStats } from '../../core/models'
   selector: 'app-event-detail',
   imports: [RouterLink],
   template: `
-    <a routerLink="/events" class="link back">← Events</a>
+    <a routerLink="/admin/events" class="link back">← Events</a>
 
     @if (loading()) {
       <div class="card empty">Loading…</div>

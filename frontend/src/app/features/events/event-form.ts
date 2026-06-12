@@ -13,7 +13,7 @@ import type { EventType } from '../../core/models'
         <h1>New event</h1>
         <p class="muted">Default resource types &amp; pricing are provisioned automatically (editable after).</p>
       </div>
-      <a routerLink="/events" class="btn">Cancel</a>
+      <a routerLink="/admin/events" class="btn">Cancel</a>
     </div>
 
     <div class="card pad" style="max-width: 660px">
@@ -84,7 +84,7 @@ export class EventForm implements OnInit {
     if (m.description.trim()) body['description'] = m.description.trim()
 
     this.api.create(body).subscribe({
-      next: () => this.router.navigate(['/events']),
+      next: () => this.router.navigate(['/admin/events']),
       error: (e) => {
         this.error.set(e?.error?.error ?? 'Could not create event')
         this.saving.set(false)

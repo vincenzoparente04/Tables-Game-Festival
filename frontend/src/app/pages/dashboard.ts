@@ -15,7 +15,7 @@ import type { EventModel, EventStats } from '../core/models'
     @if (loading()) {
       <div class="card pad muted">Loading…</div>
     } @else if (!current()) {
-      <div class="card pad">No current event set. <a routerLink="/events" class="link">Manage events →</a></div>
+      <div class="card pad">No current event set. <a routerLink="/admin/events" class="link">Manage events →</a></div>
     } @else {
       <div class="card pad banner">
         <div>

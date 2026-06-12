@@ -11,11 +11,13 @@ export const authGuard: CanActivateFn = (_route, state) => {
   return false
 }
 
+// Pending accounts (role 'user') wait for admin validation: keep them on the
+// public site instead of the staff area.
 export const notPendingGuard: CanActivateFn = () => {
   const perms = inject(PermissionsService)
   const router = inject(Router)
   if (!perms.isPendingUser()) return true
-  router.navigate(['/pending'])
+  router.navigate(['/'])
   return false
 }
 
@@ -24,7 +26,7 @@ export function requirePermission(resource: string, action: string): CanActivate
     const perms = inject(PermissionsService)
     const router = inject(Router)
     if (perms.has(resource, action)) return true
-    router.navigate(['/dashboard'])
+    router.navigate(['/admin/dashboard'])
     return false
   }
 }

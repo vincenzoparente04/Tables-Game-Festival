@@ -11,7 +11,7 @@ import type { Area, Booking, Game, Invoice, PipelineStage, Quote, ResourceType }
   selector: 'app-booking-detail',
   imports: [FormsModule, RouterLink],
   template: `
-    <a routerLink="/bookings" class="link back">← Bookings</a>
+    <a routerLink="/admin/bookings" class="link back">← Bookings</a>
     @if (loading()) { <div class="card empty">Loading…</div> }
     @else if (!booking()) { <div class="card empty">Booking not found.</div> }
     @else {

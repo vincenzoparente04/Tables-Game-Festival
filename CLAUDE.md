@@ -111,8 +111,12 @@ npm test               # ng test (karma/jasmine)
     orders` (rate-limited); Stripe Checkout via `payments.service` (503 without keys, prices
     always from DB) + webhook `/api/stripe/webhook` (express.raw mounted BEFORE express.json,
     idempotent confirm/expire); `email.service` console/smtp/resend + QR confirmation template.
-  - **E0–E4** admin UX (lazy `/admin` shell; artists/lineup; agreements+expenses+finance;
-    schedule editor; event settings/media/tickets). **F** custom SVG map editor + shared renderer.
+  - **E0 ✅** (branch `feat/e0-frontend-shell`) frontend restructure: bare root `App`, staff shell
+    moved to `admin/admin-layout.ts`, lazy routes under `/admin/*` (`admin/admin.routes.ts`,
+    per-page chunks), public site owns the root + wildcard (`public/public.routes.ts`),
+    `/showcase` → `/`, route titles, pending users land on the public home.
+  - **E1–E4** admin UX (artists/lineup; agreements+expenses+finance; schedule editor; event
+    settings/media/tickets). **F** custom SVG map editor + shared renderer.
   - **G** public visitor site + free-ticket flow. **G2** Stripe end-to-end. **H** poster builder,
     polish, demo seed. (SSR, multi-org, refunds: documented backlog.)
 
