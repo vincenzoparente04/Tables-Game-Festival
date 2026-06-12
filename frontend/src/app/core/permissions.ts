@@ -16,7 +16,7 @@ const EVERYONE = [Role.ADMIN, Role.SUPER_ORGANIZER, Role.ORGANIZER, Role.VOLUNTE
 
 // Mirrors the backend permission matrix (config/roles.config.ts).
 export const PERMISSIONS: Record<string, Record<string, Role[]>> = {
-  events: { viewAll: ALL_STAFF, viewCurrent: EVERYONE, create: ADMINS, update: ADMINS, delete: ADMINS, setCurrent: ADMINS },
+  events: { viewAll: ALL_STAFF, viewCurrent: EVERYONE, create: ADMINS, update: ADMINS, delete: ADMINS, setCurrent: ADMINS, setFeatured: ADMINS },
   eventTypes: { view: EVERYONE, create: [Role.ADMIN], update: [Role.ADMIN], delete: [Role.ADMIN] },
   areas: { view: EVERYONE, create: ADMINS, update: ALL_STAFF, delete: ADMINS },
   resourceTypes: { view: ALL_STAFF, create: ADMINS, update: ADMINS, delete: ADMINS },
@@ -26,6 +26,13 @@ export const PERMISSIONS: Record<string, Record<string, Role[]>> = {
   bookings: { view: ALL_STAFF, create: ALL_STAFF, update: ALL_STAFF, delete: ADMINS, updateWorkflow: ALL_STAFF },
   invoices: { view: ALL_STAFF, create: ADMINS, update: ADMINS, delete: ADMINS, markPaid: ADMINS },
   games: { viewPublic: EVERYONE, viewAll: ALL_STAFF, create: ADMINS, update: ALL_STAFF, delete: ADMINS },
+  artists: { view: ALL_STAFF, create: ALL_STAFF, update: ALL_STAFF, delete: ADMINS },
+  eventArtists: { view: ALL_STAFF, manage: ALL_STAFF },
+  schedule: { view: ALL_STAFF, create: ALL_STAFF, update: ALL_STAFF, delete: ALL_STAFF },
+  expenses: { view: ALL_STAFF, create: ALL_STAFF, update: ALL_STAFF, delete: ADMINS },
+  finance: { view: ALL_STAFF },
+  uploads: { create: ALL_STAFF, delete: ADMINS },
+  eventImages: { view: ALL_STAFF, manage: ALL_STAFF },
   users: { view: [Role.ADMIN], create: [Role.ADMIN], update: [Role.ADMIN], delete: [Role.ADMIN], validatePending: [Role.ADMIN], changeRole: [Role.ADMIN] },
 }
 

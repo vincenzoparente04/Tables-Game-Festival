@@ -5,6 +5,7 @@ export interface BookingRow {
   id: number
   event_id: number
   participant_id: number
+  kind: string
   stage_id: number | null
   attendance_status: string
   notes: string | null
@@ -35,6 +36,7 @@ export interface BookedResourceRow {
 export interface CreateBookingInput {
   event_id: number
   participant_id: number
+  kind?: string
   stage_id?: number
   attendance_status?: string
   notes?: string
@@ -52,9 +54,9 @@ export interface BookedResourceInput {
 }
 
 const TABLE = 'bookings'
-const UPDATABLE = ['stage_id', 'attendance_status', 'notes', 'discount_amount', 'attributes'] as const
+const UPDATABLE = ['kind', 'stage_id', 'attendance_status', 'notes', 'discount_amount', 'attributes'] as const
 
-export async function listBookings(eventId?: number): Promise<BookingListRow[]> {
+export async function listBookings(eventId?: number, kind?: string): Promise<BookingListRow[]> {
   const { rows } = await pool.query<BookingListRow>(
     `SELECT b.*, p.name AS participant_name, ps.key AS stage_key, ps.label AS stage_label,
             COALESCE(i.status, 'none') AS invoice_status
@@ -63,10 +65,30 @@ export async function listBookings(eventId?: number): Promise<BookingListRow[]> 
        LEFT JOIN pipeline_stages ps ON ps.id = b.stage_id
        LEFT JOIN invoices i ON i.booking_id = b.id
       WHERE ($1::int IS NULL OR b.event_id = $1)
+        AND ($2::text IS NULL OR b.kind = $2)
       ORDER BY b.id`,
-    [eventId ?? null],
+    [eventId ?? null, kind ?? null],
   )
   return rows
+}
+
+// An open (non-terminal-stage) agreement of the same kind for the same
+// participant — surfaced as a warning when creating another one.
+export async function findActiveDuplicate(
+  eventId: number,
+  participantId: number,
+  kind: string,
+): Promise<BookingRow | null> {
+  const { rows } = await pool.query<BookingRow>(
+    `SELECT b.*
+       FROM bookings b
+       LEFT JOIN pipeline_stages ps ON ps.id = b.stage_id
+      WHERE b.event_id = $1 AND b.participant_id = $2 AND b.kind = $3
+        AND COALESCE(ps.is_terminal, false) = false
+      LIMIT 1`,
+    [eventId, participantId, kind],
+  )
+  return rows[0] ?? null
 }
 
 export const getBookingById = (id: number) => findById<BookingRow>(TABLE, id)
@@ -76,11 +98,11 @@ export const deleteBooking = (id: number) => deleteById(TABLE, id)
 
 export async function createBooking(input: CreateBookingInput): Promise<BookingRow> {
   const { rows } = await pool.query<BookingRow>(
-    `INSERT INTO bookings (event_id, participant_id, stage_id, attendance_status, notes, discount_amount, attributes)
-     VALUES ($1, $2, $3, COALESCE($4,'unset'), $5, COALESCE($6,0), COALESCE($7,'{}'::jsonb))
+    `INSERT INTO bookings (event_id, participant_id, kind, stage_id, attendance_status, notes, discount_amount, attributes)
+     VALUES ($1, $2, COALESCE($3,'exhibitor'), $4, COALESCE($5,'unset'), $6, COALESCE($7,0), COALESCE($8,'{}'::jsonb))
      RETURNING *`,
     [
-      input.event_id, input.participant_id, input.stage_id ?? null,
+      input.event_id, input.participant_id, input.kind ?? null, input.stage_id ?? null,
       input.attendance_status ?? null, input.notes ?? null,
       input.discount_amount ?? null, input.attributes ?? null,
     ],

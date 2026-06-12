@@ -35,6 +35,7 @@ export const PERMISSIONS: PermissionMatrix = {
     update: ADMINS,
     delete: ADMINS,
     setCurrent: ADMINS,
+    setFeatured: ADMINS,
   },
   eventTypes: {
     view: EVERYONE,
@@ -92,6 +93,39 @@ export const PERMISSIONS: PermissionMatrix = {
     create: ADMINS,
     update: ALL_STAFF,
     delete: ADMINS,
+  },
+  artists: {
+    view: ALL_STAFF,
+    create: ALL_STAFF,
+    update: ALL_STAFF,
+    delete: ADMINS,
+  },
+  eventArtists: {
+    view: ALL_STAFF,
+    manage: ALL_STAFF,
+  },
+  schedule: {
+    view: ALL_STAFF,
+    create: ALL_STAFF,
+    update: ALL_STAFF,
+    delete: ALL_STAFF,
+  },
+  expenses: {
+    view: ALL_STAFF,
+    create: ALL_STAFF,
+    update: ALL_STAFF,
+    delete: ADMINS,
+  },
+  finance: {
+    view: ALL_STAFF,
+  },
+  uploads: {
+    create: ALL_STAFF,
+    delete: ADMINS,
+  },
+  eventImages: {
+    view: ALL_STAFF,
+    manage: ALL_STAFF,
   },
   users: {
     view: [Role.ADMIN],

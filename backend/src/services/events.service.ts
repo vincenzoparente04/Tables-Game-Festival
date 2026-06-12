@@ -4,6 +4,8 @@ import type { CreateEventInput, EventRow, UpdateEventInput } from '../repositori
 import * as resourceTypesRepo from '../repositories/resource-types.repo.js'
 import * as pricingRepo from '../repositories/pricing-tiers.repo.js'
 import { getEventTemplate } from './event-templates.js'
+import { generateUniqueSlug } from './slug.js'
+import * as financeRepo from '../repositories/finance.repo.js'
 
 export { getEventStats } from '../repositories/stats.repo.js'
 
@@ -31,7 +33,11 @@ export async function createEvent(
   if (!(await repo.eventTypeExists(input.event_type_id))) {
     throw new AppError(400, 'Unknown event type')
   }
-  const event = await repo.createEvent(input)
+  let createInput = input
+  if (input.status === 'published' && !input.slug) {
+    createInput = { ...input, slug: await generateUniqueSlug(input.name, repo.slugExists) }
+  }
+  const event = await repo.createEvent(createInput)
 
   // Provision sensible starter resource types + pricing for the event type.
   // These are fully editable afterwards (no locked preset).
@@ -70,7 +76,15 @@ export async function updateEvent(id: number, input: UpdateEventInput): Promise<
   if (input.event_type_id !== undefined && !(await repo.eventTypeExists(input.event_type_id))) {
     throw new AppError(400, 'Unknown event type')
   }
-  const event = await repo.updateEvent(id, input)
+  // Publishing requires a public URL: auto-generate a unique slug when missing.
+  let updateInput = input
+  if (input.status === 'published' && input.slug === undefined) {
+    const existing = await getEvent(id)
+    if (!existing.slug) {
+      updateInput = { ...input, slug: await generateUniqueSlug(input.name ?? existing.name, repo.slugExists) }
+    }
+  }
+  const event = await repo.updateEvent(id, updateInput)
   if (!event) throw new AppError(404, 'Event not found')
   return event
 }
@@ -84,4 +98,15 @@ export async function setCurrentEvent(id: number): Promise<EventRow> {
   const event = await repo.setCurrentEvent(id)
   if (!event) throw new AppError(404, 'Event not found')
   return event
+}
+
+export async function setFeaturedEvent(id: number): Promise<EventRow> {
+  const event = await repo.setFeaturedEvent(id)
+  if (!event) throw new AppError(404, 'Event not found')
+  return event
+}
+
+export async function getEventFinance(id: number) {
+  await getEvent(id) // 404 when the event does not exist
+  return financeRepo.getEventFinance(id)
 }

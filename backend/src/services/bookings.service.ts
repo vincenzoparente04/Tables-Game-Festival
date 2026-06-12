@@ -5,8 +5,8 @@ import type {
 } from '../repositories/bookings.repo.js'
 import { getParticipant } from '../repositories/participants.repo.js'
 
-export function listBookings(eventId?: number) {
-  return repo.listBookings(eventId)
+export function listBookings(eventId?: number, kind?: string) {
+  return repo.listBookings(eventId, kind)
 }
 
 export async function getBooking(id: number) {
@@ -19,12 +19,20 @@ export async function getBooking(id: number) {
   return { ...booking, resources, items }
 }
 
-export async function createBooking(input: CreateBookingInput): Promise<BookingRow> {
+// Duplicates are allowed (a vendor may legitimately hold two contracts) but flagged.
+export async function createBooking(input: CreateBookingInput): Promise<BookingRow & { warnings: string[] }> {
   const participant = await getParticipant(input.participant_id)
   if (!participant || participant.event_id !== input.event_id) {
     throw new AppError(400, 'Participant does not belong to this event')
   }
-  return repo.createBooking(input)
+  const kind = input.kind ?? 'exhibitor'
+  const warnings: string[] = []
+  const duplicate = await repo.findActiveDuplicate(input.event_id, input.participant_id, kind)
+  if (duplicate) {
+    warnings.push(`Participant already has an open '${kind}' agreement (#${duplicate.id}) for this event`)
+  }
+  const booking = await repo.createBooking(input)
+  return { ...booking, warnings }
 }
 
 export async function updateBooking(id: number, input: UpdateBookingInput): Promise<BookingRow> {

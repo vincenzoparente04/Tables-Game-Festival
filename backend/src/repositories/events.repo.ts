@@ -12,6 +12,14 @@ export interface EventRow {
   end_date: string | null
   is_active: boolean
   is_current: boolean
+  status: string
+  is_featured: boolean
+  hero_image_url: string | null
+  subtitle: string | null
+  location_address: string | null
+  capacity: number | null
+  start_time: string | null
+  end_time: string | null
   settings: Record<string, unknown>
   created_at: string
   updated_at: string
@@ -27,15 +35,32 @@ export interface CreateEventInput {
   start_date?: string
   end_date?: string
   is_active?: boolean
+  status?: string
+  subtitle?: string
+  location_address?: string
+  capacity?: number
+  start_time?: string
+  end_time?: string
+  hero_image_url?: string
   settings?: Record<string, unknown>
 }
 
-export type UpdateEventInput = Partial<CreateEventInput>
+export type UpdateEventInput = Partial<CreateEventInput> & {
+  is_featured?: boolean
+  hero_image_url?: string | null
+  subtitle?: string | null
+  location_address?: string | null
+  capacity?: number | null
+  start_time?: string | null
+  end_time?: string | null
+}
 
 // Columns that may be set via create/update (whitelist — never user-controlled).
 const UPDATABLE = [
   'event_type_id', 'name', 'slug', 'description', 'venue',
   'timezone', 'start_date', 'end_date', 'is_active', 'settings',
+  'status', 'is_featured', 'hero_image_url', 'subtitle', 'location_address',
+  'capacity', 'start_time', 'end_time',
 ] as const
 
 export async function listEvents(): Promise<EventRow[]> {
@@ -89,13 +114,18 @@ export async function getPipelineStagesForEvent(eventId: number): Promise<Pipeli
 export async function createEvent(input: CreateEventInput): Promise<EventRow> {
   const { rows } = await pool.query<EventRow>(
     `INSERT INTO events
-       (event_type_id, name, slug, description, venue, timezone, start_date, end_date, is_active, settings)
-     VALUES ($1,$2,$3,$4,$5, COALESCE($6,'UTC'), $7,$8, COALESCE($9,true), COALESCE($10,'{}'::jsonb))
+       (event_type_id, name, slug, description, venue, timezone, start_date, end_date, is_active, settings,
+        status, subtitle, location_address, capacity, start_time, end_time, hero_image_url)
+     VALUES ($1,$2,$3,$4,$5, COALESCE($6,'UTC'), $7,$8, COALESCE($9,true), COALESCE($10,'{}'::jsonb),
+             COALESCE($11,'draft'), $12, $13, $14, $15, $16, $17)
      RETURNING *`,
     [
       input.event_type_id, input.name, input.slug ?? null, input.description ?? null,
       input.venue ?? null, input.timezone ?? null, input.start_date ?? null,
       input.end_date ?? null, input.is_active ?? null, input.settings ?? null,
+      input.status ?? null, input.subtitle ?? null, input.location_address ?? null,
+      input.capacity ?? null, input.start_time ?? null, input.end_time ?? null,
+      input.hero_image_url ?? null,
     ],
   )
   return rows[0]!
@@ -139,6 +169,36 @@ export async function setCurrentEvent(id: number): Promise<EventRow | null> {
     await client.query('UPDATE events SET is_current = false WHERE is_current')
     const { rows } = await client.query<EventRow>(
       'UPDATE events SET is_current = true WHERE id = $1 RETURNING *',
+      [id],
+    )
+    await client.query('COMMIT')
+    return rows[0] ?? null
+  } catch (err) {
+    await client.query('ROLLBACK')
+    throw err
+  } finally {
+    client.release()
+  }
+}
+
+export async function slugExists(slug: string): Promise<boolean> {
+  const { rows } = await pool.query('SELECT 1 FROM events WHERE slug = $1', [slug])
+  return rows.length > 0
+}
+
+// Marks one event as featured on the public site; at most one at a time.
+export async function setFeaturedEvent(id: number): Promise<EventRow | null> {
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    const exists = await client.query('SELECT 1 FROM events WHERE id = $1', [id])
+    if (exists.rows.length === 0) {
+      await client.query('ROLLBACK')
+      return null
+    }
+    await client.query('UPDATE events SET is_featured = false WHERE is_featured')
+    const { rows } = await client.query<EventRow>(
+      'UPDATE events SET is_featured = true WHERE id = $1 RETURNING *',
       [id],
     )
     await client.query('COMMIT')

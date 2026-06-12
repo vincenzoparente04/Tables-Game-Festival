@@ -78,17 +78,35 @@ npm test               # ng test (karma/jasmine)
 - **Fase 1 — Security hardening** ✅ done & deployed (live on Render). admin from env, access/refresh
   token `type` claim, revocable+rotating refresh tokens, rate limiting, helmet, zod, central error
   handler, ESLint/Prettier, vitest+supertest, 0 npm audit vulns.
-- **Fase 2 — Generic English schema + backend** 🚧 in progress (branch `feat/generic-schema`).
+- **Fase 2 — Generic English schema + backend** ✅ done.
   - **2.A ✅** generic extensible schema via node-pg-migrate (events/areas/resource_types/resources/
     pricing_tiers/participants/bookings/booked_resources/booking_items/invoices/custom_fields +
     optional `games` module; JSONB attributes; event types & pipelines as data).
   - **2.B ✅** backend rebuilt on the generic schema: route → service → repository layers, English
     REST API (`/api/events|areas|resource-types|resources|pricing-tiers|participants|bookings|invoices|publishers|authors|games|users`),
     pricing/invoicing in the service layer. Legacy FR routes removed.
-  - **2.C** automated tests for the new domains (pending). **2.D** Angular frontend cutover (pending).
-  - ⚠️ **Not deployed**: backend-first breaks the current frontend → prod stays on Fase 1 until the
-    frontend is migrated (coordinated BE+FE cutover).
-- **Fase 3 — further generalization & UI** (configurable pipelines UI, custom-fields UI, Claude Design).
+  - **2.C ✅** vitest unit + DB integration suite (`npm run test:db`). **2.D ✅** Angular admin MVP
+    (branch `feat/frontend-redesign`): design system, events/participants/resources/bookings/
+    invoices/games/users modules, shared event context/selector.
+  - ⚠️ **Not deployed**: prod stays on Fase 1 until the coordinated BE+FE cutover.
+- **Fase D→H — Specialization: art events, exhibitions & concerts** 🚧 in progress.
+  Decisions: single-organization deployment (multi-tenant-ready seams), Stripe Checkout for
+  tickets, Cloudinary for media. Public site at `/`, admin moves under `/admin` (lazy).
+  - **D1 ✅** (branch `feat/d1-domain-foundation`) backend domain foundation: artists module
+    (global catalog + `event_artists` lineup), `schedule_slots` with overlap warnings,
+    `expenses` + event finance overview (`GET /api/events/:id/finance`), Cloudinary uploads +
+    `event_images`, bookings as generic agreements (`kind`, duplicate warnings, uniqueness
+    dropped), event publishing (status/auto-slug/featured/hero/capacity/times; public routes
+    filter `status='published'`).
+  - **D2** venue maps backend (`venue_maps`/`map_elements` rows + bulk-replace endpoint,
+    venue templates as TS data, ≥11 location categories).
+  - **D3** ticketing backend: `ticket_types`/`orders`/`tickets`, FOR-UPDATE capacity transaction,
+    guest checkout, Stripe webhook (raw body mounted BEFORE `express.json`), email provider
+    abstraction (console/smtp/resend) + QR tickets.
+  - **E0–E4** admin UX (lazy `/admin` shell; artists/lineup; agreements+expenses+finance;
+    schedule editor; event settings/media/tickets). **F** custom SVG map editor + shared renderer.
+  - **G** public visitor site + free-ticket flow. **G2** Stripe end-to-end. **H** poster builder,
+    polish, demo seed. (SSR, multi-org, refunds: documented backlog.)
 
 ## Git
 - `main` = single source of truth & integration branch. `deploy` tracks releases (kept aligned with main).

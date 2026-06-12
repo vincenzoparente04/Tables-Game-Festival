@@ -9,7 +9,7 @@ export async function listPublicEvents() {
             e.start_date, e.end_date, et.key AS event_type, et.label AS event_type_label
        FROM events e
        JOIN event_types et ON et.id = e.event_type_id
-      WHERE e.is_active = true
+      WHERE e.is_active = true AND e.status = 'published'
       ORDER BY e.start_date DESC NULLS LAST, e.id DESC`,
   )
   return rows
@@ -21,7 +21,7 @@ export async function getPublicEventBySlug(slug: string) {
             e.start_date, e.end_date, et.key AS event_type, et.label AS event_type_label
        FROM events e
        JOIN event_types et ON et.id = e.event_type_id
-      WHERE e.slug = $1 AND e.is_active = true`,
+      WHERE e.slug = $1 AND e.is_active = true AND e.status = 'published'`,
     [slug],
   )
   const event = rows[0]

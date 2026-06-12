@@ -19,6 +19,12 @@ import publishersRouter from './routes/publishers.js'
 import authorsRouter from './routes/authors.js'
 import gamesRouter from './routes/games.js'
 import usersRouter from './routes/users.js'
+import artistsRouter from './routes/artists.js'
+import eventArtistsRouter from './routes/event-artists.js'
+import scheduleSlotsRouter from './routes/schedule-slots.js'
+import expensesRouter from './routes/expenses.js'
+import uploadsRouter from './routes/uploads.js'
+import eventImagesRouter from './routes/event-images.js'
 import { verifyToken } from './middleware/token-management.js'
 import { requireAdmin } from './middleware/auth-admin.js'
 import { notFound, errorHandler } from './middleware/error-handler.js'
@@ -76,6 +82,13 @@ app.use('/api/pricing-tiers', verifyToken, pricingTiersRouter)
 app.use('/api/participants', verifyToken, participantsRouter)
 app.use('/api/bookings', verifyToken, bookingsRouter)
 app.use('/api/invoices', verifyToken, invoicesRouter)
+app.use('/api/expenses', verifyToken, expensesRouter)
+app.use('/api/schedule-slots', verifyToken, scheduleSlotsRouter)
+app.use('/api/uploads', verifyToken, uploadsRouter)
+app.use('/api/event-images', verifyToken, eventImagesRouter)
+// Artists module (exhibitions / concerts / performances)
+app.use('/api/artists', verifyToken, artistsRouter)
+app.use('/api/event-artists', verifyToken, eventArtistsRouter)
 // Games module (board-game festivals)
 app.use('/api/publishers', verifyToken, publishersRouter)
 app.use('/api/authors', verifyToken, authorsRouter)

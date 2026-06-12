@@ -2,16 +2,21 @@ import { Router } from 'express'
 import { z } from 'zod'
 import { validateBody } from '../middleware/validate.js'
 import { requireActivatedAccount, requirePermission } from '../middleware/roles.js'
+import { AppError } from '../middleware/error-handler.js'
 import { parseId, parseOptionalIntQuery } from './helpers.js'
 import * as service from '../services/bookings.service.js'
 
 const router = Router()
 const jsonObject = z.record(z.string(), z.unknown())
 const ATTENDANCE = ['unset', 'present', 'presumed_absent', 'absent'] as const
+// Agreement kinds: who the deal is with (exhibitor books a stand, artist is
+// engaged to perform/exhibit, vendor/supplier is contracted, sponsor backs).
+export const BOOKING_KINDS = ['exhibitor', 'artist', 'vendor', 'sponsor', 'other'] as const
 
 const createSchema = z.object({
   event_id: z.number().int().positive(),
   participant_id: z.number().int().positive(),
+  kind: z.enum(BOOKING_KINDS).optional(),
   stage_id: z.number().int().positive().optional(),
   attendance_status: z.enum(ATTENDANCE).optional(),
   notes: z.string().optional(),
@@ -34,7 +39,11 @@ const itemSchema = z.object({
 })
 
 router.get('/', requireActivatedAccount(), requirePermission('bookings', 'view'), async (req, res) => {
-  res.json(await service.listBookings(parseOptionalIntQuery(req.query.event_id)))
+  const kind = typeof req.query.kind === 'string' ? req.query.kind : undefined
+  if (kind !== undefined && !(BOOKING_KINDS as readonly string[]).includes(kind)) {
+    throw new AppError(400, 'Invalid kind filter')
+  }
+  res.json(await service.listBookings(parseOptionalIntQuery(req.query.event_id), kind))
 })
 
 router.get('/:id', requireActivatedAccount(), requirePermission('bookings', 'view'), async (req, res) => {
