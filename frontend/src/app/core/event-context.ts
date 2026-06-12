@@ -10,14 +10,14 @@ export class EventContext {
   readonly events = signal<EventModel[]>([])
   readonly selectedId = signal<number | null>(null)
   readonly selected = computed(() => this.events().find((e) => e.id === this.selectedId()) ?? null)
-  private loading = false
 
+  // Refetch events on each page entry: keeps the list fresh (new/current events)
+  // while preserving a still-valid selection, otherwise defaults to the current event.
   ensureLoaded() {
-    if (this.loading || this.events().length) return
-    this.loading = true
     this.api.list().subscribe((list) => {
       this.events.set(list)
-      if (this.selectedId() == null) {
+      const sel = this.selectedId()
+      if (sel == null || !list.some((e) => e.id === sel)) {
         const current = list.find((e) => e.is_current) ?? list[0]
         this.selectedId.set(current?.id ?? null)
       }
@@ -26,5 +26,11 @@ export class EventContext {
 
   select(id: number) {
     this.selectedId.set(id)
+  }
+
+  // Called after marking an event current, so management pages follow it.
+  syncCurrent(id: number) {
+    this.selectedId.set(id)
+    this.ensureLoaded()
   }
 }
