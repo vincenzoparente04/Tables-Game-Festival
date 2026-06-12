@@ -27,6 +27,9 @@ import uploadsRouter from './routes/uploads.js'
 import eventImagesRouter from './routes/event-images.js'
 import venueMapsRouter from './routes/venue-maps.js'
 import venueTemplatesRouter from './routes/venue-templates.js'
+import ticketTypesRouter from './routes/ticket-types.js'
+import ordersRouter from './routes/orders.js'
+import { stripeWebhookHandler } from './routes/stripe-webhook.js'
 import { verifyToken } from './middleware/token-management.js'
 import { requireAdmin } from './middleware/auth-admin.js'
 import { notFound, errorHandler } from './middleware/error-handler.js'
@@ -50,6 +53,11 @@ app.use(helmet({
 if (process.env.NODE_ENV !== 'test') {
     app.use(morgan('dev'))
 }
+
+// Stripe webhook: registered BEFORE the global JSON parser because signature
+// verification needs the exact raw payload bytes (route-level parser wins).
+app.post('/api/stripe/webhook', express.raw({ type: 'application/json' }), stripeWebhookHandler)
+
 app.use(express.json({ limit: '1mb' }))
 app.use(cookieParser())
 
@@ -90,6 +98,8 @@ app.use('/api/uploads', verifyToken, uploadsRouter)
 app.use('/api/event-images', verifyToken, eventImagesRouter)
 app.use('/api/venue-maps', verifyToken, venueMapsRouter)
 app.use('/api/venue-templates', verifyToken, venueTemplatesRouter)
+app.use('/api/ticket-types', verifyToken, ticketTypesRouter)
+app.use('/api/orders', verifyToken, ordersRouter)
 // Artists module (exhibitions / concerts / performances)
 app.use('/api/artists', verifyToken, artistsRouter)
 app.use('/api/event-artists', verifyToken, eventArtistsRouter)

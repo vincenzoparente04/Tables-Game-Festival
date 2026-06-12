@@ -103,9 +103,14 @@ npm test               # ng test (karma/jasmine)
     bulk-replace endpoint `PUT /api/venue-maps/:id/elements` (transactional, ≤500 elements),
     capacity summary per kind, 12 venue templates as TS data (`services/venue-templates.ts`),
     `GET /api/venue-templates`.
-  - **D3** ticketing backend: `ticket_types`/`orders`/`tickets`, FOR-UPDATE capacity transaction,
-    guest checkout, Stripe webhook (raw body mounted BEFORE `express.json`), email provider
-    abstraction (console/smtp/resend) + QR tickets.
+  - **D3 ✅** (branch `feat/d3-ticketing`) ticketing backend: `ticket_types` (free/paid tiers,
+    capacity NULL=unlimited, sales windows) / `orders` (guest checkout, crypto-random code as
+    bearer secret, pending holds capacity 35min w/ lazy expiry sweep) / `tickets` (QR codes,
+    check-in incl. volunteers); FOR-UPDATE capacity transaction (event row then tiers in id
+    order); public endpoints `/api/public/events/:slug/ticket-types`, `POST/GET /api/public/
+    orders` (rate-limited); Stripe Checkout via `payments.service` (503 without keys, prices
+    always from DB) + webhook `/api/stripe/webhook` (express.raw mounted BEFORE express.json,
+    idempotent confirm/expire); `email.service` console/smtp/resend + QR confirmation template.
   - **E0–E4** admin UX (lazy `/admin` shell; artists/lineup; agreements+expenses+finance;
     schedule editor; event settings/media/tickets). **F** custom SVG map editor + shared renderer.
   - **G** public visitor site + free-ticket flow. **G2** Stripe end-to-end. **H** poster builder,

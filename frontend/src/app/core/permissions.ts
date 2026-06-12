@@ -34,6 +34,8 @@ export const PERMISSIONS: Record<string, Record<string, Role[]>> = {
   uploads: { create: ALL_STAFF, delete: ADMINS },
   eventImages: { view: ALL_STAFF, manage: ALL_STAFF },
   venueMaps: { view: ALL_STAFF, create: ALL_STAFF, update: ALL_STAFF, delete: ADMINS },
+  ticketTypes: { view: ALL_STAFF, create: ADMINS, update: ADMINS, delete: ADMINS },
+  orders: { view: ALL_STAFF, cancel: ADMINS, checkIn: [...ALL_STAFF, Role.VOLUNTEER] },
   users: { view: [Role.ADMIN], create: [Role.ADMIN], update: [Role.ADMIN], delete: [Role.ADMIN], validatePending: [Role.ADMIN], changeRole: [Role.ADMIN] },
 }
 

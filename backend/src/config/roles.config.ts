@@ -133,6 +133,17 @@ export const PERMISSIONS: PermissionMatrix = {
     update: ALL_STAFF,
     delete: ADMINS,
   },
+  ticketTypes: {
+    view: ALL_STAFF,
+    create: ADMINS,
+    update: ADMINS,
+    delete: ADMINS,
+  },
+  orders: {
+    view: ALL_STAFF,
+    cancel: ADMINS,
+    checkIn: [...ALL_STAFF, Role.VOLUNTEER],
+  },
   users: {
     view: [Role.ADMIN],
     create: [Role.ADMIN],
