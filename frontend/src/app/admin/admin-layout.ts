@@ -17,7 +17,8 @@ import { PermissionsService } from '../core/permissions'
           @if (canEvents()) { <a routerLink="/admin/events" routerLinkActive="active">Events</a> }
           @if (canArtists()) { <a routerLink="/admin/artists" routerLinkActive="active">Artists</a> }
           @if (canParticipants()) { <a routerLink="/admin/participants" routerLinkActive="active">Participants</a> }
-          @if (canBookings()) { <a routerLink="/admin/bookings" routerLinkActive="active">Bookings</a> }
+          @if (canBookings()) { <a routerLink="/admin/bookings" routerLinkActive="active">Agreements</a> }
+          @if (canSchedule()) { <a routerLink="/admin/schedule" routerLinkActive="active">Schedule</a> }
           @if (canResources()) { <a routerLink="/admin/resources" routerLinkActive="active">Resources &amp; areas</a> }
           @if (canInvoices()) { <a routerLink="/admin/invoices" routerLinkActive="active">Invoices</a> }
           @if (canExpenses()) { <a routerLink="/admin/expenses" routerLinkActive="active">Expenses</a> }
@@ -74,6 +75,7 @@ export class AdminLayout {
   readonly canArtists = this.perms.can('artists', 'view')
   readonly canParticipants = this.perms.can('participants', 'view')
   readonly canBookings = this.perms.can('bookings', 'view')
+  readonly canSchedule = this.perms.can('schedule', 'view')
   readonly canResources = this.perms.can('resources', 'view')
   readonly canInvoices = this.perms.can('invoices', 'view')
   readonly canExpenses = this.perms.can('expenses', 'view')

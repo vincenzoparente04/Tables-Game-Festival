@@ -51,6 +51,11 @@ export default [
         loadComponent: () => import('../features/bookings/booking-detail').then((m) => m.BookingDetail),
       },
       {
+        path: 'schedule', title: 'Schedule — Festival Manager',
+        canActivate: [...staff, requirePermission('schedule', 'view')],
+        loadComponent: () => import('./schedule/schedule-page').then((m) => m.SchedulePage),
+      },
+      {
         path: 'invoices', title: 'Invoices — Festival Manager',
         canActivate: [...staff, requirePermission('invoices', 'view')],
         loadComponent: () => import('../features/invoices/invoices-page').then((m) => m.InvoicesPage),
