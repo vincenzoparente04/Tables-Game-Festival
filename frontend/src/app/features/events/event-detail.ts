@@ -3,11 +3,13 @@ import { ActivatedRoute, RouterLink } from '@angular/router'
 import { EventsApi, EventTypesApi } from '../../core/api'
 import { PermissionsService } from '../../core/permissions'
 import { LineupPanel } from '../../admin/artists/lineup-panel'
+import { PublishingPanel } from '../../admin/events/publishing-panel'
+import { MediaPanel } from '../../admin/events/media-panel'
 import type { EventModel, EventStats } from '../../core/models'
 
 @Component({
   selector: 'app-event-detail',
-  imports: [RouterLink, LineupPanel],
+  imports: [RouterLink, LineupPanel, PublishingPanel, MediaPanel],
   template: `
     <a routerLink="/admin/events" class="link back">← Events</a>
 
@@ -49,6 +51,8 @@ import type { EventModel, EventStats } from '../../core/models'
         </div>
       </div>
 
+      <div class="section"><app-publishing-panel [event]="event()!" (updated)="event.set($event)" /></div>
+      <div class="section"><app-media-panel [event]="event()!" (updated)="event.set($event)" /></div>
       <div class="section"><app-lineup-panel [eventId]="event()!.id" /></div>
     }
   `,

@@ -61,6 +61,11 @@ export default [
         loadComponent: () => import('../features/invoices/invoices-page').then((m) => m.InvoicesPage),
       },
       {
+        path: 'tickets', title: 'Tickets & orders — Festival Manager',
+        canActivate: [...staff, requirePermission('ticketTypes', 'view')],
+        loadComponent: () => import('./tickets/tickets-page').then((m) => m.TicketsPage),
+      },
+      {
         path: 'expenses', title: 'Expenses — Festival Manager',
         canActivate: [...staff, requirePermission('expenses', 'view')],
         loadComponent: () => import('./expenses/expenses-page').then((m) => m.ExpensesPage),
