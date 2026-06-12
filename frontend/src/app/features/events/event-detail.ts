@@ -2,11 +2,12 @@ import { Component, OnInit, inject, signal } from '@angular/core'
 import { ActivatedRoute, RouterLink } from '@angular/router'
 import { EventsApi, EventTypesApi } from '../../core/api'
 import { PermissionsService } from '../../core/permissions'
+import { LineupPanel } from '../../admin/artists/lineup-panel'
 import type { EventModel, EventStats } from '../../core/models'
 
 @Component({
   selector: 'app-event-detail',
-  imports: [RouterLink],
+  imports: [RouterLink, LineupPanel],
   template: `
     <a routerLink="/admin/events" class="link back">← Events</a>
 
@@ -47,6 +48,8 @@ import type { EventModel, EventStats } from '../../core/models'
           } @empty { <div class="muted">No bookings yet.</div> }
         </div>
       </div>
+
+      <div class="section"><app-lineup-panel [eventId]="event()!.id" /></div>
     }
   `,
   styles: `
@@ -57,6 +60,7 @@ import type { EventModel, EventStats } from '../../core/models'
     .kpi .sub { font-size: 14px; font-weight: 500; color: var(--text-muted); }
     .stages { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
     .stage { display: flex; align-items: center; gap: 8px; padding: 8px 12px; background: var(--surface-2); border-radius: var(--radius-sm); }
+    .section { margin-top: 16px; }
   `,
 })
 export class EventDetail implements OnInit {

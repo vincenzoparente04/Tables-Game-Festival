@@ -31,6 +31,11 @@ export default [
         loadComponent: () => import('../features/events/event-detail').then((m) => m.EventDetail),
       },
       {
+        path: 'artists', title: 'Artists — Festival Manager',
+        canActivate: [...staff, requirePermission('artists', 'view')],
+        loadComponent: () => import('./artists/artists-page').then((m) => m.ArtistsPage),
+      },
+      {
         path: 'participants', title: 'Participants — Festival Manager',
         canActivate: [...staff, requirePermission('participants', 'view')],
         loadComponent: () => import('../features/participants/participants-list').then((m) => m.ParticipantsList),

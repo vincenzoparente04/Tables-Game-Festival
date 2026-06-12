@@ -33,6 +33,14 @@ export interface EventModel {
   end_date: string | null
   is_active: boolean
   is_current: boolean
+  status: string // draft | published | archived
+  is_featured: boolean
+  hero_image_url: string | null
+  subtitle: string | null
+  location_address: string | null
+  capacity: number | null
+  start_time: string | null
+  end_time: string | null
   settings: Json
   created_at: string
   updated_at: string
@@ -126,6 +134,7 @@ export interface Booking {
   id: number
   event_id: number
   participant_id: number
+  kind: string // exhibitor | artist | vendor | sponsor | other
   stage_id: number | null
   attendance_status: string
   notes: string | null
@@ -136,6 +145,8 @@ export interface Booking {
   stage_key?: string | null
   stage_label?: string | null
   invoice_status?: string
+  // present in create responses (duplicate-agreement hints)
+  warnings?: string[]
   // present in detail responses
   resources?: BookedResource[]
   items?: BookingItem[]
@@ -230,4 +241,198 @@ export interface PublicEventDetail extends PublicEvent {
   areas: Pick<Area, 'id' | 'name' | 'kind'>[]
   participants: Pick<Participant, 'id' | 'name' | 'participant_type'>[]
   games: Pick<Game, 'id' | 'name' | 'category' | 'min_players' | 'max_players' | 'min_age'>[]
+}
+
+// --- Arts domain (Phase D1) ---
+
+export interface Artist {
+  id: number
+  name: string
+  kind: string
+  bio: string | null
+  image_url: string | null
+  links: Json
+  attributes: Json
+}
+
+export interface EventArtist {
+  id: number
+  event_id: number
+  artist_id: number
+  booking_id: number | null
+  is_headliner: boolean
+  display_order: number
+  // present in list responses
+  artist_name?: string
+  artist_kind?: string
+  artist_image_url?: string | null
+}
+
+export interface ScheduleSlot {
+  id: number
+  event_id: number
+  area_id: number | null
+  artist_id: number | null
+  booking_id: number | null
+  title: string
+  kind: string
+  starts_at: string
+  ends_at: string
+  status: string // tentative | confirmed | cancelled
+  is_public: boolean
+  // present in list responses
+  area_name?: string | null
+  artist_name?: string | null
+  // present in create/update responses
+  warnings?: string[]
+}
+
+export interface Expense {
+  id: number
+  event_id: number
+  booking_id: number | null
+  participant_id: number | null
+  category: string
+  description: string
+  amount: string
+  status: string // planned | committed | paid
+  due_date: string | null
+  paid_at: string | null
+  supplier_invoice_ref: string | null
+  attachment_url: string | null
+  participant_name?: string | null
+}
+
+export interface EventFinance {
+  event_id: number
+  income: { invoiced: number; paid: number }
+  expenses: { planned: number; committed: number; paid: number; total: number }
+  expenses_by_category: { category: string; total: number; paid: number }[]
+  net_projected: number
+  net_paid: number
+}
+
+export interface UploadedImage {
+  url: string
+  public_id: string
+  width: number
+  height: number
+}
+
+export interface EventImage {
+  id: number
+  event_id: number
+  url: string
+  public_id: string | null
+  kind: string // gallery | poster
+  position: number
+  alt: string | null
+}
+
+// --- Venue maps (Phase D2) ---
+
+export interface MapElement {
+  id: number
+  venue_map_id: number
+  kind: string
+  label: string | null
+  x: number
+  y: number
+  width: number
+  height: number
+  rotation: number
+  capacity: number | null
+  color: string | null
+  z_index: number
+  area_id: number | null
+  resource_id: number | null
+  booking_id: number | null
+  attributes: Json
+  // present in detail responses
+  area_name?: string | null
+  resource_label?: string | null
+  booking_participant_name?: string | null
+}
+
+export interface CapacitySummary {
+  total: number
+  by_kind: { kind: string; count: number; capacity: number }[]
+}
+
+export interface VenueMap {
+  id: number
+  event_id: number
+  name: string
+  template_key: string | null
+  width: number
+  height: number
+  background: Json[]
+  settings: Json
+  is_public: boolean
+  // present in detail responses
+  elements?: MapElement[]
+  capacity_summary?: CapacitySummary
+}
+
+export interface VenueTemplate {
+  key: string
+  label: string
+  category: string
+  description: string
+  canvas: { width: number; height: number }
+  background: Json[]
+}
+
+// --- Ticketing (Phase D3) ---
+
+export interface TicketType {
+  id: number
+  event_id: number
+  name: string
+  description: string | null
+  price: string
+  currency: string
+  capacity: number | null
+  sales_start_at: string | null
+  sales_end_at: string | null
+  max_per_order: number
+  status: string // hidden | on_sale | paused
+  position: number
+  sold?: number
+}
+
+export interface Ticket {
+  id: number
+  order_id: number
+  ticket_type_id: number
+  code: string
+  attendee_name: string | null
+  status: string // valid | checked_in | cancelled
+  checked_in_at: string | null
+  ticket_type_name?: string
+}
+
+export interface Order {
+  id: number
+  event_id: number
+  code: string
+  customer_name: string
+  customer_email: string
+  status: string // pending | confirmed | cancelled | expired | refunded
+  total_amount: string
+  currency: string
+  payment_provider: string
+  expires_at: string | null
+  confirmed_at: string | null
+  created_at: string
+  tickets_count?: number
+  tickets?: Ticket[]
+}
+
+export interface CheckInResult {
+  ticket: Ticket
+  ticket_type_name: string
+  order_code: string
+  customer_name: string
+  event_id: number
 }
