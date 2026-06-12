@@ -127,6 +127,12 @@ export const PERMISSIONS: PermissionMatrix = {
     view: ALL_STAFF,
     manage: ALL_STAFF,
   },
+  venueMaps: {
+    view: ALL_STAFF,
+    create: ALL_STAFF,
+    update: ALL_STAFF,
+    delete: ADMINS,
+  },
   users: {
     view: [Role.ADMIN],
     create: [Role.ADMIN],

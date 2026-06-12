@@ -98,8 +98,11 @@ npm test               # ng test (karma/jasmine)
     `event_images`, bookings as generic agreements (`kind`, duplicate warnings, uniqueness
     dropped), event publishing (status/auto-slug/featured/hero/capacity/times; public routes
     filter `status='published'`).
-  - **D2** venue maps backend (`venue_maps`/`map_elements` rows + bulk-replace endpoint,
-    venue templates as TS data, ≥11 location categories).
+  - **D2 ✅** (branch `feat/d2-venue-maps`) venue maps backend: `venue_maps` (multiple per event)
+    + `map_elements` rows (FK links to areas/resources/bookings with ON DELETE SET NULL),
+    bulk-replace endpoint `PUT /api/venue-maps/:id/elements` (transactional, ≤500 elements),
+    capacity summary per kind, 12 venue templates as TS data (`services/venue-templates.ts`),
+    `GET /api/venue-templates`.
   - **D3** ticketing backend: `ticket_types`/`orders`/`tickets`, FOR-UPDATE capacity transaction,
     guest checkout, Stripe webhook (raw body mounted BEFORE `express.json`), email provider
     abstraction (console/smtp/resend) + QR tickets.

@@ -25,6 +25,8 @@ import scheduleSlotsRouter from './routes/schedule-slots.js'
 import expensesRouter from './routes/expenses.js'
 import uploadsRouter from './routes/uploads.js'
 import eventImagesRouter from './routes/event-images.js'
+import venueMapsRouter from './routes/venue-maps.js'
+import venueTemplatesRouter from './routes/venue-templates.js'
 import { verifyToken } from './middleware/token-management.js'
 import { requireAdmin } from './middleware/auth-admin.js'
 import { notFound, errorHandler } from './middleware/error-handler.js'
@@ -86,6 +88,8 @@ app.use('/api/expenses', verifyToken, expensesRouter)
 app.use('/api/schedule-slots', verifyToken, scheduleSlotsRouter)
 app.use('/api/uploads', verifyToken, uploadsRouter)
 app.use('/api/event-images', verifyToken, eventImagesRouter)
+app.use('/api/venue-maps', verifyToken, venueMapsRouter)
+app.use('/api/venue-templates', verifyToken, venueTemplatesRouter)
 // Artists module (exhibitions / concerts / performances)
 app.use('/api/artists', verifyToken, artistsRouter)
 app.use('/api/event-artists', verifyToken, eventArtistsRouter)
