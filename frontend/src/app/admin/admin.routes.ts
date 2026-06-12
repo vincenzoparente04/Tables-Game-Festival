@@ -56,6 +56,16 @@ export default [
         loadComponent: () => import('../features/invoices/invoices-page').then((m) => m.InvoicesPage),
       },
       {
+        path: 'expenses', title: 'Expenses — Festival Manager',
+        canActivate: [...staff, requirePermission('expenses', 'view')],
+        loadComponent: () => import('./expenses/expenses-page').then((m) => m.ExpensesPage),
+      },
+      {
+        path: 'finance', title: 'Finance — Festival Manager',
+        canActivate: [...staff, requirePermission('finance', 'view')],
+        loadComponent: () => import('./finance/finance-page').then((m) => m.FinancePage),
+      },
+      {
         path: 'resources', title: 'Resources & areas — Festival Manager',
         canActivate: [...staff, requirePermission('resources', 'view')],
         loadComponent: () => import('../features/resources/resources-page').then((m) => m.ResourcesPage),
