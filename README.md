@@ -1,300 +1,135 @@
-# Festivals de Jeux — Festival Management Platform
-
-## Project Overview
-
-This application was developed as a **team project** during an academic program at a French engineering university.
-
-The goal was to design and build a complete platform to manage board game festivals, covering everything from festival creation to reservations, placement planning, and invoicing.
-
-The interface is in English to ensure accessibility for an international audience.
-
-The **latest stable version** of the project is available online (deployment version).
-
-Live application: https://lively-rabanadas-2ae5d7.netlify.app/
-
-Backend API: deployed on render
-
-GitHub repository: https://github.com/vincenzoparente04/Tables-Game-Festival
-
-> Note: The deployment version includes the latest fixes and improvements beyond the academic submission.
-
----
-
-## What is this application?
-
-A complete platform for organizing and managing a board game festival.
-
-From festival creation and pricing setup to publisher reservations and invoice generation, it provides organizers with a single tool to manage the entire event.
-
-## How does it work?
-
-### 1. Home Page
-
-When you log in, you arrive on the home page.
-
-On the left, there is a **sidebar menu** with access to all sections of the application.
-
----
-
-### 2. Create a Festival
-
-**Where to go**: Sidebar → Festivals → Click **"Create"**
-
-**What you do**:
-- Give the festival a **name** (e.g., "Festival Ludis 2026")
-- Specify the **total number of available tables** (e.g., 100)
-- Define the **start date** and **end date**
-- Add a **description** (optional)
-- Fill in the **furniture stock**:
-  - Standard tables, large tables, municipal tables
-  - Standard chairs, municipal chairs
-- Set the **price per electrical outlet** (e.g., €5)
-
-**After creation**:
-- The festival automatically appears first (marked with a ⭐ "current")
-- Previous festivals are no longer current
-- The new festival appears in the public view (for visitors or volunteers)
-
-**Trying to delete a festival**:  
-If you create reservations or zones, you will no longer be able to delete it (the app prevents deletion to avoid data loss).
-
----
-
-### 3. Create Pricing Zones (different price tiers)
-
-**Where to go**: Festival details → **"Create pricing zone"**
-
-**What you do**:
-- Give the zone a **name** (e.g., Premium, Standard, Budget…)
-- Specify **how many tables** the zone contains
-- Set the **price per table** (e.g., €50 per table)
-- The **price per m²** is calculated automatically
-
-**Important**: The sum of all zones cannot exceed the festival total.
-
-- If the festival has 100 tables and you create a zone with 50 tables, you can create another with a maximum of 50 tables.
-- If you try to exceed the total, the app refuses and shows how many remain available.
-
----
-
-### 4. Create a Reservation
-
-**Where to go**:  
-Sidebar → Festivals → select a festival → click **Reservations** → click **New Reservation**
-
-**What you fill in**:
-- **Reservant**: Select who is reserving (publisher, association, etc.)
-- **Number of electrical outlets**: how many outlets they need (each costs the festival price)
-- **Will host activities**: check if they will animate activities on site
-- **Notes**: internal notes (optional)
-- **Tables reserved by zone**: for each pricing zone (Premium, Standard, etc.), specify how many tables they want
-
-The price is **calculated automatically**.  
-You can add multiple zones for the same reservation.
-
-**After creation**:
-- The reservation appears with the status **"not contacted"**
-- You can now add or modify the reservation information
-
----
-
-### 5. Apply Discounts (optional)
-
-Inside the reservation, there are two discount fields.
-
-You can apply up to two types of reductions:
-
-**Fixed discount**: a fixed reduction in euros  
-**Table discount**: a percentage applied to tables only
-
----
-
-### 6. Add Games to the Reservation
-
-**In the reservation detail** → click **"Add a game"**
-
-**What you do**:
-- Select a game from the list (e.g., Catan, Ticket to Ride)
-- The game is added to the reservation
-- You see the game status: **"Game not received"**, which you can check once received
-
----
-
-### 7. Generate the Invoice
-
-**Reservation detail** → click **"Generate invoice"**
-
-**What happens**:
-- You see: Tables + Outlets − Discounts = Final amount
-- Click **Generate**
-
-**After generation**:
-- A **unique invoice** is created with a number (FAC-20260120-00001)
-- The invoice is marked **unpaid**
-- **Important**: You cannot create two invoices for the same reservation.  
-  However, it can be modified if payment lines are changed.
-
----
-
-### 10. Mark the Invoice as Paid
-
-**Reservation detail → Workflow section → "Pay"**
-
-**What you do**:
-- Click to confirm the client has paid
-- The invoice changes from **unpaid** to **paid**
-- Once paid, it cannot be modified or deleted (unless reverted to unpaid)
-- The payment date is recorded
-
----
-
-### 11. Organze the Layout & Place Games (plan zones)
-
-**Where to go**:  
-Sidebar → Festivals → select festival → **Plan & Placement**
-
-You arrive at the plan zone management page.
-
-**Create a plan zone**:
-- Click **"New Plan Zone"**
-- Give the zone a **name** (e.g., Aisle A, Youth Area, VIP Zone)
-- Specify the **number of available tables**
-- Click **Create**
-
-**Place games in zones**:
-- Each zone has a **"Place a game"** button
-- Select the game you want to place
-- The game is added and the **occupancy rate** is displayed (% of tables used)
-- Games are grouped by **reservation**
-- Games can also be placed from the “place games” tab.
-
-**Overview**:
-- The **Overview** tab shows all zones with placed games
-- The **Equipment stock** tab displays remaining tables and chairs
-
----
-
-### 12. Manage Publishers
-
-**Where to go**: Sidebar → **Publishers**
-
-**Create a publisher**:
-- Enter the publisher **name**
-- Add **contacts**:
-  - Name
-  - Email (optional)
-  - Phone (optional)
-  - Role/function (e.g., Sales Manager)
-- You can add multiple contacts
-
-**View & edit**:
-- Click a publisher
-- See their **games** and **contacts**
-- Modify or delete the publisher
-
----
-
-### 12B. Manage Games
-
-**Where to go**: Sidebar → **Games**
-
-**Create a game**:
-- Click **+ Add game**
-- Fill in:
-  - Game name
-  - Publisher (**required**)
-  - Game type (e.g., Strategy, Cooperative)
-  - Minimum & maximum age
-  - Minimum & maximum players
-  - Average duration (minutes)
-  - Table size (small, large)
-  - Authors
-
-You can modify or delete a game later.
-
----
-
-### 13. Manage Reservants
-
-**Where to go**: Sidebar → **Reservants**
-
-**Create a reservant**:
-- Enter the reservant name (e.g., Game Association, Distributor XYZ)
-- Choose the type:
-  - Publisher
-  - Distributor
-  - Association
-  - Other
-- If it is a publisher, you can link an existing publisher (optional)
-- Add contacts:
-  - Name
-  - Email
-  - Phone
-  - Role/function
-
----
-
-### Initial Data (CSV import)
-
-At first installation, the database is populated using CSV files:
-
-- **editeur.csv** → list of publishers  
-- **jeu.csv** → list of games and properties  
-- **typeJeu.csv** → available game types  
-
-These data are automatically imported via **02_seed.sql** during Docker initialization, allowing you to start with a pre-existing catalog.
-
----
-
-### 14. Public View (for visitors & volunteers)
-
-**Where to go**: Sidebar → **Public Views**
-
-**What is displayed**:
-- Games from the **current festival** with details:
-  - Name, type, recommended ages, number of players
-  - Duration, publisher, authors
-  - Plan zone (where the game is placed)
-- Publishers of the current festival
-- Toggle between **Games view** and **Publishers view**
-
-**Who can see it**: all roles.  
-Since other roles can access festivals, limited festival information is shown here so visitors and volunteers can view essential details.
-
----
-
-### 15. Roles & Permissions
-
-**Admin** — full access
-- Manage festivals, pricing zones, reservations
-- Generate invoices
-- View all reservations
-- Manage users
-- Manage games & publishers
-- Access public view
-
-**Super Organizer** — almost Admin (except user management)
-- Manage festivals, pricing zones, reservations
-- Generate invoices
-- View reservations
-- Manage games & publishers
-- Access public view
-- Cannot manage users
-
-**Organizer**
-- Manage their festival
-- Create pricing zones
-- Manage their reservations
-- Generate invoices
-- View only their reservations
-- Access public view
-
-**Volunteer & Visitor**
-- View the current festival
-- View the festival layout (zones & placed games)
-- Access public view
-- Cannot create anything
-
-**User**
-- Waits for admin approval
-- Cannot access content until validated
+# Event Platform — exhibitions, art events & concerts
+
+A full-stack platform for organizing events held in physical spaces: art exhibitions,
+festivals, concerts, fairs. One tool for the whole job — from the first artist agreement
+to the venue map, the public event page and the tickets scanned at the door.
+
+> The project started as a board-game festival manager (academic team project) and was
+> refactored into a generic, sellable event platform. The history and the phase-by-phase
+> roadmap live in [CLAUDE.md](CLAUDE.md).
+
+## What it does
+
+**For organizers** (staff area under `/admin`):
+- **Events** — draft → published lifecycle, auto-generated public URL, hero image &
+  gallery (Cloudinary), capacity, daily times, one *featured* event for the homepage.
+- **Artists** — global catalog (musicians, painters, DJs, collectives…) with photos and
+  links; per-event lineup with headliners and billing order.
+- **Agreements** — every deal is a booking with a `kind`: exhibitors renting stands,
+  artists engaged to perform, vendors/suppliers under contract, sponsors. Pipeline
+  stages are configurable data; duplicate open agreements are flagged, never blocked.
+- **Schedule** — per-day programme with stage/area assignment and overlap warnings
+  (same stage or same artist at the same time).
+- **Venue maps** — drag & drop SVG editor with 12 location templates (park, stadium,
+  club, fair pavilion, gallery, theater…). Place stages, stands, bars, food, services;
+  link elements to agreements/resources; live guest-capacity totals; undo/redo.
+- **Money** — invoices for money IN (exhibitor fees), expenses for money OUT (artist
+  fees, security, rentals, self-managed bar supplies…), and a finance dashboard with
+  projected/cash net and per-category breakdown.
+- **Tickets** — free or paid tiers, limited or unlimited capacity, sales windows;
+  orders list and door check-in by QR/ticket code (volunteers allowed).
+- **Poster builder** — three SVG layouts pre-filled from the event, exported as
+  print-ready PNG or saved into the gallery.
+
+**For visitors** (public site at `/`):
+- Dark, bold showcase: featured hero, upcoming & past events.
+- Event pages with lineup, day-by-day programme, interactive venue map (pan/zoom,
+  tap elements), photo gallery and a sticky ticket widget.
+- Guest checkout — no account needed. Free orders confirm instantly; paid orders go
+  through Stripe Checkout. Tickets arrive by email with QR codes, and the order page
+  (`/orders/<code>`) shows them any time.
+
+## Stack
+
+| Layer | Tech |
+|---|---|
+| Backend | Node + Express 5, TypeScript (ESM via `tsx`), PostgreSQL (`pg`, no ORM), node-pg-migrate |
+| Frontend | Angular 20 (standalone components + signals), custom CSS design system |
+| Auth | JWT access+refresh in httpOnly cookies, rotating refresh tokens, RBAC matrix |
+| Payments | Stripe Checkout + signed webhook (optional — free events work without keys) |
+| Media | Cloudinary (optional — uploads return 503 until configured) |
+| Email | console (default) / SMTP / Resend |
+| Deploy | Render (API) + Netlify (frontend); local dev over HTTPS via mkcert |
+
+## Getting started
+
+```bash
+# 1. Postgres (Docker)
+docker compose -f docker-compose.dev.yml up -d db
+
+# 2. Backend
+cd backend
+cp .env.example .env          # fill in at least DATABASE_URL, JWT_SECRET, ADMIN_*
+npm install
+npm run migrate               # versioned schema
+npm run seed:demo             # optional: 6 published demo events with everything
+npm run dev                   # https://localhost:4000 (mkcert certs in ./certs)
+
+# 3. Frontend
+cd ../frontend
+npm install
+npm start                     # https://localhost:4200 (proxies /api to the backend)
+```
+
+Sign in at `/login` with the `ADMIN_LOGIN`/`ADMIN_PASSWORD` from your `.env`.
+The public site is the root URL; the staff area lives under `/admin`.
+
+### Environment variables (backend)
+
+| Variable | Required | Purpose |
+|---|---|---|
+| `DATABASE_URL` | ✅ | PostgreSQL connection string |
+| `JWT_SECRET`, `JWT_EXPIRATION`, `REFRESH_EXPIRATION` | ✅ | Token signing & lifetimes |
+| `ADMIN_LOGIN`, `ADMIN_PASSWORD`, `ADMIN_EMAIL` | ✅ | Admin bootstrap on startup |
+| `FRONTEND_URL` | ✅ | CORS origin + links in emails/Stripe redirects |
+| `PORT`, `NODE_ENV` | ✅ | Server config |
+| `CLOUDINARY_URL` | optional | Image uploads (503 until set) |
+| `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET` | optional | Paid tickets (503 until set; free tickets always work) |
+| `EMAIL_PROVIDER`, `EMAIL_FROM`, `SMTP_URL`, `RESEND_API_KEY` | optional | Order emails (`console` by default) |
+
+### Stripe setup
+
+1. Set `STRIPE_SECRET_KEY` (test mode: `sk_test_…`).
+2. Register a webhook pointing to `https://<api-host>/api/stripe/webhook` for
+   `checkout.session.completed` and `checkout.session.expired`; set its signing
+   secret as `STRIPE_WEBHOOK_SECRET`.
+3. Local development: `stripe listen --forward-to localhost:4000/api/stripe/webhook`.
+
+The order page also actively verifies the session (`verify-payment`) after the
+redirect, so a slow webhook never strands a buyer.
+
+## Commands
+
+```bash
+# backend/
+npm run dev | start | build | typecheck | lint | format
+npm test                # vitest unit suites (no DB needed)
+npm run test:db         # full suite against a throwaway Postgres container
+npm run migrate         # node-pg-migrate up
+npm run seed:demo       # wipe business data + seed a rich demo dataset
+npm run admin:rotate    # rotate the admin password
+
+# frontend/
+npm start | npm run build | npm test
+```
+
+## Architecture notes
+
+- **Route → service → repository** layering; parameterized SQL everywhere; whitelisted
+  UPDATE columns; transactions for every multi-row invariant (invoices, map bulk
+  replace, order+tickets with `FOR UPDATE` capacity locking).
+- **Generic core, pluggable domains**: events/areas/resources/participants/bookings/
+  invoices are domain-agnostic; "artists" and "games" are optional modules; event types
+  and pipeline stages are data, not schema.
+- **Single-organization deployment** by design, with clean seams for multi-tenancy
+  later (every table keys off `event_id`; catalogs are global).
+- **Public API is a projection**: only published events are exposed; map elements are
+  served with display labels resolved server-side and no internal ids.
+- Backlog (documented, not built): SSR/SEO rendering, multi-organization mode,
+  refunds, volunteer check-in PWA.
+
+## License / status
+
+Private project — pre-production. Production deploy still runs the legacy Fase 1
+build; the BE+FE cutover to this codebase is the next deployment milestone
+(see the roadmap in [CLAUDE.md](CLAUDE.md)).

@@ -134,7 +134,12 @@ npm test               # ng test (karma/jasmine)
     check via Stripe API, idempotent, 503 without keys), order page polls verify+reload after
     the Checkout redirect. Ops: set STRIPE_SECRET_KEY/STRIPE_WEBHOOK_SECRET on Render, register
     the webhook for checkout.session.completed|expired, use `stripe listen` locally.
-  - **H** poster builder, polish, demo seed. (SSR, multi-org, refunds: documented backlog.)
+  - **H ✅** (branch `feat/h-poster-seed-docs`) poster builder (`/admin/posters`: 3 SVG layouts
+    prefilled from event+lineup, PNG export at 2x, save-to-gallery), demo seed rebuilt for the
+    arts domain (6 published events with lineup/schedule/maps/tickets/orders/expenses, 1
+    featured), README rewritten for the product. Fixed latent REAL-vs-int parameter inference
+    in map-element inserts (`COALESCE($n::real, …)`) + regression test.
+    (SSR, multi-org, refunds, volunteer check-in PWA: documented backlog.)
 
 ## Git
 - `main` = single source of truth & integration branch. `deploy` tracks releases (kept aligned with main).

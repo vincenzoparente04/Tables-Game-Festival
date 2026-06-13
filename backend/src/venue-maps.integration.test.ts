@@ -49,6 +49,14 @@ describe.skipIf(!runDbTests)('integration: venue maps (D2)', () => {
     const linked = save1.body.elements.find((e: { booking_id: number | null }) => e.booking_id === booking.id)
     expect(linked.booking_participant_name).toBe('Acme Stands')
 
+    // fractional coordinates from real drags must bind as REAL, not int
+    // (regression: COALESCE($n, 0) made PG infer int for the parameter)
+    const fractional = await agent.put(`/api/venue-maps/${mapId}/elements`).send({
+      elements: [{ kind: 'stand', x: 440.00000000000006, y: 550.0000000000001, width: 80.5, height: 60.25 }],
+    })
+    expect(fractional.status).toBe(200)
+    expect(fractional.body.elements[0].x).toBeCloseTo(440, 3)
+
     // second save fully replaces the first
     const save2 = await agent.put(`/api/venue-maps/${mapId}/elements`).send({
       elements: [

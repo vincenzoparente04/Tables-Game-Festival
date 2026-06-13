@@ -71,6 +71,11 @@ export default [
         loadComponent: () => import('./venue-maps/map-editor').then((m) => m.MapEditor),
       },
       {
+        path: 'posters', title: 'Poster builder — Festival Manager',
+        canActivate: [...staff, requirePermission('events', 'viewAll')],
+        loadComponent: () => import('./posters/poster-page').then((m) => m.PosterPage),
+      },
+      {
         path: 'tickets', title: 'Tickets & orders — Festival Manager',
         canActivate: [...staff, requirePermission('ticketTypes', 'view')],
         loadComponent: () => import('./tickets/tickets-page').then((m) => m.TicketsPage),

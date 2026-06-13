@@ -21,6 +21,7 @@ import { PermissionsService } from '../core/permissions'
           @if (canSchedule()) { <a routerLink="/admin/schedule" routerLinkActive="active">Schedule</a> }
           @if (canTickets()) { <a routerLink="/admin/tickets" routerLinkActive="active">Tickets &amp; orders</a> }
           @if (canMaps()) { <a routerLink="/admin/maps" routerLinkActive="active">Venue maps</a> }
+          @if (canEvents()) { <a routerLink="/admin/posters" routerLinkActive="active">Poster builder</a> }
           @if (canResources()) { <a routerLink="/admin/resources" routerLinkActive="active">Resources &amp; areas</a> }
           @if (canInvoices()) { <a routerLink="/admin/invoices" routerLinkActive="active">Invoices</a> }
           @if (canExpenses()) { <a routerLink="/admin/expenses" routerLinkActive="active">Expenses</a> }

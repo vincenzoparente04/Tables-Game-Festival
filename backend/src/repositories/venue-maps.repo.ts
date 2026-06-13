@@ -106,7 +106,7 @@ export const deleteVenueMap = (id: number) => deleteById(TABLE, id)
 export async function createVenueMap(input: CreateVenueMapInput): Promise<VenueMapRow> {
   const { rows } = await pool.query<VenueMapRow>(
     `INSERT INTO venue_maps (event_id, name, template_key, width, height, background, settings, is_public)
-     VALUES ($1, $2, $3, COALESCE($4,1200), COALESCE($5,800),
+     VALUES ($1, $2, $3, COALESCE($4::real,1200), COALESCE($5::real,800),
              COALESCE($6,'[]'::jsonb), COALESCE($7,'{}'::jsonb), COALESCE($8,true))
      RETURNING *`,
     [
@@ -162,8 +162,9 @@ export async function replaceMapElements(
         `INSERT INTO map_elements
            (venue_map_id, kind, label, x, y, width, height, rotation, capacity, color, z_index,
             area_id, resource_id, booking_id, attributes)
-         VALUES ($1, $2, $3, COALESCE($4,0), COALESCE($5,0), COALESCE($6,80), COALESCE($7,60),
-                 COALESCE($8,0), $9, $10, COALESCE($11,0), $12, $13, $14, COALESCE($15,'{}'::jsonb))
+         VALUES ($1, $2, $3, COALESCE($4::real,0), COALESCE($5::real,0), COALESCE($6::real,80),
+                 COALESCE($7::real,60), COALESCE($8::real,0), $9, $10, COALESCE($11,0),
+                 $12, $13, $14, COALESCE($15,'{}'::jsonb))
          RETURNING *`,
         [
           mapId, el.kind, el.label ?? null, el.x ?? null, el.y ?? null,
