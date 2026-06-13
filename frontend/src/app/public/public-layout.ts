@@ -1,12 +1,14 @@
 import { Component } from '@angular/core'
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router'
+import { Cursor } from './cursor'
 
 // Visitor-facing shell: dark theme scope, top navigation and footer.
 @Component({
   selector: 'app-public-layout',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, Cursor],
   template: `
     <div class="public-shell">
+      <app-cursor />
       <header class="pnav">
         <a routerLink="/" class="pbrand"><span class="logo">◆</span> Festival</a>
         <nav class="plinks">
@@ -24,7 +26,7 @@ import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router'
   `,
   styles: `
     .pnav { display: flex; align-items: center; gap: 26px; padding: 18px max(24px, 5vw); position: sticky; top: 0; z-index: 20; background: rgba(11, 13, 20, 0.75); backdrop-filter: blur(14px); border-bottom: 1px solid var(--pub-border); }
-    .pbrand { display: flex; align-items: center; gap: 8px; font-weight: 800; font-size: 17px; }
+    .pbrand { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
     .pbrand .logo { background: var(--pub-grad); -webkit-background-clip: text; background-clip: text; color: transparent; font-size: 19px; }
     .pbrand.sm { font-size: 14px; }
     .plinks { display: flex; gap: 18px; }

@@ -1,13 +1,14 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { PublicApi } from '../core/api'
+import { Reveal } from './reveal'
 import type { PublicEvent } from '../core/models'
 
 const today = () => new Date().toISOString().slice(0, 10)
 
 @Component({
   selector: 'app-public-home',
-  imports: [RouterLink],
+  imports: [RouterLink, Reveal],
   template: `
     @if (featured(); as f) {
       <section class="hero" [style.background-image]="heroBg(f)">
@@ -32,7 +33,7 @@ const today = () => new Date().toISOString().slice(0, 10)
       </section>
     }
 
-    <section class="block">
+    <section class="block" appReveal>
       <h2>Upcoming events</h2>
       @if (loading()) {
         <div class="pcard skel"></div>
@@ -60,7 +61,7 @@ const today = () => new Date().toISOString().slice(0, 10)
     </section>
 
     @if (past().length) {
-      <section class="block">
+      <section class="block" appReveal>
         <h2 class="pmuted">Past events</h2>
         <div class="past">
           @for (e of past(); track e.id) {
