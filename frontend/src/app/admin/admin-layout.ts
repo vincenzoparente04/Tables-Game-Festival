@@ -20,6 +20,7 @@ import { PermissionsService } from '../core/permissions'
           @if (canBookings()) { <a routerLink="/admin/bookings" routerLinkActive="active">Agreements</a> }
           @if (canSchedule()) { <a routerLink="/admin/schedule" routerLinkActive="active">Schedule</a> }
           @if (canTickets()) { <a routerLink="/admin/tickets" routerLinkActive="active">Tickets &amp; orders</a> }
+          @if (canMaps()) { <a routerLink="/admin/maps" routerLinkActive="active">Venue maps</a> }
           @if (canResources()) { <a routerLink="/admin/resources" routerLinkActive="active">Resources &amp; areas</a> }
           @if (canInvoices()) { <a routerLink="/admin/invoices" routerLinkActive="active">Invoices</a> }
           @if (canExpenses()) { <a routerLink="/admin/expenses" routerLinkActive="active">Expenses</a> }
@@ -78,6 +79,7 @@ export class AdminLayout {
   readonly canBookings = this.perms.can('bookings', 'view')
   readonly canSchedule = this.perms.can('schedule', 'view')
   readonly canTickets = this.perms.can('ticketTypes', 'view')
+  readonly canMaps = this.perms.can('venueMaps', 'view')
   readonly canResources = this.perms.can('resources', 'view')
   readonly canInvoices = this.perms.can('invoices', 'view')
   readonly canExpenses = this.perms.can('expenses', 'view')

@@ -61,6 +61,16 @@ export default [
         loadComponent: () => import('../features/invoices/invoices-page').then((m) => m.InvoicesPage),
       },
       {
+        path: 'maps', title: 'Venue maps — Festival Manager',
+        canActivate: [...staff, requirePermission('venueMaps', 'view')],
+        loadComponent: () => import('./venue-maps/maps-page').then((m) => m.MapsPage),
+      },
+      {
+        path: 'maps/:id', title: 'Map editor — Festival Manager',
+        canActivate: [...staff, requirePermission('venueMaps', 'view')],
+        loadComponent: () => import('./venue-maps/map-editor').then((m) => m.MapEditor),
+      },
+      {
         path: 'tickets', title: 'Tickets & orders — Festival Manager',
         canActivate: [...staff, requirePermission('ticketTypes', 'view')],
         loadComponent: () => import('./tickets/tickets-page').then((m) => m.TicketsPage),

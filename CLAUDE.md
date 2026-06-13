@@ -115,8 +115,15 @@ npm test               # ng test (karma/jasmine)
     moved to `admin/admin-layout.ts`, lazy routes under `/admin/*` (`admin/admin.routes.ts`,
     per-page chunks), public site owns the root + wildcard (`public/public.routes.ts`),
     `/showcase` → `/`, route titles, pending users land on the public home.
-  - **E1–E4** admin UX (artists/lineup; agreements+expenses+finance; schedule editor; event
-    settings/media/tickets). **F** custom SVG map editor + shared renderer.
+  - **E1–E4 ✅** (branch `feat/e-admin-ux`) admin UX: artists catalog + lineup panel (E1);
+    agreements kind tabs + expenses page + finance dashboard (E2); schedule editor with day
+    tabs/per-area grouping/conflict banners (E3); event publishing & media panels + tickets &
+    orders page with door check-in (E4). All new Api services/models in `core/`.
+  - **F ✅** (branch `feat/f-map-editor`) custom SVG map editor: shared `map-canvas` renderer
+    (viewBox pan/zoom, pointer move/resize, snap-to-grid; reused read-only by the public site),
+    `MapState` with snapshot undo/redo, palette of 13 element kinds, properties panel with
+    booking/resource/area links, capacity ticker, template gallery on map creation, bulk save,
+    keyboard shortcuts (arrows/Del/Ctrl+Z/D), beforeunload guard.
   - **G** public visitor site + free-ticket flow. **G2** Stripe end-to-end. **H** poster builder,
     polish, demo seed. (SSR, multi-org, refunds: documented backlog.)
 
