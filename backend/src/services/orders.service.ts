@@ -3,7 +3,7 @@ import * as repo from '../repositories/orders.repo.js'
 import type { OrderRow, TicketDetailRow, TicketRow } from '../repositories/orders.repo.js'
 import * as ticketTypesRepo from '../repositories/ticket-types.repo.js'
 import { getEventById } from '../repositories/events.repo.js'
-import { isStripeEnabled, createCheckoutSession } from './payments.service.js'
+import { isStripeEnabled, createCheckoutSession, getCheckoutPaymentStatus } from './payments.service.js'
 import { sendMail } from './email.service.js'
 import { buildOrderConfirmation } from './templates/order-confirmation.js'
 import { shortCode } from './short-code.js'
@@ -246,6 +246,26 @@ export async function checkInByCode(code: string): Promise<CheckInResult> {
     customer_name: ticket.customer_name,
     event_id: ticket.event_id,
   }
+}
+
+// Belt-and-braces for delayed webhooks: the order page can actively ask
+// Stripe whether the session was paid. Idempotent — a confirmed order
+// returns immediately without touching Stripe.
+export async function verifyPayment(code: string): Promise<OrderRow> {
+  const order = await repo.getOrderByCode(code)
+  if (!order) throw new AppError(404, 'Order not found')
+  if (order.status !== 'pending') return order
+  if (!order.payment_ref || order.payment_provider !== 'stripe') {
+    throw new AppError(400, 'Order has no payment session to verify')
+  }
+  const status = await getCheckoutPaymentStatus(order.payment_ref) // 503 without Stripe keys
+  if (status === 'paid') {
+    return (await confirmOrderFromWebhook(order.payment_ref)) ?? order
+  }
+  if (status === 'expired') {
+    return (await repo.expireByPaymentRef(order.payment_ref)) ?? order
+  }
+  return order
 }
 
 // Webhook entry points — both idempotent (replays match 0 rows and no-op).

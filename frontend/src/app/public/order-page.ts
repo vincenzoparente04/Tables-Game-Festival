@@ -138,7 +138,11 @@ export class PublicOrderPage implements OnInit, OnDestroy {
         this.stopPolling()
         return
       }
-      this.load()
+      // Actively verify with Stripe (covers slow webhooks), then refresh.
+      this.api.verifyPayment(this.code).subscribe({
+        next: () => this.load(),
+        error: () => this.load(),
+      })
     }, 3000)
   }
 

@@ -52,6 +52,13 @@ export async function createCheckoutSession(params: {
   return { id: session.id, url: session.url }
 }
 
+// Fallback for delayed webhooks: ask Stripe for the session's payment state.
+export async function getCheckoutPaymentStatus(sessionId: string): Promise<'paid' | 'unpaid' | 'expired'> {
+  const session = await stripeClient().checkout.sessions.retrieve(sessionId)
+  if (session.payment_status === 'paid') return 'paid'
+  return session.status === 'expired' ? 'expired' : 'unpaid'
+}
+
 // Verifies the webhook signature against the exact raw payload bytes.
 export function constructWebhookEvent(payload: Buffer, signature: string): Stripe.Event {
   const secret = process.env.STRIPE_WEBHOOK_SECRET

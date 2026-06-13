@@ -285,4 +285,5 @@ export class PublicApi {
   map(slug: string) { return this.http.get<PublicVenueMap>(`${this.base}/events/${slug}/map`) }
   createOrder(body: Json) { return this.http.post<PublicOrderResult>(`${this.base}/orders`, body) }
   order(code: string) { return this.http.get<PublicOrderView>(`${this.base}/orders/${code}`) }
+  verifyPayment(code: string) { return this.http.post<Order>(`${this.base}/orders/${code}/verify-payment`, {}) }
 }

@@ -130,8 +130,11 @@ npm test               # ng test (karma/jasmine)
     + lightbox, sticky ticket widget with inline guest checkout), order page with client-side
     QR codes and post-Stripe polling; public API exposes lineup/images/schedule/map (labels
     resolved server-side, internal ids hidden). Legacy showcase removed.
-  - **G2** Stripe end-to-end (verify-payment fallback + ops). **H** poster builder, polish,
-    demo seed. (SSR, multi-org, refunds: documented backlog.)
+  - **G2 ✅** Stripe end-to-end: `POST /api/public/orders/:code/verify-payment` (active session
+    check via Stripe API, idempotent, 503 without keys), order page polls verify+reload after
+    the Checkout redirect. Ops: set STRIPE_SECRET_KEY/STRIPE_WEBHOOK_SECRET on Render, register
+    the webhook for checkout.session.completed|expired, use `stripe listen` locally.
+  - **H** poster builder, polish, demo seed. (SSR, multi-org, refunds: documented backlog.)
 
 ## Git
 - `main` = single source of truth & integration branch. `deploy` tracks releases (kept aligned with main).

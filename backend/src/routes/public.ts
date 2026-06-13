@@ -65,4 +65,9 @@ router.get('/orders/:code', publicReadLimiter, async (req, res) => {
   res.json(await ordersService.getPublicOrder(req.params.code ?? ''))
 })
 
+// Fallback when the Stripe webhook is slow: actively check the session state.
+router.post('/orders/:code/verify-payment', publicReadLimiter, async (req, res) => {
+  res.json(await ordersService.verifyPayment(req.params.code ?? ''))
+})
+
 export default router

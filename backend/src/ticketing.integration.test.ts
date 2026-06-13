@@ -191,6 +191,32 @@ describe.skipIf(!runDbTests)('integration: ticketing (D3)', () => {
     expect(bad.status).toBe(400)
   })
 
+  it('verify-payment is idempotent and degrades cleanly without Stripe keys', async () => {
+    const agent = await authedAdminAgent()
+    const event = await createPublishedEvent(agent, 'Verify Fest D3')
+    const type = (await agent.post('/api/ticket-types').send({ event_id: event.id, name: 'Free' })).body
+
+    // confirmed order: verify returns it without ever calling Stripe
+    const created = (await agent.post('/api/public/orders').send({
+      event_id: event.id, customer_name: 'V', customer_email: 'v@example.com',
+      items: [{ ticket_type_id: type.id, quantity: 1 }],
+    })).body
+    const verified = await agent.post(`/api/public/orders/${created.order.code}/verify-payment`)
+    expect(verified.status).toBe(200)
+    expect(verified.body.status).toBe('confirmed')
+
+    // pending Stripe order without configured keys → 503 (no crash)
+    await pool.query(
+      `INSERT INTO orders (event_id, code, customer_name, customer_email, status, total_amount,
+                           payment_provider, payment_ref, expires_at)
+       VALUES ($1, 'VRFYD3CODE', 'P', 'p@example.com', 'pending', 10, 'stripe', 'cs_test_vrfy',
+               now() + interval '30 minutes')`,
+      [event.id],
+    )
+    expect((await agent.post('/api/public/orders/VRFYD3CODE/verify-payment')).status).toBe(503)
+    expect((await agent.post('/api/public/orders/NOPE/verify-payment')).status).toBe(404)
+  })
+
   it('cancelling an order voids its tickets and frees capacity', async () => {
     const agent = await authedAdminAgent()
     const event = await createPublishedEvent(agent, 'Cancel Fest D3')
