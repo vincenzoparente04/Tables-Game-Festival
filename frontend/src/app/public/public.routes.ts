@@ -1,11 +1,25 @@
 import { Routes } from '@angular/router'
+import { PublicLayout } from './public-layout'
 
-// Public visitor site at the root. Phase G replaces the showcase with the
-// full event pages (home, event detail, checkout, order lookup).
+// Public visitor site: home, event pages, ticket-order lookup.
 export default [
   {
-    path: '', title: 'Events — Festival Manager',
-    loadComponent: () => import('../pages/showcase').then((m) => m.Showcase),
+    path: '',
+    component: PublicLayout,
+    children: [
+      {
+        path: '', title: 'Festival — events, exhibitions & concerts',
+        loadComponent: () => import('./home').then((m) => m.PublicHome),
+      },
+      {
+        path: 'events/:slug', title: 'Event — Festival',
+        loadComponent: () => import('./event-page').then((m) => m.PublicEventPage),
+      },
+      {
+        path: 'orders/:code', title: 'Your order — Festival',
+        loadComponent: () => import('./order-page').then((m) => m.PublicOrderPage),
+      },
+      { path: '**', redirectTo: '' },
+    ],
   },
-  { path: '**', redirectTo: '' },
 ] satisfies Routes

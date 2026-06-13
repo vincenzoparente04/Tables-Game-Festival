@@ -25,6 +25,20 @@ router.get('/events/:slug/ticket-types', async (req, res) => {
   res.json(await repo.listPublicTicketTypes(eventId))
 })
 
+router.get('/events/:slug/schedule', async (req, res) => {
+  const eventId = await repo.getPublicEventIdBySlug(req.params.slug ?? '')
+  if (eventId === null) throw new AppError(404, 'Event not found')
+  res.json(await repo.getPublicSchedule(eventId))
+})
+
+router.get('/events/:slug/map', async (req, res) => {
+  const eventId = await repo.getPublicEventIdBySlug(req.params.slug ?? '')
+  if (eventId === null) throw new AppError(404, 'Event not found')
+  const map = await repo.getPublicMap(eventId)
+  if (!map) throw new AppError(404, 'No public map for this event')
+  res.json(map)
+})
+
 // Guest checkout: no account needed; quantities are validated here, prices and
 // capacity are enforced server-side in the orders service.
 const orderItemSchema = z.object({

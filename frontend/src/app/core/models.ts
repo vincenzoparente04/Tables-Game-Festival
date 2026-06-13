@@ -224,23 +224,111 @@ export interface EventStats {
   revenue_paid: number
 }
 
-// Public showcase
+// Public visitor site
 export interface PublicEvent {
   id: number
   name: string
   slug: string | null
+  subtitle: string | null
   description: string | null
   venue: string | null
+  location_address: string | null
+  timezone: string
   start_date: string | null
   end_date: string | null
+  start_time: string | null
+  end_time: string | null
+  hero_image_url: string | null
+  is_featured: boolean
+  capacity: number | null
   event_type: string
   event_type_label: string
 }
 
+export interface PublicLineupArtist {
+  id: number
+  name: string
+  kind: string
+  bio: string | null
+  image_url: string | null
+  links: Json
+  is_headliner: boolean
+}
+
 export interface PublicEventDetail extends PublicEvent {
   areas: Pick<Area, 'id' | 'name' | 'kind'>[]
-  participants: Pick<Participant, 'id' | 'name' | 'participant_type'>[]
-  games: Pick<Game, 'id' | 'name' | 'category' | 'min_players' | 'max_players' | 'min_age'>[]
+  lineup: PublicLineupArtist[]
+  images: { url: string; alt: string | null; kind: string }[]
+}
+
+export interface PublicTicketType {
+  id: number
+  name: string
+  description: string | null
+  price: string
+  currency: string
+  capacity: number | null
+  max_per_order: number
+  position: number
+  sales_start_at: string | null
+  sales_end_at: string | null
+  available: number | null // null = unlimited
+}
+
+export interface PublicScheduleSlot {
+  id: number
+  title: string
+  kind: string
+  starts_at: string
+  ends_at: string
+  area_name: string | null
+  artist_name: string | null
+  artist_image_url: string | null
+}
+
+export interface PublicMapElement {
+  id: number
+  kind: string
+  label: string | null
+  x: number
+  y: number
+  width: number
+  height: number
+  rotation: number
+  capacity: number | null
+  color: string | null
+  z_index: number
+}
+
+export interface PublicVenueMap {
+  id: number
+  name: string
+  width: number
+  height: number
+  background: Json[]
+  elements: PublicMapElement[]
+}
+
+export interface PublicOrderResult {
+  order: Order
+  tickets: Ticket[]
+  checkout_url?: string
+}
+
+export interface PublicOrderView {
+  order: Order
+  tickets: Ticket[]
+  event: {
+    id: number
+    name: string
+    slug: string | null
+    venue: string | null
+    location_address: string | null
+    hero_image_url: string | null
+    start_date: string | null
+    end_date: string | null
+    start_time: string | null
+  }
 }
 
 // --- Arts domain (Phase D1) ---

@@ -5,7 +5,8 @@ import type {
   Area, Artist, Author, Booking, BookingItem, BookedResource, CheckInResult, EventArtist,
   EventFinance, EventImage, EventModel, EventStats, EventType, Expense, Game, Invoice, Json,
   Order, Participant, ParticipantContact, PipelineStage, PricingTier, PublicEvent,
-  PublicEventDetail, Publisher, Quote, ResourceModel, ResourceType, ScheduleSlot, TicketType,
+  PublicEventDetail, PublicOrderResult, PublicOrderView, PublicScheduleSlot, PublicTicketType,
+  PublicVenueMap, Publisher, Quote, ResourceModel, ResourceType, ScheduleSlot, TicketType,
   UploadedImage, User, VenueMap, VenueTemplate,
 } from './models'
 
@@ -279,4 +280,9 @@ export class PublicApi {
   private base = `${API}/public`
   events() { return this.http.get<PublicEvent[]>(`${this.base}/events`) }
   event(slug: string) { return this.http.get<PublicEventDetail>(`${this.base}/events/${slug}`) }
+  ticketTypes(slug: string) { return this.http.get<PublicTicketType[]>(`${this.base}/events/${slug}/ticket-types`) }
+  schedule(slug: string) { return this.http.get<PublicScheduleSlot[]>(`${this.base}/events/${slug}/schedule`) }
+  map(slug: string) { return this.http.get<PublicVenueMap>(`${this.base}/events/${slug}/map`) }
+  createOrder(body: Json) { return this.http.post<PublicOrderResult>(`${this.base}/orders`, body) }
+  order(code: string) { return this.http.get<PublicOrderView>(`${this.base}/orders/${code}`) }
 }

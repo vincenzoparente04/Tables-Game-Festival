@@ -124,8 +124,14 @@ npm test               # ng test (karma/jasmine)
     `MapState` with snapshot undo/redo, palette of 13 element kinds, properties panel with
     booking/resource/area links, capacity ticker, template gallery on map creation, bulk save,
     keyboard shortcuts (arrows/Del/Ctrl+Z/D), beforeunload guard.
-  - **G** public visitor site + free-ticket flow. **G2** Stripe end-to-end. **H** poster builder,
-    polish, demo seed. (SSR, multi-org, refunds: documented backlog.)
+  - **G ✅** (branch `feat/g-public-site`) public visitor site: dark bold theme (`.public-shell`
+    scope, Sora font), home with featured hero + upcoming/past, event page (lineup, programme by
+    day, read-only interactive map via shared `map-canvas` with public-safe projection, gallery
+    + lightbox, sticky ticket widget with inline guest checkout), order page with client-side
+    QR codes and post-Stripe polling; public API exposes lineup/images/schedule/map (labels
+    resolved server-side, internal ids hidden). Legacy showcase removed.
+  - **G2** Stripe end-to-end (verify-payment fallback + ops). **H** poster builder, polish,
+    demo seed. (SSR, multi-org, refunds: documented backlog.)
 
 ## Git
 - `main` = single source of truth & integration branch. `deploy` tracks releases (kept aligned with main).

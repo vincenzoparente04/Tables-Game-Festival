@@ -3,14 +3,19 @@ import pool from '../db/database.js'
 // Read-only, public-facing projections for the visitor showcase (no auth).
 // Only non-sensitive fields are exposed.
 
+const PUBLIC_EVENT_FIELDS = `
+  e.id, e.name, e.slug, e.subtitle, e.description, e.venue, e.location_address,
+  e.timezone, e.start_date, e.end_date, e.start_time, e.end_time,
+  e.hero_image_url, e.is_featured, e.capacity,
+  et.key AS event_type, et.label AS event_type_label`
+
 export async function listPublicEvents() {
   const { rows } = await pool.query(
-    `SELECT e.id, e.name, e.slug, e.description, e.venue, e.timezone,
-            e.start_date, e.end_date, et.key AS event_type, et.label AS event_type_label
+    `SELECT ${PUBLIC_EVENT_FIELDS}
        FROM events e
        JOIN event_types et ON et.id = e.event_type_id
       WHERE e.is_active = true AND e.status = 'published'
-      ORDER BY e.start_date DESC NULLS LAST, e.id DESC`,
+      ORDER BY e.is_featured DESC, e.start_date ASC NULLS LAST, e.id DESC`,
   )
   return rows
 }
@@ -52,8 +57,7 @@ export async function listPublicTicketTypes(eventId: number) {
 
 export async function getPublicEventBySlug(slug: string) {
   const { rows } = await pool.query(
-    `SELECT e.id, e.name, e.slug, e.description, e.venue, e.timezone,
-            e.start_date, e.end_date, et.key AS event_type, et.label AS event_type_label
+    `SELECT ${PUBLIC_EVENT_FIELDS}
        FROM events e
        JOIN event_types et ON et.id = e.event_type_id
       WHERE e.slug = $1 AND e.is_active = true AND e.status = 'published'`,
@@ -62,22 +66,64 @@ export async function getPublicEventBySlug(slug: string) {
   const event = rows[0]
   if (!event) return null
 
-  const [areas, participants, games] = await Promise.all([
+  const [areas, lineup, images] = await Promise.all([
     pool.query(`SELECT id, name, kind FROM areas WHERE event_id = $1 ORDER BY name`, [event.id]),
     pool.query(
-      `SELECT id, name, participant_type FROM participants WHERE event_id = $1 ORDER BY name`,
+      `SELECT a.id, a.name, a.kind, a.bio, a.image_url, a.links, ea.is_headliner
+         FROM event_artists ea
+         JOIN artists a ON a.id = ea.artist_id
+        WHERE ea.event_id = $1
+        ORDER BY ea.is_headliner DESC, ea.display_order, a.name`,
       [event.id],
     ),
     pool.query(
-      `SELECT DISTINCT g.id, g.name, g.category, g.min_players, g.max_players, g.min_age
-         FROM booking_items bi
-         JOIN bookings b ON b.id = bi.booking_id
-         JOIN games g ON g.id = bi.item_ref
-        WHERE b.event_id = $1 AND bi.item_type = 'game'
-        ORDER BY g.name`,
+      `SELECT url, alt, kind FROM event_images WHERE event_id = $1 ORDER BY kind, position, id`,
       [event.id],
     ),
   ])
 
-  return { ...event, areas: areas.rows, participants: participants.rows, games: games.rows }
+  return { ...event, areas: areas.rows, lineup: lineup.rows, images: images.rows }
+}
+
+// Public programme: confirmed, publicly visible slots only.
+export async function getPublicSchedule(eventId: number) {
+  const { rows } = await pool.query(
+    `SELECT s.id, s.title, s.kind, s.starts_at, s.ends_at,
+            a.name AS area_name, ar.name AS artist_name, ar.image_url AS artist_image_url
+       FROM schedule_slots s
+       LEFT JOIN areas a ON a.id = s.area_id
+       LEFT JOIN artists ar ON ar.id = s.artist_id
+      WHERE s.event_id = $1 AND s.is_public = true AND s.status = 'confirmed'
+      ORDER BY s.starts_at, s.id`,
+    [eventId],
+  )
+  return rows
+}
+
+// Public map projection: first public map, elements with resolved display
+// labels only — internal booking/resource/area ids are never exposed.
+export async function getPublicMap(eventId: number) {
+  const { rows } = await pool.query(
+    `SELECT id, name, width, height, background
+       FROM venue_maps
+      WHERE event_id = $1 AND is_public = true
+      ORDER BY id
+      LIMIT 1`,
+    [eventId],
+  )
+  const map = rows[0]
+  if (!map) return null
+  const elements = await pool.query(
+    `SELECT me.id, me.kind, COALESCE(me.label, p.name, r.label, a.name) AS label,
+            me.x, me.y, me.width, me.height, me.rotation, me.capacity, me.color, me.z_index
+       FROM map_elements me
+       LEFT JOIN bookings b ON b.id = me.booking_id
+       LEFT JOIN participants p ON p.id = b.participant_id
+       LEFT JOIN resources r ON r.id = me.resource_id
+       LEFT JOIN areas a ON a.id = me.area_id
+      WHERE me.venue_map_id = $1
+      ORDER BY me.z_index, me.id`,
+    [map.id],
+  )
+  return { ...map, elements: elements.rows }
 }
