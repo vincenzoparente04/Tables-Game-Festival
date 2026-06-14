@@ -2,11 +2,12 @@ import { Component, OnInit, inject, signal } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { EventsApi, EventTypesApi } from '../../core/api'
 import { PermissionsService } from '../../core/permissions'
+import { Icon } from '../../shared/icon'
 import type { EventModel } from '../../core/models'
 
 @Component({
   selector: 'app-events-list',
-  imports: [RouterLink],
+  imports: [RouterLink, Icon],
   template: `
     <div class="page-head">
       <div><h1>Events</h1><p class="muted">{{ events().length }} event(s)</p></div>
@@ -25,8 +26,8 @@ import type { EventModel } from '../../core/models'
               @else if (!e.is_active) { <span class="badge badge-warning">Inactive</span> }
             </div>
             <h3 class="ev-name">{{ e.name }}</h3>
-            @if (e.venue) { <div class="muted ev-line">📍 {{ e.venue }}</div> }
-            <div class="muted ev-line">🗓 {{ e.start_date ? (e.start_date + ' → ' + e.end_date) : 'No dates set' }}</div>
+            @if (e.venue) { <div class="muted ev-line"><app-icon name="map-pin" [size]="13" /> {{ e.venue }}</div> }
+            <div class="muted ev-line"><app-icon name="calendar" [size]="13" /> {{ e.start_date ? (e.start_date + ' → ' + e.end_date) : 'No dates set' }}</div>
             <div class="ev-actions">
               @if (canSetCurrent() && !e.is_current) {
                 <button class="btn btn-sm" (click)="$event.stopPropagation(); setCurrent(e.id)">Set current</button>

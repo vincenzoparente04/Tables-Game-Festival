@@ -9,7 +9,7 @@ import { AuthService } from '../core/auth.service'
   template: `
     <div class="auth">
       <div class="card auth-card">
-        <div class="brand"><span class="logo">◆</span> Festival Manager</div>
+        <div class="brand">festa<span class="dot">.</span></div>
         <h1>Sign in</h1>
         <p class="muted">Manage your events, bookings and invoices.</p>
         <form (ngSubmit)="submit()">
@@ -29,8 +29,8 @@ import { AuthService } from '../core/auth.service'
   styles: `
     .auth { min-height: 100vh; display: grid; place-items: center; padding: 24px; }
     .auth-card { width: 100%; max-width: 380px; padding: 32px; }
-    .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; margin-bottom: 20px; }
-    .brand .logo { color: var(--primary); }
+    .brand { display: inline-flex; align-items: baseline; font-family: var(--font-display); font-weight: 700; font-size: 20px; letter-spacing: -0.02em; margin-bottom: 20px; }
+    .brand .dot { color: var(--primary); }
     h1 { margin-bottom: 4px; }
     form { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
     form label { margin-top: 8px; }
