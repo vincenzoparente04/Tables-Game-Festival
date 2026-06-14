@@ -2,24 +2,31 @@ import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core'
 import { ActivatedRoute, RouterLink } from '@angular/router'
 import QRCode from 'qrcode'
 import { PublicApi } from '../core/api'
+import { Icon } from './icon'
 import type { PublicOrderView } from '../core/models'
 
 // Order lookup page (the crypto-random code in the URL is the bearer secret).
 // After a Stripe redirect (?paid=1) it polls briefly while the webhook lands.
 @Component({
   selector: 'app-public-order-page',
-  imports: [RouterLink],
+  imports: [RouterLink, Icon],
   template: `
     <div class="wrap">
       @if (notFound()) {
         <div class="pcard pad center">
           <h2>Order not found</h2>
           <p class="pmuted">Double-check the link from your confirmation email.</p>
-          <a routerLink="/" class="pbtn ghost sm">← All events</a>
+          <a routerLink="/" class="pbtn ghost sm"><app-icon name="arrow-left" [size]="14" /> All events</a>
         </div>
       } @else if (view(); as v) {
         <div class="pcard pad head" [class.ok]="v.order.status === 'confirmed'">
-          <div class="status-ico">{{ statusIcon(v.order.status) }}</div>
+          <div class="status-ico">
+            @switch (v.order.status) {
+              @case ('confirmed') { <app-icon name="ticket" [size]="30" /> }
+              @case ('pending') { <app-icon name="clock" [size]="30" /> }
+              @default { <app-icon name="x" [size]="30" /> }
+            }
+          </div>
           <div>
             <h1>{{ statusTitle(v.order.status) }}</h1>
             <p class="pmuted">
@@ -35,8 +42,8 @@ import type { PublicOrderView } from '../core/models'
           <div>
             <strong>{{ v.event.name }}</strong>
             <div class="pmuted sm">
-              @if (v.event.start_date) { 📅 {{ v.event.start_date }}{{ v.event.end_date && v.event.end_date !== v.event.start_date ? ' → ' + v.event.end_date : '' }} }
-              @if (v.event.venue) { · 📍 {{ v.event.venue }} }
+              @if (v.event.start_date) { <app-icon name="calendar" [size]="13" /> {{ v.event.start_date }}{{ v.event.end_date && v.event.end_date !== v.event.start_date ? ' → ' + v.event.end_date : '' }} }
+              @if (v.event.venue) { · <app-icon name="map-pin" [size]="13" /> {{ v.event.venue }} }
             </div>
           </div>
         </a>
@@ -50,8 +57,8 @@ import type { PublicOrderView } from '../core/models'
                   <strong>{{ t.ticket_type_name }}</strong>
                   @if (t.attendee_name) { <span class="pmuted">{{ t.attendee_name }}</span> }
                   <span class="mono code">{{ t.code }}</span>
-                  @if (t.status === 'checked_in') { <span class="pchip">✓ checked in</span> }
-                  @if (t.status === 'cancelled') { <span class="pchip">✕ cancelled</span> }
+                  @if (t.status === 'checked_in') { <span class="pchip"><app-icon name="check" [size]="13" /> checked in</span> }
+                  @if (t.status === 'cancelled') { <span class="pchip"><app-icon name="x" [size]="13" /> cancelled</span> }
                 </div>
                 @if (qr()[t.code]; as src) { <img class="qr" [src]="src" alt="QR {{ t.code }}" /> }
               </div>

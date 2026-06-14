@@ -4,6 +4,8 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router'
 import { Meta, Title } from '@angular/platform-browser'
 import { PublicApi } from '../core/api'
 import { MapCanvas } from '../shared/venue-map/map-canvas'
+import { Icon } from './icon'
+import { Reveal } from './reveal'
 import { kindMeta } from '../shared/venue-map/venue-elements'
 import type { EditorElement } from '../shared/venue-map/venue-elements'
 import type {
@@ -22,23 +24,23 @@ const timeOf = (iso: string) => {
 
 @Component({
   selector: 'app-public-event-page',
-  imports: [FormsModule, RouterLink, MapCanvas],
+  imports: [FormsModule, RouterLink, MapCanvas, Icon, Reveal],
   template: `
     @if (notFound()) {
       <div class="wrap"><div class="pcard pad center">
         <h2>Event not found</h2>
         <p class="pmuted">It may have ended or been unpublished.</p>
-        <a routerLink="/" class="pbtn ghost sm">← All events</a>
+        <a routerLink="/" class="pbtn ghost sm"><app-icon name="arrow-left" [size]="14" /> All events</a>
       </div></div>
     } @else if (event(); as ev) {
       <section class="hero" [style.background-image]="ev.hero_image_url ? 'url(' + ev.hero_image_url + ')' : 'var(--pub-grad)'">
         <div class="hero-inner">
-          <a routerLink="/" class="back pmuted">← All events</a>
+          <a routerLink="/" class="back pmuted"><app-icon name="arrow-left" [size]="14" /> All events</a>
           <div class="hero-meta">
             <span class="pchip">{{ ev.event_type_label }}</span>
-            @if (ev.start_date) { <span class="pchip">📅 {{ dates() }}</span> }
-            @if (ev.start_time) { <span class="pchip">🕖 {{ ev.start_time.slice(0, 5) }}{{ ev.end_time ? '–' + ev.end_time.slice(0, 5) : '' }}</span> }
-            @if (ev.venue) { <span class="pchip">📍 {{ ev.venue }}</span> }
+            @if (ev.start_date) { <span class="pchip"><app-icon name="calendar" [size]="14" /> {{ dates() }}</span> }
+            @if (ev.start_time) { <span class="pchip"><app-icon name="clock" [size]="14" /> {{ ev.start_time.slice(0, 5) }}{{ ev.end_time ? '–' + ev.end_time.slice(0, 5) : '' }}</span> }
+            @if (ev.venue) { <span class="pchip"><app-icon name="map-pin" [size]="14" /> {{ ev.venue }}</span> }
           </div>
           <h1 class="title">{{ ev.name }}</h1>
           @if (ev.subtitle) { <p class="subtitle">{{ ev.subtitle }}</p> }
@@ -49,23 +51,23 @@ const timeOf = (iso: string) => {
       <div class="wrap layout">
         <div class="content">
           @if (ev.description) {
-            <section class="pcard pad">
+            <section class="pcard pad" appReveal>
               <h2>About</h2>
               <p class="desc">{{ ev.description }}</p>
             </section>
           }
 
           @if (ev.lineup.length) {
-            <section class="pcard pad">
+            <section class="pcard pad" appReveal>
               <h2>Lineup</h2>
               <div class="lineup">
                 @for (a of ev.lineup; track a.id) {
                   <div class="artist" [class.head]="a.is_headliner">
                     @if (a.image_url) { <img [src]="a.image_url" [alt]="a.name" class="a-img" /> }
-                    @else { <div class="a-img ph">🎤</div> }
+                    @else { <div class="a-img ph"><app-icon name="music" [size]="22" /></div> }
                     <div class="a-meta">
                       <strong>{{ a.name }}</strong>
-                      <span class="pmuted">{{ a.kind }}@if (a.is_headliner) { · ★ headliner }</span>
+                      <span class="pmuted">{{ a.kind }}@if (a.is_headliner) { · <app-icon name="star" [size]="12" /> headliner }</span>
                     </div>
                   </div>
                 }
@@ -74,7 +76,7 @@ const timeOf = (iso: string) => {
           }
 
           @if (days().length) {
-            <section class="pcard pad">
+            <section class="pcard pad" appReveal>
               <h2>Programme</h2>
               <div class="day-tabs">
                 @for (d of days(); track d) {
@@ -100,7 +102,7 @@ const timeOf = (iso: string) => {
           }
 
           @if (map(); as m) {
-            <section class="pcard pad">
+            <section class="pcard pad" appReveal>
               <h2>Venue map</h2>
               <p class="pmuted map-hint">Scroll to zoom, drag to pan — tap stands and stages for details.</p>
               <div class="map-box">
@@ -116,14 +118,14 @@ const timeOf = (iso: string) => {
                   <span class="glyph">{{ glyph(p.kind) }}</span>
                   <strong>{{ p.label || kindLabel(p.kind) }}</strong>
                   <span class="pmuted">{{ kindLabel(p.kind) }}</span>
-                  @if (p.capacity) { <span class="pchip">👤 {{ p.capacity }}</span> }
+                  @if (p.capacity) { <span class="pchip"><app-icon name="user" [size]="13" /> {{ p.capacity }}</span> }
                 </div>
               }
             </section>
           }
 
           @if (gallery().length) {
-            <section class="pcard pad">
+            <section class="pcard pad" appReveal>
               <h2>Gallery</h2>
               <div class="gal">
                 @for (img of gallery(); track img.url) {

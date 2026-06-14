@@ -2,22 +2,23 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { PublicApi } from '../core/api'
 import { Reveal } from './reveal'
+import { Icon } from './icon'
 import type { PublicEvent } from '../core/models'
 
 const today = () => new Date().toISOString().slice(0, 10)
 
 @Component({
   selector: 'app-public-home',
-  imports: [RouterLink, Reveal],
+  imports: [RouterLink, Reveal, Icon],
   template: `
     @if (featured(); as f) {
       <section class="hero" [style.background-image]="heroBg(f)">
         <div class="hero-inner">
           <div class="hero-meta">
-            <span class="pchip grad">★ Featured</span>
+            <span class="pchip grad"><app-icon name="star" [size]="13" /> Featured</span>
             <span class="pchip">{{ f.event_type_label }}</span>
-            @if (f.start_date) { <span class="pchip">📅 {{ dates(f) }}</span> }
-            @if (f.venue) { <span class="pchip">📍 {{ f.venue }}</span> }
+            @if (f.start_date) { <span class="pchip"><app-icon name="calendar" [size]="14" /> {{ dates(f) }}</span> }
+            @if (f.venue) { <span class="pchip"><app-icon name="map-pin" [size]="14" /> {{ f.venue }}</span> }
           </div>
           <h1 class="hero-title">{{ f.name }}</h1>
           @if (f.subtitle) { <p class="hero-sub">{{ f.subtitle }}</p> }
@@ -48,8 +49,8 @@ const today = () => new Date().toISOString().slice(0, 10)
                 <h3>{{ e.name }}</h3>
                 @if (e.subtitle) { <p class="pmuted sub">{{ e.subtitle }}</p> }
                 <div class="pmuted meta">
-                  @if (e.start_date) { <span>📅 {{ dates(e) }}</span> }
-                  @if (e.venue) { <span>📍 {{ e.venue }}</span> }
+                  @if (e.start_date) { <span><app-icon name="calendar" [size]="13" /> {{ dates(e) }}</span> }
+                  @if (e.venue) { <span><app-icon name="map-pin" [size]="13" /> {{ e.venue }}</span> }
                 </div>
               </div>
             </a>
