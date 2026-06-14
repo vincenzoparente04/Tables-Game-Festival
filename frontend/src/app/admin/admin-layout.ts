@@ -28,7 +28,6 @@ import { Icon } from '../shared/icon'
           @if (canInvoices()) { <a routerLink="/admin/invoices" routerLinkActive="active">Invoices</a> }
           @if (canExpenses()) { <a routerLink="/admin/expenses" routerLinkActive="active">Expenses</a> }
           @if (canFinance()) { <a routerLink="/admin/finance" routerLinkActive="active">Finance</a> }
-          @if (canGames()) { <a routerLink="/admin/games" routerLinkActive="active">Games</a> }
           @if (canUsers()) { <a routerLink="/admin/users" routerLinkActive="active">Users</a> }
         </nav>
         <div class="sidebar-foot">
@@ -40,8 +39,11 @@ import { Icon } from '../shared/icon'
           <div class="spacer"></div>
           <div class="user">
             <div class="user-meta">
-              <span class="user-name">{{ user()?.login }}</span>
-              <span class="badge badge-primary">{{ user()?.role }}</span>
+              @if (canUsers()) {
+                <a routerLink="/admin/users" class="who" title="Manage users">{{ user()?.login }}</a>
+              } @else {
+                <span class="who">{{ user()?.login }}</span>
+              }
             </div>
             <button class="btn btn-sm tg" (click)="theme.toggle()" [attr.aria-label]="theme.isLight() ? 'Switch to dark' : 'Switch to light'">
               <app-icon [name]="theme.isLight() ? 'moon' : 'sun'" [size]="16" />
@@ -60,7 +62,7 @@ import { Icon } from '../shared/icon'
     .brand .dot { color: var(--primary); }
     .tg { padding: 0; width: 32px; }
     nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
-    nav a, .sidebar-foot a { display: block; padding: 9px 12px; border-radius: var(--radius-sm); color: var(--text-muted); font-weight: 600; transition: background 0.15s, color 0.15s; }
+    nav a, .sidebar-foot a { display: block; padding: 9px 12px; border-radius: var(--radius-sm); color: var(--text-muted); font-weight: 600; font-family: var(--font-display); letter-spacing: -0.01em; transition: background 0.15s, color 0.15s; }
     nav a:hover, .sidebar-foot a:hover { background: var(--surface-2); color: var(--text); }
     nav a.active { background: var(--primary-50); color: var(--primary-600); }
     .sidebar-foot { border-top: 1px solid var(--border); padding-top: 8px; margin-top: 8px; }
@@ -69,7 +71,8 @@ import { Icon } from '../shared/icon'
     .spacer { flex: 1; }
     .user { display: flex; align-items: center; gap: 14px; }
     .user-meta { display: flex; align-items: center; gap: 8px; }
-    .user-name { font-weight: 600; }
+    .who { font-family: var(--font-mono); font-weight: 600; font-size: 13px; color: var(--text); padding: 5px 10px; border-radius: var(--radius-sm); }
+    a.who:hover { background: var(--surface-2); color: var(--primary-600); }
     .content { padding: 28px; max-width: 1200px; width: 100%; }
   `,
 })
@@ -92,7 +95,6 @@ export class AdminLayout {
   readonly canInvoices = this.perms.can('invoices', 'view')
   readonly canExpenses = this.perms.can('expenses', 'view')
   readonly canFinance = this.perms.can('finance', 'view')
-  readonly canGames = this.perms.can('games', 'viewAll')
   readonly canUsers = this.perms.can('users', 'view')
 
   logout() {

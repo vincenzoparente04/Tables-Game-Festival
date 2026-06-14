@@ -49,7 +49,7 @@ const timeOf = (iso: string) => {
         </div>
       </section>
 
-      <div class="wrap layout">
+      <div class="wrap layout" [style.--ev-accent]="typeColor(ev.event_type)">
         <div class="content">
           @if (ev.description) {
             <section class="pcard pad" appReveal>
@@ -209,17 +209,17 @@ const timeOf = (iso: string) => {
     .a-img { width: 52px; height: 52px; border-radius: 12px; object-fit: cover; }
     .a-img.ph { display: grid; place-items: center; background: var(--pub-surface-2); font-size: 20px; }
     .a-meta { display: flex; flex-direction: column; font-size: 14px; }
-    .a-meta .pmuted { font-size: 12px; }
+    .a-meta .pmuted { font-size: 12px; font-family: var(--font-mono); }
     .day-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
     .day { cursor: pointer; }
     .slots { display: flex; flex-direction: column; }
     .slot { display: flex; align-items: center; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--pub-border); }
     .slot:last-child { border-bottom: none; }
-    .s-time { font-family: monospace; font-weight: 700; color: var(--pub-accent); min-width: 96px; }
+    .s-time { font-family: var(--font-mono); font-weight: 700; color: var(--ev-accent, var(--pub-accent)); min-width: 96px; }
     .s-what { display: flex; flex-direction: column; flex: 1; min-width: 0; }
     .s-what .pmuted { font-size: 13px; }
     .s-kind { font-size: 11px; }
-    .map-hint { font-size: 13px; margin-bottom: 10px; }
+    .map-hint { font-size: 13px; margin-bottom: 10px; font-family: var(--font-mono); }
     .map-box { height: clamp(300px, 45vw, 460px); border-radius: 14px; overflow: hidden; }
     .picked { display: flex; align-items: center; gap: 10px; margin-top: 12px; padding: 10px 14px; border-radius: 12px; background: var(--pub-surface-2); }
     .gal { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }

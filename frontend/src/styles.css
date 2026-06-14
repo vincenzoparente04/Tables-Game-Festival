@@ -71,7 +71,7 @@ button { font: inherit; cursor: pointer; border: 0; background: none; }
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   padding: 9px 15px; border-radius: var(--radius-sm);
   border: 1px solid var(--border-strong); background: var(--surface-2); color: var(--text);
-  font-weight: 500; box-shadow: var(--shadow-xs);
+  font-weight: 500; box-shadow: var(--shadow-xs); font-family: var(--font-mono);
   transition: transform 0.06s ease, background 0.15s, border-color 0.15s, box-shadow 0.15s;
 }
 .btn:hover { background: #232739; border-color: var(--border-strong); }
@@ -115,6 +115,7 @@ label { font-weight: 500; font-size: 13px; color: var(--text); }
 
 /* Layout & tables */
 .page-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; margin-bottom: 22px; }
+.page-head .muted { font-family: var(--font-mono); }
 .toolbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 16px; }
 .toolbar .spacer { flex: 1; }
 .pad { padding: 20px 22px; }

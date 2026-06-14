@@ -23,7 +23,7 @@ const today = () => new Date().toISOString().slice(0, 10)
           </div>
           <h1 class="hero-title">{{ f.name }}</h1>
           @if (f.subtitle) { <p class="hero-sub mono">{{ f.subtitle }}</p> }
-          <a class="pbtn hero-cta" [routerLink]="['/events', f.slug]">Discover the event →</a>
+          <a class="pbtn hero-cta" [routerLink]="['/events', f.slug]">Discover the event</a>
         </div>
       </section>
     } @else if (!loading()) {
@@ -81,7 +81,7 @@ const today = () => new Date().toISOString().slice(0, 10)
     .hero-meta { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 18px; }
     .hero-title { font-size: clamp(34px, 6vw, 64px); font-weight: 800; line-height: 1.05; margin-bottom: 14px; }
     .hero-sub { font-size: clamp(15px, 2vw, 19px); color: var(--pub-muted); max-width: 480px; margin-bottom: 26px; }
-    .hero-cta { font-size: 15px; }
+    .hero-cta { font-size: 15px; font-family: var(--font-mono); }
     .block { padding: 44px max(24px, 5vw) 0; }
     .block h2 { font-size: 22px; margin-bottom: 18px; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 20px; }
@@ -92,7 +92,8 @@ const today = () => new Date().toISOString().slice(0, 10)
     .ev-body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 6px; }
     .ev-body h3 { font-size: 18px; }
     .sub { font-size: 13px; }
-    .meta { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; }
+    .ev .sub, .ev .meta { color: var(--ev-accent); }
+    .meta { display: flex; gap: 14px; flex-wrap: wrap; font-size: 13px; font-family: var(--font-mono); }
     .empty-card { padding: 40px; text-align: center; }
     .skel { height: 180px; animation: pulse 1.4s infinite; }
     @keyframes pulse { 50% { opacity: 0.5; } }

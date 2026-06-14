@@ -33,10 +33,10 @@ import { AuthService } from '../core/auth.service'
     .brand .dot { color: var(--primary); }
     h1 { margin-bottom: 4px; }
     form { display: flex; flex-direction: column; gap: 8px; margin-top: 20px; }
-    form label { margin-top: 8px; }
-    .btn-primary { margin-top: 16px; width: 100%; padding: 11px; }
+    form label { margin-top: 8px; font-family: var(--font-mono); }
+    .btn-primary { margin-top: 16px; width: 100%; padding: 11px; font-family: var(--font-mono); }
     .err { color: var(--danger); background: var(--danger-50); padding: 8px 12px; border-radius: var(--radius-sm); font-size: 13px; }
-    .sc-link { display: inline-block; margin-top: 18px; font-weight: 600; }
+    .sc-link { display: inline-block; margin-top: 18px; font-weight: 600; font-family: var(--font-mono); }
   `,
 })
 export class Login {

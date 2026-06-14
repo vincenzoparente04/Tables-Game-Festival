@@ -96,11 +96,6 @@ export default [
         loadComponent: () => import('../features/resources/resources-page').then((m) => m.ResourcesPage),
       },
       {
-        path: 'games', title: 'Games — Festival Manager',
-        canActivate: [...staff, requirePermission('games', 'viewAll')],
-        loadComponent: () => import('../features/games/games-page').then((m) => m.GamesPage),
-      },
-      {
         path: 'users', title: 'Users — Festival Manager',
         canActivate: [authGuard, requirePermission('users', 'view')],
         loadComponent: () => import('../features/users/users-page').then((m) => m.UsersPage),
