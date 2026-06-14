@@ -72,13 +72,29 @@ type DragMode =
             <rect [attr.x]="el.x" [attr.y]="el.y" [attr.width]="el.width" [attr.height]="el.height"
                   [attr.fill]="fillOf(el)" rx="8" class="el-shape" />
           }
-          <text [attr.x]="el.x + el.width / 2" [attr.y]="el.y + el.height / 2 - 4" class="el-glyph"
-                [style.font-size.px]="glyphSize(el)">{{ meta(el.kind).glyph }}</text>
-          <text [attr.x]="el.x + el.width / 2" [attr.y]="el.y + el.height / 2 + 13" class="el-label">
+          <g class="el-glyph" [attr.transform]="glyphTransform(el)" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            @switch (el.kind) {
+              @case ('stage') { <rect x="4" y="9" width="16" height="9" rx="1" /><path d="M4 9l3-4h10l3 4" /> }
+              @case ('stand') { <path d="M5 10h14v8H5z" /><path d="M3 10l2-4h14l2 4z" /> }
+              @case ('booth') { <rect x="5" y="5" width="14" height="14" rx="1" /><rect x="8.5" y="8.5" width="7" height="7" /> }
+              @case ('table') { <ellipse cx="12" cy="12" rx="7" ry="5" /> }
+              @case ('bar') { <path d="M6 5h12l-4.5 6v6" /><path d="M9.5 17h5" /> }
+              @case ('food') { <path d="M8 4v6a2 2 0 0 0 4 0V4M10 11v9" /><path d="M16 4c-1.4 0-2 2-2 4.5S15 12 16 12v8" /> }
+              @case ('entrance') { <path d="M13 4h5v16h-5" /><path d="M4 12h9M9.5 8.5 13 12l-3.5 3.5" /> }
+              @case ('exit') { <path d="M11 4H6v16h5" /><path d="M20 12h-9M16.5 8.5 20 12l-3.5 3.5" /> }
+              @case ('wc') { <circle cx="12" cy="5.5" r="2" /><path d="M9 20l1.2-7h3.6L15 20M12 13v7" /> }
+              @case ('seating') { <rect x="5" y="10" width="14" height="5" rx="1" /><path d="M7 15v3M17 15v3M5 12h14" /> }
+              @case ('info') { <circle cx="12" cy="12" r="8" /><path d="M12 11v5M12 8h.01" /> }
+              @case ('decor') { <circle cx="12" cy="9" r="5" /><path d="M12 14v6" /> }
+              @case ('custom') { <path d="M12 3l9 9-9 9-9-9z" /> }
+              @default { <circle cx="12" cy="12" r="7" /> }
+            }
+          </g>
+          <text [attr.x]="el.x + el.width / 2" [attr.y]="el.y + el.height / 2 + 16" class="el-label">
             {{ displayLabel(el) }}
           </text>
           @if (el.capacity) {
-            <text [attr.x]="el.x + el.width / 2" [attr.y]="el.y + el.height - 6" class="el-cap">{{ el.capacity }} 👤</text>
+            <text [attr.x]="el.x + el.width / 2" [attr.y]="el.y + el.height - 6" class="el-cap">{{ el.capacity }}</text>
           }
         </g>
       }
@@ -97,17 +113,17 @@ type DragMode =
   `,
   styles: `
     :host { display: block; width: 100%; height: 100%; }
-    .map-svg { width: 100%; height: 100%; display: block; background: #eef0f5; border-radius: var(--radius); touch-action: none; user-select: none; }
-    .ground { fill: #f7f5ef; stroke: var(--border-strong); stroke-width: 2; }
-    .grid-line { stroke: rgba(15, 23, 42, 0.05); stroke-width: 1; vector-effect: non-scaling-stroke; }
-    .bg-shape { opacity: 0.55; pointer-events: none; }
-    .bg-label { fill: rgba(15, 23, 42, 0.45); font-size: 14px; font-weight: 600; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
-    .el-shape { opacity: 0.92; stroke: rgba(15, 23, 42, 0.25); stroke-width: 1; }
+    .map-svg { width: 100%; height: 100%; display: block; background: #0d0f17; border-radius: var(--radius); touch-action: none; user-select: none; }
+    .ground { fill: #11141f; stroke: rgba(255, 255, 255, 0.10); stroke-width: 2; }
+    .grid-line { stroke: rgba(255, 255, 255, 0.05); stroke-width: 1; vector-effect: non-scaling-stroke; }
+    .bg-shape { opacity: 0.42; pointer-events: none; }
+    .bg-label { fill: rgba(255, 255, 255, 0.45); font-size: 14px; font-weight: 500; text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
+    .el-shape { opacity: 0.95; stroke: rgba(0, 0, 0, 0.30); stroke-width: 1; }
     .editable .el { cursor: grab; }
-    .el.selected .el-shape { stroke: var(--primary); stroke-width: 2.5; }
-    .el-glyph { text-anchor: middle; dominant-baseline: middle; pointer-events: none; }
-    .el-label { text-anchor: middle; fill: #fff; font-size: 11px; font-weight: 700; pointer-events: none; paint-order: stroke; stroke: rgba(15, 23, 42, 0.45); stroke-width: 2.5px; }
-    .el-cap { text-anchor: middle; fill: #fff; font-size: 10px; font-weight: 600; pointer-events: none; paint-order: stroke; stroke: rgba(15, 23, 42, 0.45); stroke-width: 2px; }
+    .el.selected .el-shape { stroke: #fff; stroke-width: 2.5; }
+    .el-glyph { pointer-events: none; }
+    .el-label { text-anchor: middle; fill: #fff; font-size: 11px; font-weight: 600; pointer-events: none; paint-order: stroke; stroke: rgba(0, 0, 0, 0.55); stroke-width: 2.5px; }
+    .el-cap { text-anchor: middle; fill: rgba(255, 255, 255, 0.9); font-size: 10px; font-weight: 500; pointer-events: none; paint-order: stroke; stroke: rgba(0, 0, 0, 0.5); stroke-width: 2px; }
     .sel-outline { fill: none; stroke: var(--primary); stroke-width: 1.5; stroke-dasharray: 6 4; vector-effect: non-scaling-stroke; pointer-events: none; }
     .handle { fill: #fff; stroke: var(--primary); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
   `,
@@ -176,6 +192,14 @@ export class MapCanvas {
 
   fillOf(el: EditorElement): string {
     return el.color ?? kindMeta(el.kind).color
+  }
+
+  // Centers the 24×24 icon a touch above the element center (room for the label).
+  glyphTransform(el: EditorElement): string {
+    const s = (Math.min(el.width, el.height) * 0.4) / 24
+    const cx = el.x + el.width / 2
+    const cy = el.y + el.height / 2 - el.height * 0.06
+    return `translate(${cx - 12 * s} ${cy - 12 * s}) scale(${s})`
   }
 
   glyphSize(el: EditorElement): number {

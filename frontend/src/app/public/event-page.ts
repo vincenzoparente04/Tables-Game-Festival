@@ -115,7 +115,6 @@ const timeOf = (iso: string) => {
               </div>
               @if (picked(); as p) {
                 <div class="picked">
-                  <span class="glyph">{{ glyph(p.kind) }}</span>
                   <strong>{{ p.label || kindLabel(p.kind) }}</strong>
                   <span class="pmuted">{{ kindLabel(p.kind) }}</span>
                   @if (p.capacity) { <span class="pchip"><app-icon name="user" [size]="13" /> {{ p.capacity }}</span> }
