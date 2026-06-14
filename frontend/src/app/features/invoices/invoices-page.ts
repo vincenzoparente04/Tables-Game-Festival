@@ -4,6 +4,7 @@ import { InvoicesApi } from '../../core/api'
 import { EventContext } from '../../core/event-context'
 import { PermissionsService } from '../../core/permissions'
 import { EventSelector } from '../../shared/event-selector'
+import { invoiceStatusColor } from '../../shared/status-colors'
 import type { Invoice } from '../../core/models'
 
 @Component({
@@ -27,7 +28,7 @@ import type { Invoice } from '../../core/models'
             @for (i of invoices(); track i.id) {
               <tr>
                 <td><strong>{{ i.invoice_number || '—' }}</strong></td>
-                <td><span class="badge" [class]="i.status === 'paid' ? 'badge-success' : 'badge-primary'">{{ i.status }}</span></td>
+                <td><span class="badge scol" [style.color]="invoiceStatusColor(i.status)">{{ i.status }}</span></td>
                 <td>€{{ i.total_amount }}</td>
                 <td class="muted">{{ i.issued_at ? (i.issued_at | slice: 0 : 10) : '—' }}</td>
                 <td><div class="actions">
@@ -41,6 +42,7 @@ import type { Invoice } from '../../core/models'
       </div>
     }
   `,
+  styles: `.scol { font-family: var(--font-mono); }`,
 })
 export class InvoicesPage implements OnInit {
   readonly ctx = inject(EventContext)
@@ -48,6 +50,7 @@ export class InvoicesPage implements OnInit {
   private perms = inject(PermissionsService)
 
   readonly invoices = signal<Invoice[]>([])
+  readonly invoiceStatusColor = invoiceStatusColor
   readonly loading = signal(false)
   readonly canMarkPaid = this.perms.can('invoices', 'markPaid')
   readonly canDelete = this.perms.can('invoices', 'delete')

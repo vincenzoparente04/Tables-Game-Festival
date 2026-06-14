@@ -6,6 +6,7 @@ import { EventContext } from '../../core/event-context'
 import { PermissionsService } from '../../core/permissions'
 import { EventSelector } from '../../shared/event-selector'
 import { Icon } from '../../shared/icon'
+import { invoiceStatusColor, stageColor as stageKeyColor } from '../../shared/status-colors'
 import type { Booking, Participant, PipelineStage } from '../../core/models'
 
 const KINDS = ['exhibitor', 'artist', 'vendor', 'sponsor', 'other'] as const
@@ -74,10 +75,10 @@ const KINDS = ['exhibitor', 'artist', 'vendor', 'sponsor', 'other'] as const
           <tbody>
             @for (b of filtered(); track b.id) {
               <tr>
-                <td><strong>{{ b.participant_name }}</strong></td>
-                <td><span class="badge">{{ b.kind }}</span></td>
-                <td>@if (b.stage_label) { <span class="badge badge-primary">{{ b.stage_label }}</span> } @else { <span class="muted">—</span> }</td>
-                <td><span class="badge" [class]="invClass(b.invoice_status)">{{ b.invoice_status }}</span></td>
+                <td><strong class="pname">{{ b.participant_name }}</strong></td>
+                <td><span class="badge kcol">{{ b.kind }}</span></td>
+                <td>@if (b.stage_label) { <span class="badge scol" [style.color]="stageColor(b.stage_id)">{{ b.stage_label }}</span> } @else { <span class="muted">—</span> }</td>
+                <td><span class="badge scol" [style.color]="invoiceStatusColor(b.invoice_status)">{{ b.invoice_status }}</span></td>
                 <td><div class="actions">
                   <a class="btn btn-sm" [routerLink]="['/admin/bookings', b.id]">Open</a>
                   @if (canDelete()) { <button class="btn btn-sm btn-danger" (click)="remove(b.id)">Delete</button> }
@@ -91,8 +92,10 @@ const KINDS = ['exhibitor', 'artist', 'vendor', 'sponsor', 'other'] as const
   `,
   styles: `
     .addf { margin-bottom: 16px; }
+    .pname { font-family: var(--font-display); letter-spacing: -0.01em; }
+    .kcol, .scol { font-family: var(--font-mono); }
     .tabs { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
-    .tab { border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 6px 14px; font-weight: 600; color: var(--text-muted); cursor: pointer; font-size: 13px; text-transform: capitalize; }
+    .tab { border: 1px solid var(--border); background: var(--surface); border-radius: 999px; padding: 6px 14px; font-weight: 600; font-family: var(--font-display); color: var(--text-muted); cursor: pointer; font-size: 13px; text-transform: capitalize; }
     .tab.on { background: var(--primary-50); color: var(--primary-600); border-color: var(--primary-600); }
     .warn { display: flex; align-items: center; gap: 12px; margin-bottom: 14px; background: var(--warning-50); border-color: var(--warning); }
   `,
@@ -113,7 +116,16 @@ export class BookingsList implements OnInit {
   readonly saving = signal(false)
   readonly warning = signal('')
   readonly kindFilter = signal<string>('')
+  readonly invoiceStatusColor = invoiceStatusColor
   form = { participant_id: null as number | null, stage_id: null as number | null, kind: 'exhibitor' }
+
+  // Color stages by meaning (confirmed=green, cancelled=red), not position →
+  // resolve each booking's stage_id to its pipeline key first.
+  readonly stageKeyById = computed(() => {
+    const m = new Map<number, string>()
+    for (const s of this.stages()) m.set(s.id, s.key)
+    return m
+  })
 
   readonly canCreate = this.perms.can('bookings', 'create')
   readonly canDelete = this.perms.can('bookings', 'delete')
@@ -143,10 +155,8 @@ export class BookingsList implements OnInit {
     this.eventsApi.pipeline(eventId).subscribe((s) => this.stages.set(s))
   }
 
-  invClass(status?: string) {
-    return status === 'paid' ? 'badge-success'
-      : status === 'issued' ? 'badge-primary'
-      : status === 'draft' ? 'badge-warning' : ''
+  stageColor(stageId?: number | null): string {
+    return stageKeyColor(stageId != null ? this.stageKeyById().get(stageId) : null)
   }
 
   create() {

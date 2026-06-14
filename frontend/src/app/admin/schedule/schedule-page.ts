@@ -5,6 +5,7 @@ import { EventContext } from '../../core/event-context'
 import { PermissionsService } from '../../core/permissions'
 import { EventSelector } from '../../shared/event-selector'
 import { Icon } from '../../shared/icon'
+import { slotKindColor } from '../../shared/status-colors'
 import type { Area, Artist, Json, ScheduleSlot } from '../../core/models'
 
 const SLOT_KINDS = ['performance', 'exhibition', 'talk', 'workshop', 'screening', 'other']
@@ -112,11 +113,11 @@ const timeOf = (iso: string) => isoToLocal(iso).slice(11, 16)
             <div class="slot" [class.cancelled]="s.status === 'cancelled'">
               <span class="time">{{ time(s.starts_at) }}–{{ time(s.ends_at) }}</span>
               <div class="what">
-                <strong>{{ s.title }}</strong>
-                @if (s.artist_name) { <span class="muted"> · {{ s.artist_name }}</span> }
+                <strong class="stitle">{{ s.title }}</strong>
+                @if (s.artist_name) { <span class="muted aname"> · {{ s.artist_name }}</span> }
               </div>
-              <span class="badge">{{ s.kind }}</span>
-              <span class="badge" [class]="statusClass(s.status)">{{ s.status }}</span>
+              <span class="badge kcol" [style.color]="kindColor(s.kind)">{{ s.kind }}</span>
+              <span class="badge scol" [class]="statusClass(s.status)">{{ s.status }}</span>
               @if (!s.is_public) { <span class="badge badge-warning">hidden</span> }
               <span class="spacer"></span>
               @if (canUpdate()) { <button class="btn btn-sm" (click)="startEdit(s)">Edit</button> }
@@ -143,8 +144,11 @@ const timeOf = (iso: string) => isoToLocal(iso).slice(11, 16)
     .slot { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--border); flex-wrap: wrap; }
     .slot:last-child { border-bottom: none; }
     .slot.cancelled { opacity: 0.5; }
-    .time { font-family: monospace; font-size: 13px; font-weight: 700; color: var(--primary-600); min-width: 96px; }
+    .time { font-family: var(--font-mono); font-size: 13px; font-weight: 700; color: var(--primary-600); min-width: 96px; }
     .what { min-width: 200px; }
+    .stitle { font-family: var(--font-display); letter-spacing: -0.01em; }
+    .aname { font-family: var(--font-display); }
+    .kcol, .scol { font-family: var(--font-mono); }
   `,
 })
 export class SchedulePage implements OnInit {
@@ -155,6 +159,7 @@ export class SchedulePage implements OnInit {
   private perms = inject(PermissionsService)
 
   readonly kinds = SLOT_KINDS
+  readonly kindColor = slotKindColor
   readonly statuses = SLOT_STATUSES
   readonly slots = signal<ScheduleSlot[]>([])
   readonly areas = signal<Area[]>([])

@@ -4,6 +4,7 @@ import { OrdersApi, TicketTypesApi } from '../../core/api'
 import { EventContext } from '../../core/event-context'
 import { PermissionsService } from '../../core/permissions'
 import { EventSelector } from '../../shared/event-selector'
+import { orderStatusColor, tierStatusColor } from '../../shared/status-colors'
 import type { Json, Order, TicketType } from '../../core/models'
 
 const ORDER_STATUSES = ['pending', 'confirmed', 'cancelled', 'expired', 'refunded']
@@ -67,10 +68,10 @@ const ORDER_STATUSES = ['pending', 'confirmed', 'cancelled', 'expired', 'refunde
           <tbody>
             @for (t of types(); track t.id) {
               <tr>
-                <td><strong>{{ t.name }}</strong>@if (t.description) { <div class="muted sm">{{ t.description }}</div> }</td>
+                <td><strong class="tname">{{ t.name }}</strong>@if (t.description) { <div class="muted sm">{{ t.description }}</div> }</td>
                 <td>{{ isFree(t) ? 'Free' : '€' + t.price }}</td>
                 <td>{{ t.sold ?? 0 }} / {{ t.capacity ?? '∞' }}</td>
-                <td><span class="badge" [class]="typeStatusClass(t.status)">{{ t.status }}</span></td>
+                <td><span class="badge scol" [style.color]="tierStatusColor(t.status)">{{ t.status }}</span></td>
                 <td><div class="actions-inline">
                   @if (canManageTypes()) {
                     <button class="btn btn-sm" (click)="startEditType(t)">Edit</button>
@@ -98,11 +99,11 @@ const ORDER_STATUSES = ['pending', 'confirmed', 'cancelled', 'expired', 'refunde
             @for (o of orders(); track o.id) {
               <tr>
                 <td><span class="mono">{{ o.code }}</span></td>
-                <td><strong>{{ o.customer_name }}</strong><div class="muted sm">{{ o.customer_email }}</div></td>
+                <td><strong class="cname">{{ o.customer_name }}</strong><div class="muted sm">{{ o.customer_email }}</div></td>
                 <td>{{ o.tickets_count }}</td>
                 <td>{{ Number(o.total_amount) > 0 ? '€' + o.total_amount : 'Free' }}</td>
-                <td><span class="badge" [class]="orderStatusClass(o.status)">{{ o.status }}</span></td>
-                <td class="muted sm">{{ o.created_at.slice(0, 10) }}</td>
+                <td><span class="badge scol" [style.color]="orderStatusColor(o.status)">{{ o.status }}</span></td>
+                <td class="muted sm dcol">{{ o.created_at.slice(0, 10) }}</td>
                 <td>
                   @if (canCancel() && (o.status === 'confirmed' || o.status === 'pending')) {
                     <button class="btn btn-sm btn-danger" (click)="cancelOrder(o)">Cancel</button>
@@ -129,6 +130,8 @@ const ORDER_STATUSES = ['pending', 'confirmed', 'cancelled', 'expired', 'refunde
     .actions-inline { display: flex; gap: 6px; }
     .err { color: var(--danger); font-size: 13px; }
     .sm { font-size: 12px; }
+    .tname, .cname { font-family: var(--font-display); letter-spacing: -0.01em; }
+    .scol, .dcol { font-family: var(--font-mono); }
     .mono { font-family: monospace; letter-spacing: 1px; font-weight: 700; }
     .status-sel { width: auto; }
   `,
@@ -141,6 +144,8 @@ export class TicketsPage implements OnInit {
 
   readonly Number = Number
   readonly orderStatuses = ORDER_STATUSES
+  readonly tierStatusColor = tierStatusColor
+  readonly orderStatusColor = orderStatusColor
   readonly types = signal<TicketType[]>([])
   readonly orders = signal<Order[]>([])
   readonly statusFilter = signal('')
@@ -189,16 +194,6 @@ export class TicketsPage implements OnInit {
     this.statusFilter.set(value)
     const id = this.ctx.selectedId()
     if (id) this.loadOrders(id)
-  }
-
-  typeStatusClass(status: string) {
-    return status === 'on_sale' ? 'badge-success' : status === 'paused' ? 'badge-warning' : ''
-  }
-
-  orderStatusClass(status: string) {
-    return status === 'confirmed' ? 'badge-success'
-      : status === 'pending' ? 'badge-warning'
-      : status === 'refunded' ? 'badge-primary' : 'badge-danger'
   }
 
   startCreateType() {

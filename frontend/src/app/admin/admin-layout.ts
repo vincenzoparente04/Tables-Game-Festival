@@ -2,14 +2,13 @@ import { Component, inject } from '@angular/core'
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router'
 import { AuthService } from '../core/auth.service'
 import { PermissionsService } from '../core/permissions'
-import { ThemeService } from '../core/theme.service'
-import { Icon } from '../shared/icon'
+import { ThemeToggle } from '../shared/theme-toggle'
 
 // Staff shell: sidebar + topbar around every /admin page. The public site
 // renders at the root with its own layout.
 @Component({
   selector: 'app-admin-layout',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, Icon],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, ThemeToggle],
   template: `
     <div class="shell">
       <aside class="sidebar">
@@ -45,9 +44,7 @@ import { Icon } from '../shared/icon'
                 <span class="who">{{ user()?.login }}</span>
               }
             </div>
-            <button class="btn btn-sm tg" (click)="theme.toggle()" [attr.aria-label]="theme.isLight() ? 'Switch to dark' : 'Switch to light'">
-              <app-icon [name]="theme.isLight() ? 'moon' : 'sun'" [size]="16" />
-            </button>
+            <app-theme-toggle />
             <button class="btn btn-sm" (click)="logout()">Log out</button>
           </div>
         </header>
@@ -60,7 +57,6 @@ import { Icon } from '../shared/icon'
     .sidebar { background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 18px 14px; gap: 6px; position: sticky; top: 0; height: 100vh; }
     .brand { display: flex; align-items: baseline; font-family: var(--font-display); font-weight: 700; font-size: 18px; letter-spacing: -0.02em; padding: 6px 10px 16px; }
     .brand .dot { color: var(--primary); }
-    .tg { padding: 0; width: 32px; }
     nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
     nav a, .sidebar-foot a { display: block; padding: 9px 12px; border-radius: var(--radius-sm); color: var(--text-muted); font-weight: 600; font-family: var(--font-display); letter-spacing: -0.01em; transition: background 0.15s, color 0.15s; }
     nav a:hover, .sidebar-foot a:hover { background: var(--surface-2); color: var(--text); }
@@ -80,7 +76,6 @@ export class AdminLayout {
   private auth = inject(AuthService)
   private perms = inject(PermissionsService)
   private router = inject(Router)
-  readonly theme = inject(ThemeService)
 
   readonly user = this.auth.currentUser
 

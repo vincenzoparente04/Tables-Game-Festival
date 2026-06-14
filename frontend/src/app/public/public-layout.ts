@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core'
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router'
-import { Icon } from '../shared/icon'
+import { ThemeToggle } from '../shared/theme-toggle'
 import { ThemeService } from '../core/theme.service'
 
 // Visitor-facing shell: theme scope, top navigation, footer, theme toggle.
 @Component({
   selector: 'app-public-layout',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, Icon],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, ThemeToggle],
   template: `
     <div class="public-shell">
       <header class="pnav">
@@ -15,9 +15,7 @@ import { ThemeService } from '../core/theme.service'
           <a routerLink="/" routerLinkActive="on" [routerLinkActiveOptions]="{ exact: true }" class="nav-ev">events</a>
         </nav>
         <span class="sp"></span>
-        <button class="tg" (click)="theme.toggle()" [attr.aria-label]="theme.isLight() ? 'Switch to dark' : 'Switch to light'">
-          <app-icon [name]="theme.isLight() ? 'moon' : 'sun'" [size]="18" />
-        </button>
+        <app-theme-toggle />
         <a routerLink="/login" class="pbtn ghost sm mono">Organizer sign in</a>
       </header>
       <main class="pmain"><router-outlet /></main>
@@ -38,8 +36,6 @@ import { ThemeService } from '../core/theme.service'
     .plinks a.nav-ev, .plinks a.nav-ev.on { color: #3e7bfa; }
     .plinks a.nav-ev:hover { color: #5b8efb; }
     .sp { flex: 1; }
-    .tg { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--pub-border); background: var(--pub-surface); color: var(--pub-text); cursor: pointer; transition: background 0.15s; }
-    .tg:hover { background: var(--pub-surface-2); }
     .pmain { min-height: calc(100vh - 160px); padding-bottom: 60px; }
     .pfoot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 22px max(24px, 5vw); border-top: 1px solid var(--pub-border); }
     .ftags { color: var(--pub-muted); }

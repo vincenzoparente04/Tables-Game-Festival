@@ -4,6 +4,7 @@ import { ExpensesApi, ParticipantsApi, UploadsApi } from '../../core/api'
 import { EventContext } from '../../core/event-context'
 import { PermissionsService } from '../../core/permissions'
 import { EventSelector } from '../../shared/event-selector'
+import { expenseStatusColor } from '../../shared/status-colors'
 import type { Expense, Json, Participant } from '../../core/models'
 
 const CATEGORIES = [
@@ -102,13 +103,13 @@ const STATUSES = ['planned', 'committed', 'paid'] as const
             @for (e of filtered(); track e.id) {
               <tr>
                 <td>
-                  <strong>{{ e.description }}</strong>
+                  <strong class="dname">{{ e.description }}</strong>
                   @if (e.attachment_url) { <a class="link sm" [href]="e.attachment_url" target="_blank" rel="noopener">receipt</a> }
                 </td>
-                <td><span class="badge">{{ e.category }}</span></td>
+                <td><span class="badge ccol">{{ e.category }}</span></td>
                 <td>{{ e.participant_name || '—' }}</td>
                 <td><strong>€{{ e.amount }}</strong></td>
-                <td><span class="badge" [class]="statusClass(e.status)">{{ e.status }}</span></td>
+                <td><span class="badge scol" [style.color]="expenseStatusColor(e.status)">{{ e.status }}</span></td>
                 <td class="muted">{{ e.due_date || '—' }}</td>
                 <td><div class="actions">
                   @if (canUpdate() && e.status !== 'paid') {
@@ -125,6 +126,8 @@ const STATUSES = ['planned', 'committed', 'paid'] as const
   `,
   styles: `
     .addf { margin-bottom: 16px; }
+    .dname { font-family: var(--font-display); letter-spacing: -0.01em; }
+    .ccol, .scol { font-family: var(--font-mono); }
     .chips { display: flex; gap: 10px; margin-bottom: 14px; flex-wrap: wrap; }
     .chip { background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 6px 14px; font-size: 13px; color: var(--text-muted); }
     .chip strong { color: var(--text); margin-left: 4px; }
@@ -145,6 +148,7 @@ export class ExpensesPage implements OnInit {
 
   readonly categories = CATEGORIES
   readonly statuses = STATUSES
+  readonly expenseStatusColor = expenseStatusColor
   readonly expenses = signal<Expense[]>([])
   readonly participants = signal<Participant[]>([])
   readonly loading = signal(false)
@@ -188,10 +192,6 @@ export class ExpensesPage implements OnInit {
       .filter((e) => e.status === status)
       .reduce((acc, e) => acc + Number(e.amount), 0)
     return sum.toFixed(2)
-  }
-
-  statusClass(status: string) {
-    return status === 'paid' ? 'badge-success' : status === 'committed' ? 'badge-primary' : 'badge-warning'
   }
 
   onFile(event: Event) {

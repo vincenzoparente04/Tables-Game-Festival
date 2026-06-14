@@ -3,6 +3,7 @@ import { FormsModule } from '@angular/forms'
 import { ArtistsApi, UploadsApi } from '../../core/api'
 import { PermissionsService } from '../../core/permissions'
 import { Icon } from '../../shared/icon'
+import { artistKindColor } from '../../shared/status-colors'
 import type { Artist, Json } from '../../core/models'
 
 const KINDS = ['musician', 'band', 'dj', 'painter', 'sculptor', 'photographer', 'performer', 'collective', 'other']
@@ -77,7 +78,7 @@ const KINDS = ['musician', 'band', 'dj', 'painter', 'sculptor', 'photographer', 
               @else { <div class="avatar ph"><app-icon name="palette" [size]="22" /></div> }
               <div>
                 <h3>{{ a.name }}</h3>
-                <span class="badge badge-primary">{{ a.kind }}</span>
+                <span class="badge kind" [style.color]="kindColor(a.kind)">{{ a.kind }}</span>
               </div>
             </div>
             @if (a.bio) { <p class="bio mono">{{ a.bio }}</p> }
@@ -108,6 +109,7 @@ const KINDS = ['musician', 'band', 'dj', 'painter', 'sculptor', 'photographer', 
     .cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px; }
     .artist { padding: 18px; display: flex; flex-direction: column; gap: 10px; }
     .head { display: flex; align-items: center; gap: 12px; }
+    .kind { font-family: var(--font-mono); }
     .avatar { width: 52px; height: 52px; border-radius: 12px; object-fit: cover; border: 1px solid var(--border); }
     .avatar.ph { display: grid; place-items: center; background: var(--surface-2); font-size: 22px; }
     .bio { font-size: 13px; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
@@ -138,6 +140,7 @@ export class ArtistsPage implements OnInit {
 
   form = { name: '', kind: '', bio: '', image_url: '', website: '', instagram: '' }
 
+  readonly kindColor = artistKindColor
   readonly canCreate = this.perms.can('artists', 'create')
   readonly canUpdate = this.perms.can('artists', 'update')
   readonly canDelete = this.perms.can('artists', 'delete')

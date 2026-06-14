@@ -4,6 +4,7 @@ import { ParticipantsApi } from '../../core/api'
 import { EventContext } from '../../core/event-context'
 import { PermissionsService } from '../../core/permissions'
 import { EventSelector } from '../../shared/event-selector'
+import { participantTypeColor } from '../../shared/status-colors'
 import type { Participant } from '../../core/models'
 
 const TYPES = ['exhibitor', 'vendor', 'performer', 'attendee', 'sponsor', 'provider', 'association', 'other']
@@ -49,8 +50,8 @@ const TYPES = ['exhibitor', 'vendor', 'performer', 'attendee', 'sponsor', 'provi
           <tbody>
             @for (p of participants(); track p.id) {
               <tr>
-                <td><strong>{{ p.name }}</strong></td>
-                <td><span class="badge">{{ p.participant_type }}</span></td>
+                <td><strong class="pname">{{ p.name }}</strong></td>
+                <td><span class="badge ptype" [style.color]="typeColor(p.participant_type)">{{ p.participant_type }}</span></td>
                 <td class="muted">{{ p.external_ref || '—' }}</td>
                 <td><div class="actions">
                   @if (canDelete()) { <button class="btn btn-sm btn-danger" (click)="remove(p.id)">Delete</button> }
@@ -64,7 +65,11 @@ const TYPES = ['exhibitor', 'vendor', 'performer', 'attendee', 'sponsor', 'provi
       </div>
     }
   `,
-  styles: `.addf { margin-bottom: 16px; }`,
+  styles: `
+    .addf { margin-bottom: 16px; }
+    .pname { font-family: var(--font-display); letter-spacing: -0.01em; }
+    .ptype { font-family: var(--font-mono); }
+  `,
 })
 export class ParticipantsList implements OnInit {
   readonly ctx = inject(EventContext)
@@ -72,6 +77,7 @@ export class ParticipantsList implements OnInit {
   private perms = inject(PermissionsService)
 
   readonly types = TYPES
+  readonly typeColor = participantTypeColor
   readonly participants = signal<Participant[]>([])
   readonly loading = signal(false)
   readonly showForm = signal(false)
