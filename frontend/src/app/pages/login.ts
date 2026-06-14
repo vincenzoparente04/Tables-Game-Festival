@@ -11,7 +11,7 @@ import { AuthService } from '../core/auth.service'
       <div class="card auth-card">
         <div class="brand">festa<span class="dot">.</span></div>
         <h1>Sign in</h1>
-        <p class="muted">Manage your events, bookings and invoices.</p>
+        <p class="muted mono">Manage your events, bookings and invoices.</p>
         <form (ngSubmit)="submit()">
           <label for="login">Login</label>
           <input id="login" class="input" name="login" [(ngModel)]="login" autocomplete="username" />

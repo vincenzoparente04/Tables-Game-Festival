@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router'
 import { PublicApi } from '../core/api'
 import { Reveal } from './reveal'
 import { Icon } from '../shared/icon'
+import { eventTypeColor } from '../shared/event-colors'
 import type { PublicEvent } from '../core/models'
 
 const today = () => new Date().toISOString().slice(0, 10)
@@ -16,12 +17,12 @@ const today = () => new Date().toISOString().slice(0, 10)
         <div class="hero-inner">
           <div class="hero-meta">
             <span class="pchip grad"><app-icon name="star" [size]="13" /> Featured</span>
-            <span class="pchip">{{ f.event_type_label }}</span>
+            <span class="pchip" [style.color]="typeColor(f.event_type)">{{ f.event_type_label }}</span>
             @if (f.start_date) { <span class="pchip"><app-icon name="calendar" [size]="14" /> {{ dates(f) }}</span> }
             @if (f.venue) { <span class="pchip"><app-icon name="map-pin" [size]="14" /> {{ f.venue }}</span> }
           </div>
           <h1 class="hero-title">{{ f.name }}</h1>
-          @if (f.subtitle) { <p class="hero-sub">{{ f.subtitle }}</p> }
+          @if (f.subtitle) { <p class="hero-sub mono">{{ f.subtitle }}</p> }
           <a class="pbtn hero-cta" [routerLink]="['/events', f.slug]">Discover the event →</a>
         </div>
       </section>
@@ -41,13 +42,13 @@ const today = () => new Date().toISOString().slice(0, 10)
       } @else {
         <div class="grid">
           @for (e of upcoming(); track e.id) {
-            <a class="pcard ev" [routerLink]="['/events', e.slug]">
+            <a class="pcard ev" [routerLink]="['/events', e.slug]" [style.--ev-accent]="typeColor(e.event_type)">
               <div class="ev-img" [style.background-image]="heroBg(e)">
-                <span class="pchip type">{{ e.event_type_label }}</span>
+                <span class="pchip type" [style.color]="typeColor(e.event_type)">{{ e.event_type_label }}</span>
               </div>
               <div class="ev-body">
                 <h3>{{ e.name }}</h3>
-                @if (e.subtitle) { <p class="pmuted sub">{{ e.subtitle }}</p> }
+                @if (e.subtitle) { <p class="pmuted sub mono">{{ e.subtitle }}</p> }
                 <div class="pmuted meta">
                   @if (e.start_date) { <span><app-icon name="calendar" [size]="13" /> {{ dates(e) }}</span> }
                   @if (e.venue) { <span><app-icon name="map-pin" [size]="13" /> {{ e.venue }}</span> }
@@ -85,7 +86,7 @@ const today = () => new Date().toISOString().slice(0, 10)
     .block h2 { font-size: 22px; margin-bottom: 18px; }
     .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 20px; }
     .ev { display: flex; flex-direction: column; overflow: hidden; transition: transform 0.18s, border-color 0.18s; }
-    .ev:hover { transform: translateY(-4px); border-color: var(--pub-accent); }
+    .ev:hover { transform: translateY(-4px); border-color: var(--ev-accent, var(--pub-accent)); }
     .ev-img { aspect-ratio: 16/8; background: var(--pub-grad); background-size: cover; background-position: center; position: relative; }
     .ev-img .type { position: absolute; top: 10px; left: 10px; background: rgba(11, 13, 20, 0.7); }
     .ev-body { padding: 16px 18px 18px; display: flex; flex-direction: column; gap: 6px; }
@@ -104,6 +105,7 @@ export class PublicHome implements OnInit {
 
   readonly events = signal<PublicEvent[]>([])
   readonly loading = signal(true)
+  readonly typeColor = eventTypeColor
 
   readonly featured = computed(() =>
     this.events().find((e) => e.is_featured)

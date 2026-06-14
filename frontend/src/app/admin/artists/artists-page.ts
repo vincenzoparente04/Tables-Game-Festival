@@ -79,7 +79,7 @@ const KINDS = ['musician', 'band', 'dj', 'painter', 'sculptor', 'photographer', 
                 <span class="badge badge-primary">{{ a.kind }}</span>
               </div>
             </div>
-            @if (a.bio) { <p class="bio">{{ a.bio }}</p> }
+            @if (a.bio) { <p class="bio mono">{{ a.bio }}</p> }
             <div class="links">
               @if (linkOf(a, 'website'); as url) { <a [href]="url" target="_blank" rel="noopener" class="link">Website</a> }
               @if (linkOf(a, 'instagram'); as url) { <a [href]="url" target="_blank" rel="noopener" class="link">Instagram</a> }

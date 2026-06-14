@@ -104,6 +104,7 @@ label { font-weight: 500; font-size: 13px; color: var(--text); }
 
 /* Helpers */
 .muted { color: var(--text-muted); }
+.mono { font-family: var(--font-mono); }
 .row { display: flex; align-items: center; gap: 12px; }
 .grid { display: grid; gap: 16px; }
 .badge { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 500; background: var(--surface-2); color: var(--text-muted); border: 1px solid var(--border); }

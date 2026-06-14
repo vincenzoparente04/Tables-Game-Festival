@@ -18,7 +18,7 @@ import { ThemeService } from '../core/theme.service'
         <button class="tg" (click)="theme.toggle()" [attr.aria-label]="theme.isLight() ? 'Switch to dark' : 'Switch to light'">
           <app-icon [name]="theme.isLight() ? 'moon' : 'sun'" [size]="18" />
         </button>
-        <a routerLink="/login" class="pbtn ghost sm">Organizer sign in</a>
+        <a routerLink="/login" class="pbtn ghost sm mono">Organizer sign in</a>
       </header>
       <main class="pmain"><router-outlet /></main>
       <footer class="pfoot">

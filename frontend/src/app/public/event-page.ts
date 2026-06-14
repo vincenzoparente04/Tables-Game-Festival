@@ -5,6 +5,7 @@ import { Meta, Title } from '@angular/platform-browser'
 import { PublicApi } from '../core/api'
 import { MapCanvas } from '../shared/venue-map/map-canvas'
 import { Icon } from '../shared/icon'
+import { eventTypeColor } from '../shared/event-colors'
 import { Reveal } from './reveal'
 import { kindMeta } from '../shared/venue-map/venue-elements'
 import type { EditorElement } from '../shared/venue-map/venue-elements'
@@ -37,14 +38,14 @@ const timeOf = (iso: string) => {
         <div class="hero-inner">
           <a routerLink="/" class="back pmuted"><app-icon name="arrow-left" [size]="14" /> All events</a>
           <div class="hero-meta">
-            <span class="pchip">{{ ev.event_type_label }}</span>
+            <span class="pchip" [style.color]="typeColor(ev.event_type)">{{ ev.event_type_label }}</span>
             @if (ev.start_date) { <span class="pchip"><app-icon name="calendar" [size]="14" /> {{ dates() }}</span> }
             @if (ev.start_time) { <span class="pchip"><app-icon name="clock" [size]="14" /> {{ ev.start_time.slice(0, 5) }}{{ ev.end_time ? '–' + ev.end_time.slice(0, 5) : '' }}</span> }
             @if (ev.venue) { <span class="pchip"><app-icon name="map-pin" [size]="14" /> {{ ev.venue }}</span> }
           </div>
           <h1 class="title">{{ ev.name }}</h1>
-          @if (ev.subtitle) { <p class="subtitle">{{ ev.subtitle }}</p> }
-          @if (ev.location_address) { <p class="pmuted addr">{{ ev.location_address }}</p> }
+          @if (ev.subtitle) { <p class="subtitle mono">{{ ev.subtitle }}</p> }
+          @if (ev.location_address) { <p class="pmuted addr mono">{{ ev.location_address }}</p> }
         </div>
       </section>
 
@@ -53,7 +54,7 @@ const timeOf = (iso: string) => {
           @if (ev.description) {
             <section class="pcard pad" appReveal>
               <h2>About</h2>
-              <p class="desc">{{ ev.description }}</p>
+              <p class="desc mono">{{ ev.description }}</p>
             </section>
           }
 
@@ -328,6 +329,7 @@ export class PublicEventPage implements OnInit {
   }
 
   time = timeOf
+  readonly typeColor = eventTypeColor
   glyph = (kind: string) => kindMeta(kind).glyph
   kindLabel = (kind: string) => kindMeta(kind).label
 
