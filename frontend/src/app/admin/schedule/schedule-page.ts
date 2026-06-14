@@ -4,6 +4,7 @@ import { AreasApi, ArtistsApi, ScheduleSlotsApi } from '../../core/api'
 import { EventContext } from '../../core/event-context'
 import { PermissionsService } from '../../core/permissions'
 import { EventSelector } from '../../shared/event-selector'
+import { Icon } from '../../shared/icon'
 import type { Area, Artist, Json, ScheduleSlot } from '../../core/models'
 
 const SLOT_KINDS = ['performance', 'exhibition', 'talk', 'workshop', 'screening', 'other']
@@ -23,7 +24,7 @@ const timeOf = (iso: string) => isoToLocal(iso).slice(11, 16)
 
 @Component({
   selector: 'app-schedule-page',
-  imports: [FormsModule, EventSelector],
+  imports: [FormsModule, EventSelector, Icon],
   template: `
     <div class="page-head">
       <div><h1>Schedule</h1><p class="muted">Programme: who plays/exhibits where, and when.</p></div>
@@ -85,7 +86,7 @@ const timeOf = (iso: string) => isoToLocal(iso).slice(11, 16)
     @if (warnings().length) {
       <div class="card pad warn">
         <div>
-          @for (w of warnings(); track w) { <div>⚠️ {{ w }}</div> }
+          @for (w of warnings(); track w) { <div><app-icon name="alert" [size]="14" /> {{ w }}</div> }
         </div>
         <button class="btn btn-sm" (click)="warnings.set([])">Dismiss</button>
       </div>

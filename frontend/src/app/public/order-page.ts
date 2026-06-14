@@ -171,10 +171,6 @@ export class PublicOrderPage implements OnInit, OnDestroy {
     return Number(this.view()?.order.total_amount ?? 0) === 0
   }
 
-  statusIcon(status: string): string {
-    return status === 'confirmed' ? '🎟️' : status === 'pending' ? '⏳' : '✕'
-  }
-
   statusTitle(status: string): string {
     if (status === 'confirmed') return "You're in!"
     if (status === 'pending') return 'Almost there…'

@@ -5,13 +5,14 @@ import { BookingsApi, EventsApi, ParticipantsApi } from '../../core/api'
 import { EventContext } from '../../core/event-context'
 import { PermissionsService } from '../../core/permissions'
 import { EventSelector } from '../../shared/event-selector'
+import { Icon } from '../../shared/icon'
 import type { Booking, Participant, PipelineStage } from '../../core/models'
 
 const KINDS = ['exhibitor', 'artist', 'vendor', 'sponsor', 'other'] as const
 
 @Component({
   selector: 'app-bookings-list',
-  imports: [FormsModule, RouterLink, EventSelector],
+  imports: [FormsModule, RouterLink, EventSelector, Icon],
   template: `
     <div class="page-head">
       <div><h1>Agreements</h1><p class="muted">Exhibitors, artists, vendors and sponsors — deals and their status.</p></div>
@@ -59,7 +60,7 @@ const KINDS = ['exhibitor', 'artist', 'vendor', 'sponsor', 'other'] as const
     }
 
     @if (warning()) {
-      <div class="card pad warn">⚠️ {{ warning() }} <button class="btn btn-sm" (click)="warning.set('')">Dismiss</button></div>
+      <div class="card pad warn"><app-icon name="alert" [size]="15" /> {{ warning() }} <button class="btn btn-sm" (click)="warning.set('')">Dismiss</button></div>
     }
 
     @if (!ctx.selectedId()) {

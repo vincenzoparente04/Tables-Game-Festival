@@ -5,13 +5,15 @@ import { PermissionsService } from '../../core/permissions'
 import { LineupPanel } from '../../admin/artists/lineup-panel'
 import { PublishingPanel } from '../../admin/events/publishing-panel'
 import { MediaPanel } from '../../admin/events/media-panel'
-import type { EventModel, EventStats } from '../../core/models'
+import { Icon } from '../../shared/icon'
+import { eventTypeColor } from '../../shared/event-colors'
+import type { EventModel, EventStats, EventType } from '../../core/models'
 
 @Component({
   selector: 'app-event-detail',
-  imports: [RouterLink, LineupPanel, PublishingPanel, MediaPanel],
+  imports: [RouterLink, LineupPanel, PublishingPanel, MediaPanel, Icon],
   template: `
-    <a routerLink="/admin/events" class="link back">← Events</a>
+    <a routerLink="/admin/events" class="link back"><app-icon name="arrow-left" [size]="14" /> Events</a>
 
     @if (loading()) {
       <div class="card empty">Loading…</div>
@@ -25,9 +27,9 @@ import type { EventModel, EventStats } from '../../core/models'
             @if (event()!.is_current) { <span class="badge badge-success">Current</span> }
           </div>
           <p class="muted">
-            <span class="badge badge-primary">{{ typeLabel() }}</span>
-            @if (event()!.start_date) { &nbsp; 🗓 {{ event()!.start_date }} → {{ event()!.end_date }} }
-            @if (event()!.venue) { &nbsp; 📍 {{ event()!.venue }} }
+            <span class="badge" [style.color]="typeColor()">{{ typeLabel() }}</span>
+            @if (event()!.start_date) { &nbsp; <app-icon name="calendar" [size]="13" /> {{ event()!.start_date }} → {{ event()!.end_date }} }
+            @if (event()!.venue) { &nbsp; <app-icon name="map-pin" [size]="13" /> {{ event()!.venue }} }
           </p>
         </div>
         @if (canSetCurrent() && !event()!.is_current) {
@@ -76,6 +78,7 @@ export class EventDetail implements OnInit {
   readonly event = signal<EventModel | null>(null)
   readonly stats = signal<EventStats | null>(null)
   readonly typeLabel = signal<string>('Event')
+  readonly typeColor = signal<string>(eventTypeColor(null))
   readonly loading = signal(true)
   readonly canSetCurrent = this.perms.can('events', 'setCurrent')
 
@@ -85,18 +88,22 @@ export class EventDetail implements OnInit {
     this.id = Number(this.route.snapshot.paramMap.get('id'))
     this.typesApi.list().subscribe((ts) => {
       const ev = this.event()
-      if (ev) this.typeLabel.set(ts.find((t) => t.id === ev.event_type_id)?.label ?? 'Event')
+      if (ev) this.applyType(ts, ev)
     })
     this.load()
+  }
+
+  private applyType(ts: EventType[], ev: EventModel) {
+    const t = ts.find((x) => x.id === ev.event_type_id)
+    this.typeLabel.set(t?.label ?? 'Event')
+    this.typeColor.set(eventTypeColor(t?.key))
   }
 
   private load() {
     this.api.get(this.id).subscribe({
       next: (ev) => {
         this.event.set(ev)
-        this.typesApi.list().subscribe((ts) =>
-          this.typeLabel.set(ts.find((t) => t.id === ev.event_type_id)?.label ?? 'Event'),
-        )
+        this.typesApi.list().subscribe((ts) => this.applyType(ts, ev))
         this.api.stats(this.id).subscribe({
           next: (s) => { this.stats.set(s); this.loading.set(false) },
           error: () => this.loading.set(false),

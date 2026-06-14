@@ -31,6 +31,17 @@ import { Component, input } from '@angular/core'
         @case ('refresh') { <path d="M20 12a8 8 0 1 1-2.3-5.6M20 4v3.5h-3.5" /> }
         @case ('sun') { <circle cx="12" cy="12" r="4" /><path d="M12 3v2M12 19v2M5 5l1.5 1.5M17.5 17.5 19 19M3 12h2M19 12h2M5 19l1.5-1.5M17.5 6.5 19 5" /> }
         @case ('moon') { <path d="M20 13.5A8 8 0 1 1 10.5 4a6.2 6.2 0 0 0 9.5 9.5z" /> }
+        @case ('alert') { <path d="M12 4l9 16H3z" /><path d="M12 10v4.5M12 17.5h.01" /> }
+        @case ('grid') { <rect x="4" y="4" width="7" height="7" rx="1" /><rect x="13" y="4" width="7" height="7" rx="1" /><rect x="4" y="13" width="7" height="7" rx="1" /><rect x="13" y="13" width="7" height="7" rx="1" /> }
+        @case ('undo') { <path d="M9 14 4 9l5-5" /><path d="M4 9h10a6 6 0 0 1 0 12H9" /> }
+        @case ('redo') { <path d="m15 14 5-5-5-5" /><path d="M20 9H10a6 6 0 0 0 0 12h5" /> }
+        @case ('arrow-up') { <path d="M12 19V5M6 11l6-6 6 6" /> }
+        @case ('arrow-down') { <path d="M12 5v14M6 13l6 6 6-6" /> }
+        @case ('zoom-in') { <circle cx="11" cy="11" r="7" /><path d="M21 21l-4-4M11 8v6M8 11h6" /> }
+        @case ('zoom-out') { <circle cx="11" cy="11" r="7" /><path d="M21 21l-4-4M8 11h6" /> }
+        @case ('maximize') { <path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" /> }
+        @case ('image') { <rect x="3.5" y="4.5" width="17" height="15" rx="2.5" /><circle cx="9" cy="10" r="1.6" /><path d="M5 18l5-4 3.5 2.5L17 12l3 3" /> }
+        @case ('trash') { <path d="M5 7h14M10 7V5h4v2M6 7l1 13h10l1-13" /> }
         @default { <circle cx="12" cy="12" r="8" /> }
       }
     </svg>

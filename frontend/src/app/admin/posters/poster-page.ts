@@ -274,7 +274,7 @@ export class PosterPage implements OnInit {
         next: (img) => {
           this.imagesApi.create({ event_id: eventId, url: img.url, public_id: img.public_id, kind: 'poster' })
             .subscribe(() => {
-              this.message.set('Poster saved to the event gallery ✓')
+              this.message.set('Poster saved to the event gallery')
               this.busy.set(false)
             })
         },

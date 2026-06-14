@@ -1,11 +1,12 @@
 import { Component, OnInit, inject, signal } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { EventsApi } from '../core/api'
+import { Icon } from '../shared/icon'
 import type { EventModel, EventStats } from '../core/models'
 
 @Component({
   selector: 'app-dashboard',
-  imports: [RouterLink],
+  imports: [RouterLink, Icon],
   template: `
     <div class="page-head">
       <h1>Dashboard</h1>
@@ -15,7 +16,7 @@ import type { EventModel, EventStats } from '../core/models'
     @if (loading()) {
       <div class="card pad muted">Loading…</div>
     } @else if (!current()) {
-      <div class="card pad">No current event set. <a routerLink="/admin/events" class="link">Manage events →</a></div>
+      <div class="card pad">No current event set. <a routerLink="/admin/events" class="link">Manage events <app-icon name="arrow-right" [size]="13" /></a></div>
     } @else {
       <div class="card pad banner">
         <div>

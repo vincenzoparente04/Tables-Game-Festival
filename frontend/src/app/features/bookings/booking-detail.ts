@@ -5,13 +5,14 @@ import {
   AreasApi, BookingsApi, EventsApi, GamesApi, InvoicesApi, ParticipantsApi, ResourceTypesApi,
 } from '../../core/api'
 import { PermissionsService } from '../../core/permissions'
+import { Icon } from '../../shared/icon'
 import type { Area, Booking, Game, Invoice, PipelineStage, Quote, ResourceType } from '../../core/models'
 
 @Component({
   selector: 'app-booking-detail',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, Icon],
   template: `
-    <a routerLink="/admin/bookings" class="link back">← Bookings</a>
+    <a routerLink="/admin/bookings" class="link back"><app-icon name="arrow-left" [size]="14" /> Bookings</a>
     @if (loading()) { <div class="card empty">Loading…</div> }
     @else if (!booking()) { <div class="card empty">Booking not found.</div> }
     @else {
@@ -45,7 +46,7 @@ import type { Area, Booking, Game, Invoice, PipelineStage, Quote, ResourceType }
               <tbody>
                 @for (r of booking()!.resources ?? []; track r.id) {
                   <tr><td>{{ rtLabel()[r.resource_type_id] || '—' }}</td><td class="muted">{{ r.area_id ? areaName()[r.area_id] : '—' }}</td><td>{{ r.quantity }}</td><td>{{ r.unit_price }}</td>
-                    <td><div class="actions">@if (canEdit()) { <button class="btn btn-sm btn-danger" (click)="removeResource(r.id)">✕</button> }</div></td></tr>
+                    <td><div class="actions">@if (canEdit()) { <button class="btn btn-sm btn-danger" (click)="removeResource(r.id)"><app-icon name="x" [size]="13" /></button> }</div></td></tr>
                 } @empty { <tr><td colspan="5" class="muted">No resources booked.</td></tr> }
               </tbody>
             </table>
@@ -66,7 +67,7 @@ import type { Area, Booking, Game, Invoice, PipelineStage, Quote, ResourceType }
               <tbody>
                 @for (it of booking()!.items ?? []; track it.id) {
                   <tr><td>{{ it.item_ref ? (gameName()[it.item_ref] || it.item_type) : it.item_type }}</td><td>{{ it.quantity }}</td>
-                    <td><div class="actions">@if (canEdit()) { <button class="btn btn-sm btn-danger" (click)="removeItem(it.id)">✕</button> }</div></td></tr>
+                    <td><div class="actions">@if (canEdit()) { <button class="btn btn-sm btn-danger" (click)="removeItem(it.id)"><app-icon name="x" [size]="13" /></button> }</div></td></tr>
                 } @empty { <tr><td colspan="3" class="muted">No items.</td></tr> }
               </tbody>
             </table>

@@ -3,13 +3,14 @@ import { RouterLink } from '@angular/router'
 import { EventsApi } from '../../core/api'
 import { EventContext } from '../../core/event-context'
 import { EventSelector } from '../../shared/event-selector'
+import { Icon } from '../../shared/icon'
 import type { EventFinance } from '../../core/models'
 
 // Event finance overview: money IN (invoices to participants) vs money OUT
 // (expenses), with a per-category breakdown.
 @Component({
   selector: 'app-finance-page',
-  imports: [RouterLink, EventSelector],
+  imports: [RouterLink, EventSelector, Icon],
   template: `
     <div class="page-head">
       <div><h1>Finance</h1><p class="muted">Income vs expenses for the selected event.</p></div>
@@ -17,7 +18,7 @@ import type { EventFinance } from '../../core/models'
     <div class="toolbar">
       <app-event-selector />
       <span class="spacer"></span>
-      <a class="btn" routerLink="/admin/expenses">Manage expenses →</a>
+      <a class="btn" routerLink="/admin/expenses">Manage expenses <app-icon name="arrow-right" [size]="14" /></a>
     </div>
 
     @if (!ctx.selectedId()) {

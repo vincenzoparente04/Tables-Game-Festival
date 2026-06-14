@@ -2,13 +2,14 @@ import { Component, effect, inject, input, signal } from '@angular/core'
 import { FormsModule } from '@angular/forms'
 import { ArtistsApi, EventArtistsApi } from '../../core/api'
 import { PermissionsService } from '../../core/permissions'
+import { Icon } from '../../shared/icon'
 import type { Artist, EventArtist } from '../../core/models'
 
 // Event lineup editor, embedded in the event detail page: link catalog
 // artists to the event, flag headliners, reorder the public billing.
 @Component({
   selector: 'app-lineup-panel',
-  imports: [FormsModule],
+  imports: [FormsModule, Icon],
   template: `
     <div class="card pad">
       <div class="head">
@@ -27,17 +28,17 @@ import type { Artist, EventArtist } from '../../core/models'
       @for (entry of lineup(); track entry.id; let i = $index, last = $last) {
         <div class="row">
           @if (entry.artist_image_url) { <img class="avatar" [src]="entry.artist_image_url" [alt]="entry.artist_name" /> }
-          @else { <div class="avatar ph">🎤</div> }
+          @else { <div class="avatar ph"><app-icon name="music" [size]="20" /></div> }
           <div class="who">
             <strong>{{ entry.artist_name }}</strong>
             <span class="muted kind">{{ entry.artist_kind }}</span>
           </div>
-          @if (entry.is_headliner) { <span class="badge badge-warning">★ Headliner</span> }
+          @if (entry.is_headliner) { <span class="badge badge-warning"><app-icon name="star" [size]="12" /> Headliner</span> }
           <span class="spacer"></span>
           @if (canManage()) {
-            <button class="icon-btn" title="Toggle headliner" (click)="toggleHeadliner(entry)">{{ entry.is_headliner ? '★' : '☆' }}</button>
-            <button class="icon-btn" title="Move up" [disabled]="i === 0" (click)="move(i, -1)">↑</button>
-            <button class="icon-btn" title="Move down" [disabled]="last" (click)="move(i, 1)">↓</button>
+            <button class="icon-btn" title="Toggle headliner" (click)="toggleHeadliner(entry)"><app-icon name="star" [size]="15" [style.opacity]="entry.is_headliner ? 1 : 0.4" /></button>
+            <button class="icon-btn" title="Move up" [disabled]="i === 0" (click)="move(i, -1)"><app-icon name="arrow-up" [size]="15" /></button>
+            <button class="icon-btn" title="Move down" [disabled]="last" (click)="move(i, 1)"><app-icon name="arrow-down" [size]="15" /></button>
             <button class="btn btn-sm btn-danger" (click)="remove(entry)">Remove</button>
           }
         </div>

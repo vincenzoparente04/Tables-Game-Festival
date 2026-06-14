@@ -4,11 +4,12 @@ import { AreasApi, PricingTiersApi, ResourceTypesApi, ResourcesApi } from '../..
 import { EventContext } from '../../core/event-context'
 import { PermissionsService } from '../../core/permissions'
 import { EventSelector } from '../../shared/event-selector'
+import { Icon } from '../../shared/icon'
 import type { Area, PricingTier, ResourceModel, ResourceType } from '../../core/models'
 
 @Component({
   selector: 'app-resources-page',
-  imports: [FormsModule, EventSelector],
+  imports: [FormsModule, EventSelector, Icon],
   template: `
     <div class="page-head">
       <div><h1>Resources &amp; areas</h1><p class="muted">Spaces, resource types, inventory and pricing for the event.</p></div>
@@ -35,7 +36,7 @@ import type { Area, PricingTier, ResourceModel, ResourceType } from '../../core/
             <tbody>
               @for (a of areas(); track a.id) {
                 <tr><td>{{ a.name }}</td><td><span class="badge">{{ a.kind }}</span></td><td class="muted">{{ a.capacity ?? '—' }}</td>
-                  <td><div class="actions">@if (canEdit()) { <button class="btn btn-sm btn-danger" (click)="del('area', a.id)">✕</button> }</div></td></tr>
+                  <td><div class="actions">@if (canEdit()) { <button class="btn btn-sm btn-danger" (click)="del('area', a.id)"><app-icon name="x" [size]="13" /></button> }</div></td></tr>
               } @empty { <tr><td colspan="4" class="muted">No areas.</td></tr> }
             </tbody>
           </table>
@@ -57,7 +58,7 @@ import type { Area, PricingTier, ResourceModel, ResourceType } from '../../core/
             <tbody>
               @for (t of resourceTypes(); track t.id) {
                 <tr><td>{{ t.label }}</td><td class="muted">{{ t.key }}</td><td><span class="badge">{{ t.unit }}</span></td>
-                  <td><div class="actions">@if (canEdit()) { <button class="btn btn-sm btn-danger" (click)="del('rt', t.id)">✕</button> }</div></td></tr>
+                  <td><div class="actions">@if (canEdit()) { <button class="btn btn-sm btn-danger" (click)="del('rt', t.id)"><app-icon name="x" [size]="13" /></button> }</div></td></tr>
               } @empty { <tr><td colspan="4" class="muted">No resource types.</td></tr> }
             </tbody>
           </table>
@@ -79,7 +80,7 @@ import type { Area, PricingTier, ResourceModel, ResourceType } from '../../core/
             <tbody>
               @for (r of resources(); track r.id) {
                 <tr><td>{{ rtLabel()[r.resource_type_id] || '—' }}</td><td class="muted">{{ r.area_id ? areaName()[r.area_id] : '—' }}</td><td>{{ r.total_quantity }}</td>
-                  <td><div class="actions">@if (canEdit()) { <button class="btn btn-sm btn-danger" (click)="del('res', r.id)">✕</button> }</div></td></tr>
+                  <td><div class="actions">@if (canEdit()) { <button class="btn btn-sm btn-danger" (click)="del('res', r.id)"><app-icon name="x" [size]="13" /></button> }</div></td></tr>
               } @empty { <tr><td colspan="4" class="muted">No inventory.</td></tr> }
             </tbody>
           </table>
@@ -102,7 +103,7 @@ import type { Area, PricingTier, ResourceModel, ResourceType } from '../../core/
             <tbody>
               @for (p of pricing(); track p.id) {
                 <tr><td>{{ p.name }}</td><td class="muted">{{ p.resource_type_id ? rtLabel()[p.resource_type_id] : 'Any' }}</td><td>{{ p.unit_price }}</td><td>{{ p.price_per_sqm ?? '—' }}</td>
-                  <td><div class="actions">@if (canEdit()) { <button class="btn btn-sm btn-danger" (click)="del('price', p.id)">✕</button> }</div></td></tr>
+                  <td><div class="actions">@if (canEdit()) { <button class="btn btn-sm btn-danger" (click)="del('price', p.id)"><app-icon name="x" [size]="13" /></button> }</div></td></tr>
               } @empty { <tr><td colspan="5" class="muted">No pricing tiers.</td></tr> }
             </tbody>
           </table>

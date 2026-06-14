@@ -4,6 +4,8 @@ import { ActivatedRoute, RouterLink } from '@angular/router'
 import { AreasApi, BookingsApi, ResourcesApi, VenueMapsApi } from '../../core/api'
 import { PermissionsService } from '../../core/permissions'
 import { MapCanvas } from '../../shared/venue-map/map-canvas'
+import { MapGlyph } from '../../shared/venue-map/map-glyph'
+import { Icon } from '../../shared/icon'
 import { ELEMENT_KIND_META, kindMeta } from '../../shared/venue-map/venue-elements'
 import type { EditorElement } from '../../shared/venue-map/venue-elements'
 import { MapState } from './map-state'
@@ -11,29 +13,29 @@ import type { Area, Booking, Json, MapElement, ResourceModel, VenueMap } from '.
 
 @Component({
   selector: 'app-map-editor',
-  imports: [FormsModule, RouterLink, MapCanvas],
+  imports: [FormsModule, RouterLink, MapCanvas, MapGlyph, Icon],
   template: `
     @if (!map()) {
       <div class="card empty">{{ loadError() || 'Loading…' }}</div>
     } @else {
       <div class="bar">
-        <a routerLink="/admin/maps" class="link">← Maps</a>
+        <a routerLink="/admin/maps" class="link"><app-icon name="arrow-left" [size]="14" /> Maps</a>
         <h2 class="name">{{ map()!.name }}</h2>
         <label class="pub"><input type="checkbox" [ngModel]="map()!.is_public" (ngModelChange)="togglePublic($event)" /> public</label>
         <span class="spacer"></span>
-        <span class="chip">👤 {{ state.capacityTotal() }} capacity</span>
+        <span class="chip"><app-icon name="user" [size]="14" /> {{ state.capacityTotal() }} capacity</span>
         <span class="chip">{{ state.elements().length }} elements</span>
         <div class="tools">
-          <button class="tool" title="Zoom out" (click)="canvas().zoomBy(1.25)">−</button>
-          <button class="tool" title="Zoom in" (click)="canvas().zoomBy(0.8)">+</button>
-          <button class="tool" title="Fit" (click)="canvas().zoomToFit()">⤢</button>
-          <button class="tool" [class.on]="grid()" title="Snap to grid" (click)="grid.set(!grid())">▦</button>
-          <button class="tool" title="Undo (Ctrl+Z)" [disabled]="!state.canUndo()" (click)="state.undo()">↩</button>
-          <button class="tool" title="Redo (Ctrl+Shift+Z)" [disabled]="!state.canRedo()" (click)="state.redo()">↪</button>
+          <button class="tool" title="Zoom out" (click)="canvas().zoomBy(1.25)"><app-icon name="zoom-out" [size]="17" /></button>
+          <button class="tool" title="Zoom in" (click)="canvas().zoomBy(0.8)"><app-icon name="zoom-in" [size]="17" /></button>
+          <button class="tool" title="Fit" (click)="canvas().zoomToFit()"><app-icon name="maximize" [size]="16" /></button>
+          <button class="tool" [class.on]="grid()" title="Snap to grid" (click)="grid.set(!grid())"><app-icon name="grid" [size]="16" /></button>
+          <button class="tool" title="Undo (Ctrl+Z)" [disabled]="!state.canUndo()" (click)="state.undo()"><app-icon name="undo" [size]="16" /></button>
+          <button class="tool" title="Redo (Ctrl+Shift+Z)" [disabled]="!state.canRedo()" (click)="state.redo()"><app-icon name="redo" [size]="16" /></button>
         </div>
         @if (canEdit()) {
           <button class="btn btn-primary" (click)="save()" [disabled]="saving() || !state.dirty()">
-            {{ saving() ? 'Saving…' : state.dirty() ? 'Save' : 'Saved ✓' }}
+            {{ saving() ? 'Saving…' : state.dirty() ? 'Save' : 'Saved' }}
           </button>
         }
         @if (saveError()) { <span class="err">{{ saveError() }}</span> }
@@ -44,7 +46,7 @@ import type { Area, Booking, Json, MapElement, ResourceModel, VenueMap } from '.
           <aside class="palette">
             @for (k of kinds; track k.kind) {
               <button class="pal" [title]="k.label" (click)="addElement(k.kind)">
-                <span class="pal-glyph">{{ k.glyph }}</span>
+                <span class="pal-glyph" [style.color]="k.color"><app-map-glyph [kind]="k.kind" [size]="20" /></span>
                 <span class="pal-label">{{ k.label }}</span>
               </button>
             }
@@ -66,7 +68,7 @@ import type { Area, Booking, Json, MapElement, ResourceModel, VenueMap } from '.
         @if (canEdit() && state.selected(); as sel) {
           <aside class="props card">
             <div class="props-head">
-              <span class="badge badge-primary">{{ meta(sel.kind).glyph }} {{ meta(sel.kind).label }}</span>
+              <span class="badge badge-primary" [style.color]="meta(sel.kind).color"><app-map-glyph [kind]="sel.kind" [size]="13" /> {{ meta(sel.kind).label }}</span>
             </div>
             <label class="p-field">Label
               <input class="input" [ngModel]="sel.label ?? ''" (ngModelChange)="patch(sel.id, { label: $event || null })" placeholder="e.g. Main Stage" />
@@ -82,7 +84,7 @@ import type { Area, Booking, Json, MapElement, ResourceModel, VenueMap } from '.
               <label>Y<input class="input" type="number" [ngModel]="round(sel.y)" (ngModelChange)="patch(sel.id, { y: num($event) })" /></label>
               <label>W<input class="input" type="number" min="16" [ngModel]="round(sel.width)" (ngModelChange)="patch(sel.id, { width: Math.max(16, num($event)) })" /></label>
               <label>H<input class="input" type="number" min="16" [ngModel]="round(sel.height)" (ngModelChange)="patch(sel.id, { height: Math.max(16, num($event)) })" /></label>
-              <label>↻°<input class="input" type="number" min="-360" max="360" step="15" [ngModel]="sel.rotation" (ngModelChange)="patch(sel.id, { rotation: num($event) })" /></label>
+              <label>rot°<input class="input" type="number" min="-360" max="360" step="15" [ngModel]="sel.rotation" (ngModelChange)="patch(sel.id, { rotation: num($event) })" /></label>
               <label>Z<input class="input" type="number" [ngModel]="sel.z_index" (ngModelChange)="patch(sel.id, { z_index: num($event) })" /></label>
             </div>
             <label class="p-field">Linked agreement (stand of…)

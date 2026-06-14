@@ -277,7 +277,7 @@ export class TicketsPage implements OnInit {
     this.ordersApi.checkIn(code).subscribe({
       next: (r) => {
         this.checkInOk.set(true)
-        this.checkInMsg.set(`✓ ${r.ticket_type_name} — ${r.ticket.attendee_name || r.customer_name} (order ${r.order_code})`)
+        this.checkInMsg.set(`${r.ticket_type_name} — ${r.ticket.attendee_name || r.customer_name} (order ${r.order_code})`)
         this.checkInCode = ''
         const id = this.ctx.selectedId()
         if (id) this.loadOrders(id)

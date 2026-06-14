@@ -2,11 +2,12 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core'
 import { FormsModule } from '@angular/forms'
 import { AuthorsApi, GamesApi, PublishersApi } from '../../core/api'
 import { PermissionsService } from '../../core/permissions'
+import { Icon } from '../../shared/icon'
 import type { Author, Game, Publisher } from '../../core/models'
 
 @Component({
   selector: 'app-games-page',
-  imports: [FormsModule],
+  imports: [FormsModule, Icon],
   template: `
     <div class="page-head">
       <div><h1>Games</h1><p class="muted">Catalog of games, publishers and authors (festival module).</p></div>
@@ -31,7 +32,7 @@ import type { Author, Game, Publisher } from '../../core/models'
             @for (g of games(); track g.id) {
               <tr><td><strong>{{ g.name }}</strong></td><td class="muted">{{ g.publisher_id ? pubName()[g.publisher_id] : '—' }}</td>
                 <td>{{ g.min_players ?? '?' }}–{{ g.max_players ?? '?' }}</td><td>{{ g.min_age ?? '—' }}</td>
-                <td><div class="actions">@if (canEdit()) { <button class="btn btn-sm btn-danger" (click)="del('game', g.id)">✕</button> }</div></td></tr>
+                <td><div class="actions">@if (canEdit()) { <button class="btn btn-sm btn-danger" (click)="del('game', g.id)"><app-icon name="x" [size]="13" /></button> }</div></td></tr>
             } @empty { <tr><td colspan="5" class="muted">No games.</td></tr> }
           </tbody>
         </table>
@@ -44,7 +45,7 @@ import type { Author, Game, Publisher } from '../../core/models'
             <div class="addrow"><input class="input" placeholder="Name" name="pn" [(ngModel)]="pForm.name" /><button class="btn btn-primary btn-sm" (click)="addPub()" [disabled]="!pForm.name.trim()">Add</button></div>
           }
           <table class="table"><tbody>
-            @for (p of publishers(); track p.id) { <tr><td>{{ p.name }}</td><td><div class="actions">@if (canEdit()) { <button class="btn btn-sm btn-danger" (click)="del('pub', p.id)">✕</button> }</div></td></tr> }
+            @for (p of publishers(); track p.id) { <tr><td>{{ p.name }}</td><td><div class="actions">@if (canEdit()) { <button class="btn btn-sm btn-danger" (click)="del('pub', p.id)"><app-icon name="x" [size]="13" /></button> }</div></td></tr> }
             @empty { <tr><td class="muted">No publishers.</td></tr> }
           </tbody></table>
         </div>
@@ -55,7 +56,7 @@ import type { Author, Game, Publisher } from '../../core/models'
             <div class="addrow"><input class="input" placeholder="First" name="af" [(ngModel)]="aForm.first_name" /><input class="input" placeholder="Last" name="al" [(ngModel)]="aForm.last_name" /><button class="btn btn-primary btn-sm" (click)="addAuthor()" [disabled]="!aForm.last_name.trim()">Add</button></div>
           }
           <table class="table"><tbody>
-            @for (a of authors(); track a.id) { <tr><td>{{ a.first_name }} {{ a.last_name }}</td><td><div class="actions">@if (canEdit()) { <button class="btn btn-sm btn-danger" (click)="del('author', a.id)">✕</button> }</div></td></tr> }
+            @for (a of authors(); track a.id) { <tr><td>{{ a.first_name }} {{ a.last_name }}</td><td><div class="actions">@if (canEdit()) { <button class="btn btn-sm btn-danger" (click)="del('author', a.id)"><app-icon name="x" [size]="13" /></button> }</div></td></tr> }
             @empty { <tr><td class="muted">No authors.</td></tr> }
           </tbody></table>
         </div>

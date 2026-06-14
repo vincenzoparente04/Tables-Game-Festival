@@ -3,6 +3,7 @@ import { RouterLink } from '@angular/router'
 import { EventsApi, EventTypesApi } from '../../core/api'
 import { PermissionsService } from '../../core/permissions'
 import { Icon } from '../../shared/icon'
+import { eventTypeColor } from '../../shared/event-colors'
 import type { EventModel } from '../../core/models'
 
 @Component({
@@ -21,7 +22,7 @@ import type { EventModel } from '../../core/models'
         @for (e of events(); track e.id) {
           <div class="card clickable ev" [routerLink]="['/admin/events', e.id]">
             <div class="ev-top">
-              <span class="badge badge-primary">{{ typeLabels()[e.event_type_id] || 'Event' }}</span>
+              <span class="badge" [style.color]="typeColorById(e.event_type_id)">{{ typeLabels()[e.event_type_id] || 'Event' }}</span>
               @if (e.is_current) { <span class="badge badge-success">Current</span> }
               @else if (!e.is_active) { <span class="badge badge-warning">Inactive</span> }
             </div>
@@ -36,7 +37,7 @@ import type { EventModel } from '../../core/models'
                 <button class="btn btn-sm btn-danger" (click)="$event.stopPropagation(); remove(e.id)">Delete</button>
               }
               <span class="spacer"></span>
-              <span class="open">Open →</span>
+              <span class="open">Open <app-icon name="arrow-right" [size]="13" /></span>
             </div>
           </div>
         } @empty {
@@ -63,16 +64,22 @@ export class EventsList implements OnInit {
 
   readonly events = signal<EventModel[]>([])
   readonly typeLabels = signal<Record<number, string>>({})
+  readonly typeKeys = signal<Record<number, string>>({})
   readonly loading = signal(true)
   readonly canCreate = this.perms.can('events', 'create')
   readonly canSetCurrent = this.perms.can('events', 'setCurrent')
   readonly canDelete = this.perms.can('events', 'delete')
 
   ngOnInit() {
-    this.typesApi.list().subscribe((ts) =>
-      this.typeLabels.set(Object.fromEntries(ts.map((t) => [t.id, t.label]))),
-    )
+    this.typesApi.list().subscribe((ts) => {
+      this.typeLabels.set(Object.fromEntries(ts.map((t) => [t.id, t.label])))
+      this.typeKeys.set(Object.fromEntries(ts.map((t) => [t.id, t.key])))
+    })
     this.load()
+  }
+
+  typeColorById(id: number) {
+    return eventTypeColor(this.typeKeys()[id])
   }
 
   private load() {

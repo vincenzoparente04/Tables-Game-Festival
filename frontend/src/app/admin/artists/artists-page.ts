@@ -2,13 +2,14 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core'
 import { FormsModule } from '@angular/forms'
 import { ArtistsApi, UploadsApi } from '../../core/api'
 import { PermissionsService } from '../../core/permissions'
+import { Icon } from '../../shared/icon'
 import type { Artist, Json } from '../../core/models'
 
 const KINDS = ['musician', 'band', 'dj', 'painter', 'sculptor', 'photographer', 'performer', 'collective', 'other']
 
 @Component({
   selector: 'app-artists-page',
-  imports: [FormsModule],
+  imports: [FormsModule, Icon],
   template: `
     <div class="page-head">
       <div><h1>Artists</h1><p class="muted">{{ filtered().length }} of {{ artists().length }} artist(s)</p></div>
@@ -73,7 +74,7 @@ const KINDS = ['musician', 'band', 'dj', 'painter', 'sculptor', 'photographer', 
           <div class="card artist">
             <div class="head">
               @if (a.image_url) { <img class="avatar" [src]="a.image_url" [alt]="a.name" /> }
-              @else { <div class="avatar ph">🎨</div> }
+              @else { <div class="avatar ph"><app-icon name="palette" [size]="22" /></div> }
               <div>
                 <h3>{{ a.name }}</h3>
                 <span class="badge badge-primary">{{ a.kind }}</span>

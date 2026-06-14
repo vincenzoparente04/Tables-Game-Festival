@@ -1,12 +1,13 @@
 import { Component, effect, inject, input, output, signal } from '@angular/core'
 import { EventImagesApi, EventsApi, UploadsApi } from '../../core/api'
 import { PermissionsService } from '../../core/permissions'
+import { Icon } from '../../shared/icon'
 import type { EventImage, EventModel } from '../../core/models'
 
 // Hero image + public gallery management, embedded in the event detail page.
 @Component({
   selector: 'app-media-panel',
-  imports: [],
+  imports: [Icon],
   template: `
     <div class="card pad">
       <h3>Hero image</h3>
@@ -41,9 +42,9 @@ import type { EventImage, EventModel } from '../../core/models'
             <img [src]="img.url" [alt]="img.alt || 'Event photo'" />
             @if (canManage()) {
               <figcaption class="shot-actions">
-                <button class="icon-btn" [disabled]="i === 0" (click)="move(i, -1)">←</button>
-                <button class="icon-btn" [disabled]="last" (click)="move(i, 1)">→</button>
-                <button class="icon-btn danger" (click)="remove(img)">✕</button>
+                <button class="icon-btn" [disabled]="i === 0" (click)="move(i, -1)"><app-icon name="arrow-left" [size]="13" /></button>
+                <button class="icon-btn" [disabled]="last" (click)="move(i, 1)"><app-icon name="arrow-right" [size]="13" /></button>
+                <button class="icon-btn danger" (click)="remove(img)"><app-icon name="x" [size]="13" /></button>
               </figcaption>
             }
           </figure>

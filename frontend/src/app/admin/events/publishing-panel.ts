@@ -2,20 +2,21 @@ import { Component, effect, inject, input, output, signal } from '@angular/core'
 import { FormsModule } from '@angular/forms'
 import { EventsApi } from '../../core/api'
 import { PermissionsService } from '../../core/permissions'
+import { Icon } from '../../shared/icon'
 import type { EventModel, Json } from '../../core/models'
 
 // Publishing & presentation settings, embedded in the event detail page.
 // Publishing auto-generates the public slug server-side when missing.
 @Component({
   selector: 'app-publishing-panel',
-  imports: [FormsModule],
+  imports: [FormsModule, Icon],
   template: `
     <div class="card pad">
       <div class="head">
         <h3>Publishing &amp; details</h3>
         <div class="state">
           <span class="badge" [class]="statusClass()">{{ event().status }}</span>
-          @if (event().is_featured) { <span class="badge badge-warning">★ Featured</span> }
+          @if (event().is_featured) { <span class="badge badge-warning"><app-icon name="star" [size]="12" /> Featured</span> }
         </div>
       </div>
 
@@ -65,7 +66,7 @@ import type { EventModel, Json } from '../../core/models'
         <div class="actions">
           <button class="btn btn-primary" (click)="save()" [disabled]="saving()">{{ saving() ? 'Saving…' : 'Save settings' }}</button>
           @if (canFeature() && !event().is_featured) {
-            <button class="btn" (click)="setFeatured()">★ Feature on homepage</button>
+            <button class="btn" (click)="setFeatured()"><app-icon name="star" [size]="14" /> Feature on homepage</button>
           }
           @if (error()) { <span class="err">{{ error() }}</span> }
         </div>

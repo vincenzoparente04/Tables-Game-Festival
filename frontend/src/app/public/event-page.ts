@@ -222,7 +222,6 @@ const timeOf = (iso: string) => {
     .map-hint { font-size: 13px; margin-bottom: 10px; }
     .map-box { height: clamp(300px, 45vw, 460px); border-radius: 14px; overflow: hidden; }
     .picked { display: flex; align-items: center; gap: 10px; margin-top: 12px; padding: 10px 14px; border-radius: 12px; background: var(--pub-surface-2); }
-    .picked .glyph { font-size: 18px; }
     .gal { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
     .gal img { width: 100%; aspect-ratio: 4/3; object-fit: cover; border-radius: 12px; cursor: zoom-in; transition: transform 0.15s; }
     .gal img:hover { transform: scale(1.02); }
@@ -330,7 +329,6 @@ export class PublicEventPage implements OnInit {
 
   time = timeOf
   readonly typeColor = eventTypeColor
-  glyph = (kind: string) => kindMeta(kind).glyph
   kindLabel = (kind: string) => kindMeta(kind).label
 
   isFree(t: PublicTicketType): boolean {
