@@ -2,7 +2,7 @@ import { Component, OnInit, computed, inject, signal } from '@angular/core'
 import { RouterLink } from '@angular/router'
 import { PublicApi } from '../core/api'
 import { Reveal } from './reveal'
-import { Icon } from './icon'
+import { Icon } from '../shared/icon'
 import type { PublicEvent } from '../core/models'
 
 const today = () => new Date().toISOString().slice(0, 10)

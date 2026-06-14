@@ -2,16 +2,18 @@ import { Component, inject } from '@angular/core'
 import { RouterOutlet, RouterLink, RouterLinkActive, Router } from '@angular/router'
 import { AuthService } from '../core/auth.service'
 import { PermissionsService } from '../core/permissions'
+import { ThemeService } from '../core/theme.service'
+import { Icon } from '../shared/icon'
 
 // Staff shell: sidebar + topbar around every /admin page. The public site
 // renders at the root with its own layout.
 @Component({
   selector: 'app-admin-layout',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, Icon],
   template: `
     <div class="shell">
       <aside class="sidebar">
-        <div class="brand"><span class="logo">◆</span> Festival Manager</div>
+        <div class="brand">festa<span class="dot">.</span></div>
         <nav>
           <a routerLink="/admin/dashboard" routerLinkActive="active">Dashboard</a>
           @if (canEvents()) { <a routerLink="/admin/events" routerLinkActive="active">Events</a> }
@@ -41,6 +43,9 @@ import { PermissionsService } from '../core/permissions'
               <span class="user-name">{{ user()?.login }}</span>
               <span class="badge badge-primary">{{ user()?.role }}</span>
             </div>
+            <button class="btn btn-sm tg" (click)="theme.toggle()" [attr.aria-label]="theme.isLight() ? 'Switch to dark' : 'Switch to light'">
+              <app-icon [name]="theme.isLight() ? 'moon' : 'sun'" [size]="16" />
+            </button>
             <button class="btn btn-sm" (click)="logout()">Log out</button>
           </div>
         </header>
@@ -51,8 +56,9 @@ import { PermissionsService } from '../core/permissions'
   styles: `
     .shell { display: grid; grid-template-columns: var(--sidebar-w) 1fr; min-height: 100vh; }
     .sidebar { background: var(--surface); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 18px 14px; gap: 6px; position: sticky; top: 0; height: 100vh; }
-    .brand { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 16px; padding: 6px 10px 16px; }
-    .brand .logo { color: var(--primary); font-size: 18px; }
+    .brand { display: flex; align-items: baseline; font-family: var(--font-display); font-weight: 700; font-size: 18px; letter-spacing: -0.02em; padding: 6px 10px 16px; }
+    .brand .dot { color: var(--primary); }
+    .tg { padding: 0; width: 32px; }
     nav { display: flex; flex-direction: column; gap: 2px; flex: 1; }
     nav a, .sidebar-foot a { display: block; padding: 9px 12px; border-radius: var(--radius-sm); color: var(--text-muted); font-weight: 600; transition: background 0.15s, color 0.15s; }
     nav a:hover, .sidebar-foot a:hover { background: var(--surface-2); color: var(--text); }
@@ -71,6 +77,7 @@ export class AdminLayout {
   private auth = inject(AuthService)
   private perms = inject(PermissionsService)
   private router = inject(Router)
+  readonly theme = inject(ThemeService)
 
   readonly user = this.auth.currentUser
 

@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit, inject, signal } from '@angular/core'
 import { ActivatedRoute, RouterLink } from '@angular/router'
 import QRCode from 'qrcode'
 import { PublicApi } from '../core/api'
-import { Icon } from './icon'
+import { Icon } from '../shared/icon'
 import type { PublicOrderView } from '../core/models'
 
 // Order lookup page (the crypto-random code in the URL is the bearer secret).

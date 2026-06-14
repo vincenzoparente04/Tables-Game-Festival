@@ -1,40 +1,47 @@
-import { Component } from '@angular/core'
+import { Component, inject } from '@angular/core'
 import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router'
-import { Cursor } from './cursor'
+import { Icon } from '../shared/icon'
+import { ThemeService } from '../core/theme.service'
 
-// Visitor-facing shell: dark theme scope, top navigation and footer.
+// Visitor-facing shell: theme scope, top navigation, footer, theme toggle.
 @Component({
   selector: 'app-public-layout',
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, Cursor],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, Icon],
   template: `
     <div class="public-shell">
-      <app-cursor />
       <header class="pnav">
-        <a routerLink="/" class="pbrand"><span class="logo">◆</span> Festival</a>
+        <a routerLink="/" class="pbrand">festa<span class="dot">.</span></a>
         <nav class="plinks">
-          <a routerLink="/" routerLinkActive="on" [routerLinkActiveOptions]="{ exact: true }">Events</a>
+          <a routerLink="/" routerLinkActive="on" [routerLinkActiveOptions]="{ exact: true }">events</a>
         </nav>
         <span class="sp"></span>
+        <button class="tg" (click)="theme.toggle()" [attr.aria-label]="theme.isLight() ? 'Switch to dark' : 'Switch to light'">
+          <app-icon [name]="theme.isLight() ? 'moon' : 'sun'" [size]="18" />
+        </button>
         <a routerLink="/login" class="pbtn ghost sm">Organizer sign in</a>
       </header>
       <main class="pmain"><router-outlet /></main>
       <footer class="pfoot">
-        <span class="pbrand sm"><span class="logo">◆</span> Festival</span>
-        <span class="pmuted">Events, exhibitions &amp; concerts</span>
+        <span class="pbrand sm">festa<span class="dot">.</span></span>
+        <span class="pmono pmuted">events · exhibitions · concerts</span>
       </footer>
     </div>
   `,
   styles: `
-    .pnav { display: flex; align-items: center; gap: 26px; padding: 18px max(24px, 5vw); position: sticky; top: 0; z-index: 20; background: rgba(11, 13, 20, 0.75); backdrop-filter: blur(14px); border-bottom: 1px solid var(--pub-border); }
-    .pbrand { display: flex; align-items: center; gap: 8px; font-family: var(--font-display); font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
-    .pbrand .logo { background: var(--pub-grad); -webkit-background-clip: text; background-clip: text; color: transparent; font-size: 19px; }
-    .pbrand.sm { font-size: 14px; }
+    .pnav { display: flex; align-items: center; gap: 26px; padding: 18px max(24px, 5vw); position: sticky; top: 0; z-index: 20; background: color-mix(in srgb, var(--pub-bg) 78%, transparent); backdrop-filter: blur(14px); border-bottom: 1px solid var(--pub-border); }
+    .pbrand { display: inline-flex; align-items: baseline; font-family: var(--font-display); font-weight: 700; font-size: 19px; letter-spacing: -0.02em; }
+    .pbrand .dot { color: var(--pub-accent); }
+    .pbrand.sm { font-size: 15px; }
     .plinks { display: flex; gap: 18px; }
-    .plinks a { color: var(--pub-muted); font-weight: 600; font-size: 14px; transition: color 0.15s; }
+    .plinks a { color: var(--pub-muted); font-family: var(--font-mono); font-size: 13px; transition: color 0.15s; }
     .plinks a:hover, .plinks a.on { color: var(--pub-text); }
     .sp { flex: 1; }
+    .tg { display: inline-flex; align-items: center; justify-content: center; width: 38px; height: 38px; border-radius: 10px; border: 1px solid var(--pub-border); background: var(--pub-surface); color: var(--pub-text); cursor: pointer; transition: background 0.15s; }
+    .tg:hover { background: var(--pub-surface-2); }
     .pmain { min-height: calc(100vh - 160px); padding-bottom: 60px; }
-    .pfoot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 22px max(24px, 5vw); border-top: 1px solid var(--pub-border); font-size: 13px; }
+    .pfoot { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 22px max(24px, 5vw); border-top: 1px solid var(--pub-border); }
   `,
 })
-export class PublicLayout {}
+export class PublicLayout {
+  readonly theme = inject(ThemeService)
+}
