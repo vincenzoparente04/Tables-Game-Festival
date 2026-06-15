@@ -88,8 +88,9 @@ npm test               # ng test (karma/jasmine)
   - **2.C ✅** vitest unit + DB integration suite (`npm run test:db`). **2.D ✅** Angular admin MVP
     (branch `feat/frontend-redesign`): design system, events/participants/resources/bookings/
     invoices/games/users modules, shared event context/selector.
-  - ⚠️ **Not deployed**: prod stays on Fase 1 until the coordinated BE+FE cutover.
-- **Fase D→H — Specialization: art events, exhibitions & concerts** 🚧 in progress.
+  - **✅ Deployed** (cutover June 2026): prod now runs the full arts platform from `main`
+    (Render backend + Netlify frontend + Neon DB); the old Fase-1 prod is gone.
+- **Fase D→H — Specialization: art events, exhibitions & concerts** ✅ done & deployed.
   Decisions: single-organization deployment (multi-tenant-ready seams), Stripe Checkout for
   tickets, Cloudinary for media. Public site at `/`, admin moves under `/admin` (lazy).
   - **D1 ✅** (branch `feat/d1-domain-foundation`) backend domain foundation: artists module
@@ -140,8 +141,19 @@ npm test               # ng test (karma/jasmine)
     featured), README rewritten for the product. Fixed latent REAL-vs-int parameter inference
     in map-element inserts (`COALESCE($n::real, …)`) + regression test.
     (SSR, multi-org, refunds, volunteer check-in PWA: documented backlog.)
+- **Fase I — Dark restyle + prod go-live** ✅ done & deployed (branch `feat/i-restyle-dark`,
+  merged to `main`). Dark design tokens (electric blue/violet, Space Grotesk + JetBrains Mono),
+  public-site motion + inline SVG icon set (emoji dropped), curated map glyphs, admin dark
+  coherence, light/dark pill toggle, magnetized login button, semantic status color scales.
+  Games admin section removed (model game tables as resources; the backend games API stays,
+  staff-only). Bugfixes: transactional event delete (tickets-first), surfaced create/delete
+  errors. `scripts/seed-prod-api.ts` (`npm run seed:prod-api`) seeds a live deployment over the
+  REST API (admin login + POST) — used because Neon isn't reachable directly from dev machines;
+  prod populated with 6 demo events. Stripe test mode live on prod.
 
 ## Git
-- `main` = single source of truth & integration branch. `deploy` tracks releases (kept aligned with main).
+- `main` = single source of truth & integration branch. **Prod auto-deploys from `main`**
+  (Render backend + Netlify frontend); the legacy `deploy` branch is abandoned (frozen
+  pre-arts-buildout — ignore it).
 - Feature branches off `main`. End commit messages with the Co-Authored-By trailer.
 - Full pre-refactor backup: tag `backup/pre-refactor-deploy`.
