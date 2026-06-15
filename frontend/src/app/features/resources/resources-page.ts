@@ -16,6 +16,10 @@ import type { Area, PricingTier, ResourceModel, ResourceType } from '../../core/
     </div>
     <div class="toolbar"><app-event-selector /></div>
 
+    @if (error()) {
+      <div class="card pad err-banner">{{ error() }} <button class="btn btn-sm" (click)="error.set('')">Dismiss</button></div>
+    }
+
     @if (!ctx.selectedId()) {
       <div class="card empty">Select or create an event first.</div>
     } @else {
@@ -116,6 +120,7 @@ import type { Area, PricingTier, ResourceModel, ResourceType } from '../../core/
     @media (max-width: 900px) { .sections { grid-template-columns: 1fr; } }
     .addrow { display: flex; gap: 8px; margin: 12px 0 16px; flex-wrap: wrap; }
     .addrow .input, .addrow .select { width: auto; flex: 1; min-width: 90px; }
+    .err-banner { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; color: var(--danger); background: var(--danger-50); border-color: var(--danger); }
   `,
 })
 export class ResourcesPage implements OnInit {
@@ -130,6 +135,7 @@ export class ResourcesPage implements OnInit {
   readonly resourceTypes = signal<ResourceType[]>([])
   readonly resources = signal<ResourceModel[]>([])
   readonly pricing = signal<PricingTier[]>([])
+  readonly error = signal('')
   readonly canEdit = this.perms.can('resources', 'create')
 
   readonly rtLabel = computed(() => Object.fromEntries(this.resourceTypes().map((t) => [t.id, t.label])))
@@ -159,34 +165,57 @@ export class ResourcesPage implements OnInit {
   private eid() { return this.ctx.selectedId()! }
 
   addArea() {
+    this.error.set('')
     const body: Record<string, unknown> = { event_id: this.eid(), name: this.areaForm.name.trim(), kind: this.areaForm.kind }
     if (this.areaForm.capacity != null) body['capacity'] = this.areaForm.capacity
-    this.areasApi.create(body).subscribe(() => { this.areaForm = { name: '', kind: 'indoor', capacity: null }; this.areasApi.list(this.eid()).subscribe((a) => this.areas.set(a)) })
+    this.areasApi.create(body).subscribe({
+      next: () => { this.areaForm = { name: '', kind: 'indoor', capacity: null }; this.areasApi.list(this.eid()).subscribe((a) => this.areas.set(a)) },
+      error: (e) => this.fail(e),
+    })
   }
   addRt() {
+    this.error.set('')
     this.rtApi.create({ event_id: this.eid(), key: this.rtForm.key.trim(), label: this.rtForm.label.trim(), unit: this.rtForm.unit.trim() || 'unit' })
-      .subscribe(() => { this.rtForm = { key: '', label: '', unit: 'unit' }; this.rtApi.list(this.eid()).subscribe((t) => this.resourceTypes.set(t)) })
+      .subscribe({
+        next: () => { this.rtForm = { key: '', label: '', unit: 'unit' }; this.rtApi.list(this.eid()).subscribe((t) => this.resourceTypes.set(t)) },
+        error: (e) => this.fail(e),
+      })
   }
   addResource() {
     if (!this.resForm.resource_type_id) return
+    this.error.set('')
     const body: Record<string, unknown> = { event_id: this.eid(), resource_type_id: this.resForm.resource_type_id, total_quantity: this.resForm.total_quantity ?? 0 }
     if (this.resForm.area_id) body['area_id'] = this.resForm.area_id
-    this.resApi.create(body).subscribe(() => { this.resForm = { resource_type_id: null, area_id: null, total_quantity: null }; this.resApi.list(this.eid()).subscribe((r) => this.resources.set(r)) })
+    this.resApi.create(body).subscribe({
+      next: () => { this.resForm = { resource_type_id: null, area_id: null, total_quantity: null }; this.resApi.list(this.eid()).subscribe((r) => this.resources.set(r)) },
+      error: (e) => this.fail(e),
+    })
   }
   addPrice() {
+    this.error.set('')
     const body: Record<string, unknown> = { event_id: this.eid(), name: this.priceForm.name.trim() }
     if (this.priceForm.resource_type_id) body['resource_type_id'] = this.priceForm.resource_type_id
     if (this.priceForm.unit_price != null) body['unit_price'] = this.priceForm.unit_price
     if (this.priceForm.price_per_sqm != null) body['price_per_sqm'] = this.priceForm.price_per_sqm
-    this.priceApi.create(body).subscribe(() => { this.priceForm = { name: '', resource_type_id: null, unit_price: null, price_per_sqm: null }; this.priceApi.list(this.eid()).subscribe((p) => this.pricing.set(p)) })
+    this.priceApi.create(body).subscribe({
+      next: () => { this.priceForm = { name: '', resource_type_id: null, unit_price: null, price_per_sqm: null }; this.priceApi.list(this.eid()).subscribe((p) => this.pricing.set(p)) },
+      error: (e) => this.fail(e),
+    })
+  }
+
+  private fail(e: unknown) {
+    const msg = (e as { error?: { error?: string } })?.error?.error
+    this.error.set(msg ?? 'Action failed — check that you are an admin and an event is selected.')
   }
 
   del(kind: 'area' | 'rt' | 'res' | 'price', id: number) {
     const e = this.eid()
     if (!confirm('Delete this item?')) return
-    if (kind === 'area') this.areasApi.remove(id).subscribe(() => this.areasApi.list(e).subscribe((a) => this.areas.set(a)))
-    if (kind === 'rt') this.rtApi.remove(id).subscribe(() => this.rtApi.list(e).subscribe((t) => this.resourceTypes.set(t)))
-    if (kind === 'res') this.resApi.remove(id).subscribe(() => this.resApi.list(e).subscribe((r) => this.resources.set(r)))
-    if (kind === 'price') this.priceApi.remove(id).subscribe(() => this.priceApi.list(e).subscribe((p) => this.pricing.set(p)))
+    this.error.set('')
+    const onErr = (err: unknown) => this.fail(err)
+    if (kind === 'area') this.areasApi.remove(id).subscribe({ next: () => this.areasApi.list(e).subscribe((a) => this.areas.set(a)), error: onErr })
+    if (kind === 'rt') this.rtApi.remove(id).subscribe({ next: () => this.rtApi.list(e).subscribe((t) => this.resourceTypes.set(t)), error: onErr })
+    if (kind === 'res') this.resApi.remove(id).subscribe({ next: () => this.resApi.list(e).subscribe((r) => this.resources.set(r)), error: onErr })
+    if (kind === 'price') this.priceApi.remove(id).subscribe({ next: () => this.priceApi.list(e).subscribe((p) => this.pricing.set(p)), error: onErr })
   }
 }

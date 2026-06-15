@@ -152,8 +152,25 @@ export async function updateEvent(id: number, input: UpdateEventInput): Promise<
 }
 
 export async function deleteEvent(id: number): Promise<boolean> {
-  const { rowCount } = await pool.query('DELETE FROM events WHERE id = $1', [id])
-  return (rowCount ?? 0) > 0
+  // tickets.ticket_type_id is ON DELETE RESTRICT, which would abort the
+  // event → ticket_types cascade as long as sold tickets still exist. Remove
+  // the event's tickets first; everything else cascades from events.
+  const client = await pool.connect()
+  try {
+    await client.query('BEGIN')
+    await client.query(
+      'DELETE FROM tickets WHERE order_id IN (SELECT id FROM orders WHERE event_id = $1)',
+      [id],
+    )
+    const { rowCount } = await client.query('DELETE FROM events WHERE id = $1', [id])
+    await client.query('COMMIT')
+    return (rowCount ?? 0) > 0
+  } catch (err) {
+    await client.query('ROLLBACK')
+    throw err
+  } finally {
+    client.release()
+  }
 }
 
 // Marks one event as current; only one event may be current at a time.

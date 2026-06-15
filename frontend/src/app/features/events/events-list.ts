@@ -96,7 +96,10 @@ export class EventsList implements OnInit {
 
   remove(id: number) {
     if (confirm('Delete this event and all its data?')) {
-      this.api.remove(id).subscribe(() => this.load())
+      this.api.remove(id).subscribe({
+        next: () => this.load(),
+        error: (e) => alert(e?.error?.error ?? 'Could not delete the event'),
+      })
     }
   }
 }
